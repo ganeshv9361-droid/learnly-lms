@@ -39,6 +39,7 @@ export default function Login({ onSwitch }) {
           </div>
           <h1 className="font-display text-4xl font-bold gradient-text mb-2">Learnly</h1>
           <p className="text-gray-400 text-sm">Your gateway to knowledge</p>
+          <p className="text-gray-400 text-sm">By Ganesh.V</p>
         </div>
 
         <div className="glass rounded-2xl p-8 animate-fade-up delay-200"
