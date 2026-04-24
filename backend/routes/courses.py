@@ -25,11 +25,23 @@ class CourseUpdate(BaseModel):
     price: Optional[float] = None
 
 @router.get("/")
-def list_courses(db: Session = Depends(get_db), _=Depends(get_current_user)):
+def list_courses(db: Session = Depends(get_db), user=Depends(get_current_user)):
+    if user.role == "developer":
+        return db.query(models.Course).all()
+    if user.role == "teacher":
+        return db.query(models.Course).filter(
+            models.Course.instructor_id == user.id
+        ).all()
+    return db.query(models.Course).all()
+
+@router.get("/all")
+def list_all_courses(db: Session = Depends(get_db), user=Depends(get_current_user)):
     return db.query(models.Course).all()
 
 @router.post("/")
 def create_course(data: CourseIn, db: Session = Depends(get_db), user=Depends(get_current_user)):
+    if user.role not in ["teacher", "developer"]:
+        raise HTTPException(status_code=403, detail="Teachers only")
     course = models.Course(
         title=data.title,
         description=data.description,
@@ -58,6 +70,8 @@ def update_course(course_id: int, data: CourseUpdate, db: Session = Depends(get_
     course = db.query(models.Course).filter(models.Course.id == course_id).first()
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
+    if user.role == "teacher" and course.instructor_id != user.id:
+        raise HTTPException(status_code=403, detail="You can only edit your own courses")
     for field, value in data.dict(exclude_none=True).items():
         setattr(course, field, value)
     db.commit()
@@ -71,6 +85,8 @@ def delete_course(course_id: int, db: Session = Depends(get_db), user=Depends(ge
     course = db.query(models.Course).filter(models.Course.id == course_id).first()
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
+    if user.role == "teacher" and course.instructor_id != user.id:
+        raise HTTPException(status_code=403, detail="You can only delete your own courses")
     db.delete(course)
     db.commit()
     return {"message": "Course deleted"}
