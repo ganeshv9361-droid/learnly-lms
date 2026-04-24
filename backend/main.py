@@ -17,7 +17,7 @@ app = FastAPI(title="Learnly LMS API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-    "https://learnly-lms.vercel.app",
+    "https://learnly-lms-nu.vercel.app",
     "http://localhost:5173",
     "*"],
     allow_credentials=True,
