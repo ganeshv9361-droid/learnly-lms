@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../context/AuthContext'
 import api from '../api/axios'
+import MobileLayout from '../components/MobileLayout'
 import AnimatedCounter from '../components/AnimatedCounter'
 import PaymentModal from '../components/PaymentModal'
 
@@ -552,163 +553,126 @@ export default function StudentDashboard() {
         />
       )}
 
-      {/* Sidebar */}
-      <div className={`${sidebarOpen?'w-60':'w-16'} transition-all duration-300 shrink-0 border-r border-white/5 flex flex-col`}
-        style={{background:'rgba(10,10,15,0.95)', backdropFilter:'blur(20px)'}}>
-        <div className="p-4 border-b border-white/5">
-          <div className={`flex items-center gap-3 ${!sidebarOpen&&'justify-center'}`}>
-            <div className="w-9 h-9 rounded-xl btn-primary flex items-center justify-center shrink-0">
-              <span className="font-display text-sm text-white font-bold">✦</span>
-            </div>
-            {sidebarOpen && <span className="font-display text-lg font-bold gradient-text">Learnly</span>}
+      const sidebarContent = ({ closeSidebar }) => (
+    <>
+      <div className="p-4 border-b border-white/5">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl btn-primary flex items-center justify-center shrink-0">
+            <span className="font-display text-sm text-white font-bold">✦</span>
           </div>
-        </div>
-
-        <nav className="flex-1 p-3 space-y-1">
-          {navItems.map(([key,icon,label]) => (
-            <button key={key} onClick={()=>setTab(key)}
-              className={`nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 ${tab===key?'active':''} ${!sidebarOpen&&'justify-center'}`}
-              style={tab!==key ? {color:'#6b7280'} : {}}>
-              <span style={{fontSize:16}}>{icon}</span>
-              {sidebarOpen && (
-                <>
-                  <span className="flex-1 text-left">{label}</span>
-                  {key==='announcements' && announcements.length>0 && (
-                    <span className="text-xs px-2 py-0.5 rounded-full font-semibold"
-                      style={{background:'rgba(124,58,237,0.3)',color:'#a78bfa'}}>
-                      {announcements.length}
-                    </span>
-                  )}
-                </>
-              )}
-            </button>
-          ))}
-        </nav>
-
-        <div className="p-3 border-t border-white/5">
-          {sidebarOpen && (
-            <div className="glass rounded-xl p-3 mb-3 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full btn-primary flex items-center justify-center text-xs font-bold text-white shrink-0">
-                {user?.name?.[0]?.toUpperCase()}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-white truncate">{user?.name}</div>
-                <div className="text-xs" style={{color:'#8b5cf6'}}>Student</div>
-              </div>
-            </div>
-          )}
-          <button onClick={logout}
-            className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all ${!sidebarOpen&&'justify-center'}`}>
-            <span>⏻</span>
-            {sidebarOpen && 'Sign out'}
-          </button>
+          <span className="font-display text-lg font-bold gradient-text">Learnly</span>
         </div>
       </div>
-
-      {/* Main */}
-      <div className="flex-1 overflow-y-auto">
-        {/* Topbar */}
-        <div className="sticky top-0 z-20 px-6 py-4 flex items-center gap-4 border-b border-white/5"
-          style={{background:'rgba(10,10,15,0.9)', backdropFilter:'blur(20px)'}}>
-          <button onClick={()=>setSidebarOpen(s=>!s)}
-            className="text-gray-400 hover:text-white transition text-lg">☰</button>
-          <div className="flex-1">
-            <div className="font-semibold text-white capitalize">{tab.replace('-',' ')}</div>
-            <div className="text-xs text-gray-500">Welcome back, {user?.name?.split(' ')[0]} 👋</div>
+      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+        {navItems.map(([key,icon,label]) => (
+          <button key={key} onClick={() => { setTab(key); closeSidebar() }}
+            className={`nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${tab===key?'active':''}`}
+            style={tab!==key?{color:'#6b7280'}:{}}>
+            <span style={{fontSize:16}}>{icon}</span>
+            <span className="flex-1 text-left">{label}</span>
+            {key==='announcements' && announcements.length>0 && (
+              <span className="text-xs px-2 py-0.5 rounded-full font-semibold"
+                style={{background:'rgba(124,58,237,0.3)',color:'#a78bfa'}}>
+                {announcements.length}
+              </span>
+            )}
+          </button>
+        ))}
+      </nav>
+      <div className="p-3 border-t border-white/5">
+        <div className="glass rounded-xl p-3 mb-3 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full btn-primary flex items-center justify-center text-xs font-bold text-white shrink-0">
+            {user?.name?.[0]?.toUpperCase()}
           </div>
-          {msg.text && (
-            <div className={`text-sm px-4 py-2 rounded-xl border animate-fade-in ${msg.type==='error'
-              ? 'bg-red-500/10 border-red-500/20 text-red-400'
-              : 'bg-violet-500/10 border-violet-500/20 text-violet-300'}`}>
-              {msg.text}
-            </div>
-          )}
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-medium text-white truncate">{user?.name}</div>
+            <div className="text-xs" style={{color:'#8b5cf6'}}>Student</div>
+          </div>
         </div>
+        <button onClick={logout}
+          className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10 transition">
+          <span>⏻</span> Sign out
+        </button>
+      </div>
+    </>
+  )
 
-        <div className="p-6">
-          {/* Stats */}
-          <div className="grid grid-cols-4 gap-4 mb-8">
+  return (
+    <>
+      {payingCourse && (
+        <PaymentModal
+          course={payingCourse}
+          onClose={() => setPayingCourse(null)}
+          onSuccess={() => { setPayingCourse(null); loadAll(); flash('Payment successful! 🎉') }}
+        />
+      )}
+      <MobileLayout
+        sidebar={sidebarContent}
+        topbarTitle={tab.replace('-',' ').replace(/\b\w/g,l=>l.toUpperCase())}
+        topbarSub={`Welcome back, ${user?.name?.split(' ')[0]} 👋`}>
+
+        {msg.text && (
+          <div className={`mx-4 mt-3 text-sm px-4 py-2 rounded-xl border animate-fade-in ${msg.type==='error'?'bg-red-500/10 border-red-500/20 text-red-400':'bg-violet-500/10 border-violet-500/20 text-violet-400'}`}>
+            {msg.text}
+          </div>
+        )}
+
+        <div className="p-4">
+          <div className="grid grid-cols-2 gap-3 mb-6 sm:grid-cols-4">
             {[
-              {label:'Enrolled', value:enrollments.length, suffix:'', icon:'📚', color:'#8b5cf6'},
-              {label:'Attendance', value:attendance?.rate||0, suffix:'%', icon:'🕐', color:'#34d399'},
-              {label:'Quizzes done', value:attempts.length, suffix:'', icon:'🧪', color:'#fbbf24'},
-              {label:'Certificates', value:certificates.length, suffix:'', icon:'🏅', color:'#60a5fa'},
+              {label:'Enrolled',value:enrollments.length,suffix:'',icon:'📚',color:'#8b5cf6'},
+              {label:'Attendance',value:attendance?.rate||0,suffix:'%',icon:'🕐',color:'#34d399'},
+              {label:'Quizzes',value:attempts.length,suffix:'',icon:'🧪',color:'#fbbf24'},
+              {label:'Certificates',value:certificates.length,suffix:'',icon:'🏅',color:'#60a5fa'},
             ].map((s,i) => (
-              <div key={s.label} className={`stat-card rounded-2xl p-5 animate-fade-up delay-${(i+1)*100}`}>
-                <div className="flex items-center justify-between mb-3">
+              <div key={s.label} className={`stat-card rounded-2xl p-4 animate-fade-up delay-${(i+1)*100}`}>
+                <div className="flex items-center justify-between mb-2">
                   <div className="text-xs text-gray-500 uppercase tracking-wider">{s.label}</div>
-                  <div className="text-xl">{s.icon}</div>
+                  <div className="text-lg">{s.icon}</div>
                 </div>
-                <div className="text-3xl font-bold animate-count" style={{color:s.color}}>
+                <div className="text-2xl font-bold" style={{color:s.color}}>
                   <AnimatedCounter value={s.value} suffix={s.suffix}/>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* COURSES */}
           {tab==='courses' && (
             <div className="animate-fade-up">
-              <div className="flex items-center justify-between mb-5">
-                <div>
-                  <div className="text-lg font-semibold text-white">Browse Courses</div>
-                  <div className="text-xs text-gray-500 mt-0.5">{courses.length} courses available</div>
-                </div>
-              </div>
-              {courses.length===0 && (
-                <div className="glass rounded-2xl p-12 text-center">
-                  <div className="text-5xl mb-4">📚</div>
-                  <div className="text-gray-400">No courses available yet</div>
-                </div>
-              )}
-              <div className="grid grid-cols-2 gap-5">
+              <div className="text-base font-semibold text-white mb-4">Browse Courses</div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {courses.map((c,i) => {
                   const enrolled = enrollments.find(e=>e.course_id===c.id)
                   return (
-                    <div key={c.id} className={`glass rounded-2xl overflow-hidden border border-white/5 card-hover animate-fade-up delay-${(i%4+1)*100}`}>
-                      <div className="h-2" style={{background:enrolled?'linear-gradient(90deg,#7c3aed,#06b6d4)':c.is_paid?'linear-gradient(90deg,#f59e0b,#d97706)':'linear-gradient(90deg,#374151,#1f2937)'}}/>
-                      <div className="p-5">
-                        <div className="flex items-start justify-between gap-2 mb-3">
-                          <div className="text-2xl">{c.is_paid?'💎':'🎓'}</div>
-                          {c.is_paid ? (
-                            <span className="paid-badge text-white text-xs px-3 py-1 rounded-full font-semibold">
-                              ₹{c.price}
-                            </span>
-                          ) : (
-                            <span className="text-xs px-3 py-1 rounded-full font-semibold"
-                              style={{background:'rgba(52,211,153,0.15)',color:'#34d399'}}>
-                              FREE
-                            </span>
-                          )}
+                    <div key={c.id} className="glass rounded-2xl overflow-hidden border border-white/5 card-hover">
+                      <div className="h-1.5" style={{background:enrolled?'linear-gradient(90deg,#7c3aed,#06b6d4)':c.is_paid?'linear-gradient(90deg,#f59e0b,#d97706)':'linear-gradient(90deg,#374151,#1f2937)'}}/>
+                      <div className="p-4">
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <div className="text-xl">{c.is_paid?'💎':'🎓'}</div>
+                          {c.is_paid
+                            ? <span className="paid-badge text-white text-xs px-2 py-1 rounded-full font-semibold">₹{c.price}</span>
+                            : <span className="text-xs px-2 py-1 rounded-full font-semibold" style={{background:'rgba(52,211,153,0.15)',color:'#34d399'}}>FREE</span>
+                          }
                         </div>
-                        <div className="font-semibold text-white mb-1 text-base">{c.title}</div>
+                        <div className="font-semibold text-white mb-1">{c.title}</div>
                         <div className="text-xs text-gray-400 mb-1">by {c.instructor}</div>
-                        <div className="text-xs text-gray-500 mb-4 line-clamp-2">{c.description}</div>
-                        <div className="flex items-center gap-3 text-xs text-gray-500 mb-4">
-                          <span>📦 {c.total_modules} modules</span>
-                        </div>
+                        <div className="text-xs text-gray-500 mb-3 line-clamp-2">{c.description}</div>
+                        <div className="text-xs text-gray-500 mb-3">📦 {c.total_modules} modules</div>
                         {enrolled ? (
                           <div className="space-y-2">
-                            <div className="flex justify-between text-xs text-gray-400">
-                              <span>Progress</span><span>{enrolled.progress}%</span>
-                            </div>
                             <div className="h-1.5 rounded-full" style={{background:'rgba(255,255,255,0.1)'}}>
-                              <div className="h-1.5 rounded-full progress-bar" style={{width:enrolled.progress+'%', background:'linear-gradient(90deg,#7c3aed,#06b6d4)'}}/>
+                              <div className="h-1.5 rounded-full progress-bar" style={{width:enrolled.progress+'%',background:'linear-gradient(90deg,#7c3aed,#06b6d4)'}}/>
                             </div>
-                            <button onClick={()=>openCourse(enrolled)}
-                              className="w-full btn-primary text-white py-2.5 rounded-xl text-sm font-medium mt-2">
-                              ▶ Continue Learning
+                            <button onClick={()=>openCourse(enrolled)} className="w-full btn-primary text-white py-2.5 rounded-xl text-sm font-medium">
+                              ▶ Continue
                             </button>
                           </div>
                         ) : c.is_paid ? (
-                          <button onClick={()=>setPayingCourse(c)}
-                            className="w-full text-white py-2.5 rounded-xl text-sm font-semibold transition-all hover:scale-105"
-                            style={{background:'linear-gradient(135deg,#f59e0b,#d97706)', boxShadow:'0 4px 15px rgba(245,158,11,0.3)'}}>
-                            Buy Now · ₹{c.price}
+                          <button onClick={()=>setPayingCourse(c)} className="w-full text-white py-2.5 rounded-xl text-sm font-semibold" style={{background:'linear-gradient(135deg,#f59e0b,#d97706)'}}>
+                            Buy · ₹{c.price}
                           </button>
                         ) : (
-                          <button onClick={()=>enroll(c.id)}
-                            className="w-full btn-primary text-white py-2.5 rounded-xl text-sm font-medium">
+                          <button onClick={()=>enroll(c.id)} className="w-full btn-primary text-white py-2.5 rounded-xl text-sm font-medium">
                             Enroll Free →
                           </button>
                         )}
@@ -721,107 +685,84 @@ export default function StudentDashboard() {
           )}
 
           {tab==='my-courses' && (
-            <div className="animate-fade-up space-y-4">
-              <div className="text-lg font-semibold text-white mb-5">My Courses</div>
+            <div className="animate-fade-up space-y-3">
+              <div className="text-base font-semibold text-white mb-4">My Courses</div>
               {enrollments.length===0 && (
-                <div className="glass rounded-2xl p-12 text-center">
-                  <div className="text-5xl mb-4">📖</div>
-                  <div className="text-gray-400 mb-4">No enrollments yet</div>
-                  <button onClick={()=>setTab('courses')} className="btn-primary text-white px-6 py-2.5 rounded-xl text-sm">
-                    Browse courses →
-                  </button>
+                <div className="glass rounded-2xl p-8 text-center">
+                  <div className="text-4xl mb-3">📖</div>
+                  <div className="text-gray-400 text-sm mb-3">No enrollments yet</div>
+                  <button onClick={()=>setTab('courses')} className="btn-primary text-white px-5 py-2 rounded-xl text-sm">Browse →</button>
                 </div>
               )}
               {enrollments.map(e => (
-                <div key={e.enrollment_id} className="glass rounded-2xl p-5 border border-white/5 card-hover">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-12 h-12 rounded-xl btn-primary flex items-center justify-center text-xl shrink-0">🎓</div>
-                    <div className="flex-1">
-                      <div className="font-semibold text-white">{e.course_title}</div>
+                <div key={e.enrollment_id} className="glass rounded-2xl p-4 border border-white/5">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-xl btn-primary flex items-center justify-center text-lg shrink-0">🎓</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-white text-sm truncate">{e.course_title}</div>
                       <div className="text-xs text-gray-400">{e.instructor}</div>
                     </div>
-                    <button onClick={()=>openCourse(e)}
-                      className="btn-primary text-white px-4 py-2 rounded-xl text-sm font-medium">
-                      ▶ Open
-                    </button>
-                    <div className={`text-sm font-bold px-4 py-1.5 rounded-full ${e.progress===100?'bg-green-500/20 text-green-400':e.progress>=50?'bg-violet-500/20 text-violet-400':'glass text-gray-400'}`}>
-                      {e.progress===100?'✓ Done':e.progress+'%'}
+                    <div className={`text-xs font-bold px-3 py-1 rounded-full shrink-0 ${e.progress===100?'bg-green-500/20 text-green-400':'bg-violet-500/20 text-violet-400'}`}>
+                      {e.progress===100?'✓':e.progress+'%'}
                     </div>
                   </div>
-                  <div className="h-2 rounded-full" style={{background:'rgba(255,255,255,0.07)'}}>
-                    <div className="h-2 rounded-full progress-bar" style={{width:e.progress+'%', background:'linear-gradient(90deg,#7c3aed,#06b6d4)'}}/>
+                  <div className="h-1.5 rounded-full mb-3" style={{background:'rgba(255,255,255,0.07)'}}>
+                    <div className="h-1.5 rounded-full progress-bar" style={{width:e.progress+'%',background:'linear-gradient(90deg,#7c3aed,#06b6d4)'}}/>
                   </div>
-                  <div className="flex justify-between text-xs text-gray-500 mt-2">
-                    <span>{Math.round(e.progress/100*(e.total_modules||0))} / {e.total_modules} modules</span>
-                    <span>{e.progress}% complete</span>
-                  </div>
+                  <button onClick={()=>openCourse(e)} className="w-full btn-primary text-white py-2 rounded-xl text-sm font-medium">
+                    ▶ Open Course
+                  </button>
                 </div>
               ))}
             </div>
           )}
 
           {tab==='announcements' && (
-            <div className="animate-fade-up">
-              <div className="text-lg font-semibold text-white mb-5">Announcements</div>
+            <div className="animate-fade-up space-y-3">
+              <div className="text-base font-semibold text-white mb-4">Announcements</div>
               {announcements.length===0 && (
-                <div className="glass rounded-2xl p-12 text-center">
-                  <div className="text-5xl mb-4">📢</div>
-                  <div className="text-gray-400">No announcements yet</div>
+                <div className="glass rounded-2xl p-8 text-center">
+                  <div className="text-4xl mb-2">📢</div>
+                  <div className="text-gray-400 text-sm">No announcements yet</div>
                 </div>
               )}
-              <div className="space-y-4">
-                {announcements.map((a,i) => (
-                  <div key={a.id} className={`rounded-2xl p-5 border-l-4 animate-slide-left delay-${i*100}`}
-                    style={{background:'rgba(124,58,237,0.07)', borderLeftColor:'#7c3aed', border:'1px solid rgba(124,58,237,0.15)', borderLeft:'4px solid #7c3aed'}}>
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="font-semibold text-white mb-2">{a.title}</div>
-                        <div className="text-sm text-gray-300 mb-3 leading-relaxed">{a.body}</div>
-                        <div className="flex items-center gap-3">
-                          <span className="text-xs px-3 py-1 rounded-full"
-                            style={{background:'rgba(124,58,237,0.2)', color:'#a78bfa'}}>
-                            {a.course}
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            {new Date(a.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="text-2xl">📢</div>
-                    </div>
+              {announcements.map(a => (
+                <div key={a.id} className="rounded-2xl p-4" style={{background:'rgba(124,58,237,0.07)',border:'1px solid rgba(124,58,237,0.15)',borderLeft:'4px solid #7c3aed'}}>
+                  <div className="font-semibold text-white mb-1 text-sm">{a.title}</div>
+                  <div className="text-sm text-gray-300 mb-2 leading-relaxed">{a.body}</div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs px-2 py-0.5 rounded-full" style={{background:'rgba(124,58,237,0.2)',color:'#a78bfa'}}>{a.course}</span>
+                    <span className="text-xs text-gray-500">{new Date(a.created_at).toLocaleDateString()}</span>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           )}
 
           {tab==='assignments' && (
             <div className="animate-fade-up">
-              <div className="text-lg font-semibold text-white mb-5">My Submissions</div>
+              <div className="text-base font-semibold text-white mb-4">My Submissions</div>
               {submissions.length===0 && (
-                <div className="glass rounded-2xl p-12 text-center">
-                  <div className="text-5xl mb-4">📝</div>
-                  <div className="text-gray-400">No submissions yet. Open a course to submit assignments.</div>
+                <div className="glass rounded-2xl p-8 text-center">
+                  <div className="text-4xl mb-2">📝</div>
+                  <div className="text-gray-400 text-sm">No submissions yet</div>
                 </div>
               )}
               <div className="space-y-3">
                 {submissions.map(s => (
-                  <div key={s.id} className="glass rounded-xl p-5 border border-white/5 card-hover flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-                      style={{background:s.grade!==null?'rgba(52,211,153,0.2)':'rgba(251,191,36,0.2)'}}>
-                      <span>{s.grade!==null?'✓':'⏳'}</span>
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-medium text-white">{s.assignment_title}</div>
-                      <div className="text-xs text-gray-400">{s.course}</div>
-                    </div>
-                    <div className="text-right">
-                      {s.grade!==null ? (
-                        <div>
-                          <div className={`text-xl font-bold ${s.grade>=50?'text-green-400':'text-red-400'}`}>{s.grade}/100</div>
-                          {s.feedback && <div className="text-xs text-gray-400 mt-0.5">{s.feedback}</div>}
-                        </div>
-                      ) : <div className="text-xs text-amber-400 font-medium">Awaiting grade</div>}
+                  <div key={s.id} className="glass rounded-xl p-4 border border-white/5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-white text-sm truncate">{s.assignment_title}</div>
+                        <div className="text-xs text-gray-400">{s.course}</div>
+                      </div>
+                      {s.grade!==null
+                        ? <div className="text-right shrink-0">
+                            <div className={`text-lg font-bold ${s.grade>=50?'text-green-400':'text-red-400'}`}>{s.grade}/100</div>
+                            {s.feedback && <div className="text-xs text-gray-400">{s.feedback}</div>}
+                          </div>
+                        : <div className="text-xs text-amber-400 shrink-0">Pending</div>
+                      }
                     </div>
                   </div>
                 ))}
@@ -831,25 +772,23 @@ export default function StudentDashboard() {
 
           {tab==='quizzes' && (
             <div className="animate-fade-up">
-              <div className="text-lg font-semibold text-white mb-5">Quiz Results</div>
+              <div className="text-base font-semibold text-white mb-4">Quiz Results</div>
               {attempts.length===0 && (
-                <div className="glass rounded-2xl p-12 text-center">
-                  <div className="text-5xl mb-4">🧪</div>
-                  <div className="text-gray-400">No quizzes taken yet. Open a course to start.</div>
+                <div className="glass rounded-2xl p-8 text-center">
+                  <div className="text-4xl mb-2">🧪</div>
+                  <div className="text-gray-400 text-sm">No quizzes taken yet</div>
                 </div>
               )}
               <div className="space-y-3">
                 {attempts.map(a => (
-                  <div key={a.id} className="glass rounded-xl p-5 border border-white/5 card-hover flex items-center gap-4">
-                    <div className="flex-1">
-                      <div className="font-medium text-white">{a.quiz_title}</div>
-                      <div className="text-xs text-gray-400">{a.course}</div>
+                  <div key={a.id} className="glass rounded-xl p-4 border border-white/5 flex items-center gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-white text-sm truncate">{a.quiz_title}</div>
+                      <div className="text-xs text-gray-400 truncate">{a.course}</div>
                     </div>
-                    <div className={`text-3xl font-bold ${a.percentage>=50?'text-green-400':'text-red-400'}`}>
-                      {a.percentage}%
-                    </div>
-                    <div className={`text-xs px-3 py-1.5 rounded-full font-medium ${a.percentage>=50?'bg-green-500/15 text-green-400':'bg-red-500/15 text-red-400'}`}>
-                      {a.percentage>=50?'Passed':'Failed'}
+                    <div className={`text-2xl font-bold shrink-0 ${a.percentage>=50?'text-green-400':'text-red-400'}`}>{a.percentage}%</div>
+                    <div className={`text-xs px-2 py-1 rounded-full shrink-0 ${a.percentage>=50?'bg-green-500/15 text-green-400':'bg-red-500/15 text-red-400'}`}>
+                      {a.percentage>=50?'Pass':'Fail'}
                     </div>
                   </div>
                 ))}
@@ -859,42 +798,25 @@ export default function StudentDashboard() {
 
           {tab==='attendance' && (
             <div className="animate-fade-up">
-              <div className="text-lg font-semibold text-white mb-5">Attendance</div>
+              <div className="text-base font-semibold text-white mb-4">Attendance</div>
               {!attendance||attendance.total===0 ? (
-                <div className="glass rounded-2xl p-12 text-center">
-                  <div className="text-5xl mb-4">🕐</div>
-                  <div className="text-gray-400">No records yet. Your teacher will mark attendance.</div>
+                <div className="glass rounded-2xl p-8 text-center">
+                  <div className="text-4xl mb-2">🕐</div>
+                  <div className="text-gray-400 text-sm">No records yet</div>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="glass rounded-2xl p-8 border border-white/5">
-                    <div className="text-center mb-6">
-                      <div className={`text-7xl font-bold mb-2 ${attendance.rate>=75?'text-green-400':'text-amber-400'}`}>
-                        <AnimatedCounter value={attendance.rate} suffix="%"/>
-                      </div>
-                      <div className="text-gray-400 text-sm">Overall attendance rate</div>
+                <div className="space-y-3">
+                  <div className="glass rounded-2xl p-6 border border-white/5 text-center">
+                    <div className={`text-6xl font-bold mb-2 ${attendance.rate>=75?'text-green-400':'text-amber-400'}`}>
+                      <AnimatedCounter value={attendance.rate} suffix="%"/>
                     </div>
-                    <div className="h-4 rounded-full mb-3" style={{background:'rgba(255,255,255,0.07)'}}>
-                      <div className={`h-4 rounded-full progress-bar ${attendance.rate>=75?'':'bg-amber-500'}`}
-                        style={{width:attendance.rate+'%', background:attendance.rate>=75?'linear-gradient(90deg,#10b981,#34d399)':undefined}}/>
+                    <div className="text-sm text-gray-400 mb-4">{attendance.present} present · {attendance.total-attendance.present} absent</div>
+                    <div className="h-3 rounded-full" style={{background:'rgba(255,255,255,0.07)'}}>
+                      <div className={`h-3 rounded-full progress-bar ${attendance.rate>=75?'bg-green-500':'bg-amber-500'}`} style={{width:attendance.rate+'%'}}/>
                     </div>
-                    <div className={`text-center text-sm font-medium ${attendance.rate>=75?'text-green-400':'text-amber-400'}`}>
-                      {attendance.rate>=75?'✓ Excellent attendance!':'⚠ Below 75% minimum'}
+                    <div className={`text-xs mt-2 ${attendance.rate>=75?'text-green-400':'text-amber-400'}`}>
+                      {attendance.rate>=75?'✓ Good attendance':'⚠ Below 75%'}
                     </div>
-                  </div>
-                  <div className="space-y-3">
-                    {[
-                      {label:'Total sessions', value:attendance.total, color:'text-white'},
-                      {label:'Present', value:attendance.present, color:'text-green-400'},
-                      {label:'Absent', value:attendance.total-attendance.present, color:'text-red-400'},
-                    ].map(s => (
-                      <div key={s.label} className="glass rounded-xl p-5 border border-white/5">
-                        <div className="text-xs text-gray-500 mb-1">{s.label}</div>
-                        <div className={`text-3xl font-bold ${s.color}`}>
-                          <AnimatedCounter value={s.value}/>
-                        </div>
-                      </div>
-                    ))}
                   </div>
                 </div>
               )}
@@ -903,32 +825,24 @@ export default function StudentDashboard() {
 
           {tab==='certificates' && (
             <div className="animate-fade-up">
-              <div className="text-lg font-semibold text-white mb-5">My Certificates</div>
+              <div className="text-base font-semibold text-white mb-4">My Certificates</div>
               {certificates.length===0 && (
-                <div className="glass rounded-2xl p-12 text-center">
-                  <div className="text-5xl mb-4">🏅</div>
-                  <div className="text-gray-400">No certificates yet. Complete a course to earn one!</div>
+                <div className="glass rounded-2xl p-8 text-center">
+                  <div className="text-4xl mb-2">🏅</div>
+                  <div className="text-gray-400 text-sm">No certificates yet</div>
                 </div>
               )}
-              <div className="grid grid-cols-2 gap-5">
-                {certificates.map((c,i) => (
-                  <div key={c.id} className={`rounded-2xl p-6 border animate-fade-up delay-${(i+1)*100} card-hover relative overflow-hidden`}
-                    style={{background:'linear-gradient(135deg,rgba(245,158,11,0.1),rgba(217,119,6,0.05))', borderColor:'rgba(245,158,11,0.2)'}}>
-                    <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10"
-                      style={{background:'radial-gradient(circle,#f59e0b,transparent)', transform:'translate(30%,-30%)'}}/>
-                    <div className="text-4xl mb-4">🏅</div>
-                    <div className="font-semibold text-white text-lg mb-1">{c.course}</div>
-                    <div className="text-xs text-gray-400 mb-4">
-                      Issued {new Date(c.issued_at).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}
-                    </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {certificates.map(c => (
+                  <div key={c.id} className="rounded-2xl p-5 card-hover" style={{background:'linear-gradient(135deg,rgba(245,158,11,0.1),rgba(217,119,6,0.05))',border:'1px solid rgba(245,158,11,0.2)'}}>
+                    <div className="text-3xl mb-3">🏅</div>
+                    <div className="font-semibold text-white mb-1">{c.course}</div>
+                    <div className="text-xs text-gray-400 mb-3">{new Date(c.issued_at).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}</div>
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-xs text-green-400">
-                        <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"/>
-                        Verified
+                      <div className="flex items-center gap-1.5 text-xs text-green-400">
+                        <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"/>Verified
                       </div>
-                      <button onClick={()=>downloadCert(c)}
-                        className="text-xs px-4 py-2 rounded-xl font-medium transition-all hover:scale-105"
-                        style={{background:'rgba(124,58,237,0.2)',color:'#a78bfa',border:'1px solid rgba(124,58,237,0.3)'}}>
+                      <button onClick={()=>downloadCert(c)} className="text-xs px-3 py-1.5 rounded-lg" style={{background:'rgba(124,58,237,0.2)',color:'#a78bfa'}}>
                         ⬇ Download
                       </button>
                     </div>
@@ -940,33 +854,26 @@ export default function StudentDashboard() {
 
           {tab==='orders' && (
             <div className="animate-fade-up">
-              <div className="text-lg font-semibold text-white mb-5">Order History</div>
+              <div className="text-base font-semibold text-white mb-4">Order History</div>
               {orders.length===0 && (
-                <div className="glass rounded-2xl p-12 text-center">
-                  <div className="text-5xl mb-4">💳</div>
-                  <div className="text-gray-400">No orders yet. Purchase a paid course to get started.</div>
+                <div className="glass rounded-2xl p-8 text-center">
+                  <div className="text-4xl mb-2">💳</div>
+                  <div className="text-gray-400 text-sm">No orders yet</div>
                 </div>
               )}
               <div className="space-y-3">
                 {orders.map(o => (
-                  <div key={o.id} className="glass rounded-xl p-5 border border-white/5 flex items-center gap-4">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${o.status==='paid'?'bg-green-500/20':'bg-amber-500/20'}`}>
-                      <span>{o.status==='paid'?'✓':'⏳'}</span>
+                  <div key={o.id} className="glass rounded-xl p-4 border border-white/5 flex items-center gap-3">
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm ${o.status==='paid'?'bg-green-500/20':'bg-amber-500/20'}`}>
+                      {o.status==='paid'?'✓':'⏳'}
                     </div>
-                    <div className="flex-1">
-                      <div className="font-medium text-white">{o.course}</div>
-                      <div className="text-xs text-gray-400 mt-0.5">
-                        {new Date(o.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}
-                      </div>
-                      {o.razorpay_payment_id && (
-                        <div className="text-xs text-gray-600 mt-0.5">ID: {o.razorpay_payment_id}</div>
-                      )}
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-white text-sm truncate">{o.course}</div>
+                      <div className="text-xs text-gray-400">{new Date(o.created_at).toLocaleDateString()}</div>
                     </div>
-                    <div className="text-right">
-                      <div className="font-bold text-white">₹{o.amount}</div>
-                      <div className={`text-xs mt-0.5 font-medium ${o.status==='paid'?'text-green-400':'text-amber-400'}`}>
-                        {o.status==='paid'?'Paid':'Pending'}
-                      </div>
+                    <div className="text-right shrink-0">
+                      <div className="font-bold text-white text-sm">₹{o.amount}</div>
+                      <div className={`text-xs ${o.status==='paid'?'text-green-400':'text-amber-400'}`}>{o.status}</div>
                     </div>
                   </div>
                 ))}
@@ -975,39 +882,28 @@ export default function StudentDashboard() {
           )}
 
           {tab==='referral' && (
-            <div className="animate-fade-up max-w-lg">
-              <div className="text-lg font-semibold text-white mb-5">Refer Friends</div>
-              <div className="glass rounded-2xl p-8 border border-white/5 mb-4 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-48 h-48 rounded-full opacity-10"
-                  style={{background:'radial-gradient(circle,#7c3aed,transparent)', transform:'translate(30%,-30%)'}}/>
-                <div className="text-xs text-gray-500 uppercase tracking-widest mb-3">Your referral code</div>
-                <div className="font-display text-4xl font-bold gradient-text tracking-widest mb-6">
-                  {referral?.referral_code||'...'}
-                </div>
-                <div className="text-xs text-gray-500 uppercase tracking-widest mb-2">Share this link</div>
-                <div className="glass rounded-xl px-4 py-3 text-xs text-gray-300 mb-4 break-all border border-white/5">
-                  {referral?.referral_link}
-                </div>
-                <button onClick={copyReferral}
-                  className="w-full btn-primary text-white py-3 rounded-xl font-semibold text-sm">
-                  📋 Copy Referral Link
+            <div className="animate-fade-up">
+              <div className="text-base font-semibold text-white mb-4">Refer Friends</div>
+              <div className="glass rounded-2xl p-5 border border-white/5 mb-4">
+                <div className="text-xs text-gray-500 mb-2 uppercase tracking-wide">Your code</div>
+                <div className="font-display text-3xl font-bold gradient-text tracking-widest mb-4">{referral?.referral_code||'...'}</div>
+                <div className="glass rounded-xl px-3 py-2 text-xs text-gray-300 mb-3 break-all">{referral?.referral_link}</div>
+                <button onClick={copyReferral} className="w-full btn-primary text-white py-3 rounded-xl font-semibold text-sm">
+                  📋 Copy Link
                 </button>
               </div>
-              <div className="glass rounded-xl p-5 border border-white/5">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium text-white mb-1">Total referrals</div>
-                    <div className="text-xs text-gray-400">Friends who joined using your link</div>
-                  </div>
-                  <div className="text-3xl font-bold" style={{color:'#8b5cf6'}}>
-                    <AnimatedCounter value={referral?.total_referrals||0}/>
-                  </div>
+              <div className="glass rounded-xl p-4 border border-white/5 flex items-center justify-between">
+                <div>
+                  <div className="font-medium text-white text-sm">Total referrals</div>
+                  <div className="text-xs text-gray-400">Friends who joined</div>
+                </div>
+                <div className="text-3xl font-bold" style={{color:'#8b5cf6'}}>
+                  <AnimatedCounter value={referral?.total_referrals||0}/>
                 </div>
               </div>
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </MobileLayout>
+    </>
   )
-}
