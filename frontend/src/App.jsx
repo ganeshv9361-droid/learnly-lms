@@ -16,7 +16,7 @@ function AppInner() {
         <div className="w-16 h-16 rounded-2xl btn-primary flex items-center justify-center mx-auto mb-4 animate-pulse-glow">
           <span className="font-display text-2xl text-white">✦</span>
         </div>
-        <div className="text-gray-400 text-sm">Loading Learnly...</div>
+        <div className="text-gray-400 text-sm">Loading...</div>
       </div>
     </div>
   )
