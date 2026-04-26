@@ -86,32 +86,47 @@ export default function TeacherDashboard() {
   const [quizType, setQuizType] = useState('custom')
 
   const d = theme === 'dark'
-  const bg = d ? 'bg-[#0f1117]' : 'bg-gray-50'
-  const sidebar = d ? 'bg-[#181c27] border-gray-800' : 'bg-white border-gray-200'
-  const card = d ? 'bg-[#181c27] border-gray-800' : 'bg-white border-gray-200'
-  const cardHover = d ? 'hover:border-gray-600' : 'hover:border-gray-400'
-  const txt = d ? 'text-white' : 'text-gray-900'
-  const txt2 = d ? 'text-gray-400' : 'text-gray-500'
-  const txt3 = d ? 'text-gray-600' : 'text-gray-400'
-  const inp = d
-    ? 'w-full bg-[#252c42] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-violet-500 placeholder-gray-600'
-    : 'w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-violet-500 placeholder-gray-400'
-  const lbl = `text-xs ${txt2} mb-1 block`
-  const btn =
-    'bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition cursor-pointer'
-  const btnSm =
-    'bg-violet-600 hover:bg-violet-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer'
-  const divider = d ? 'border-gray-800' : 'border-gray-200'
-  const tabActive = d
-    ? 'bg-violet-600/20 text-violet-400 font-medium'
-    : 'bg-violet-50 text-violet-700 font-medium'
-  const tabInactive = d
-    ? 'text-gray-400 hover:text-white hover:bg-white/5'
-    : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
-  const subTabActive = 'bg-violet-600 text-white'
-  const subTabInactive = d
-    ? 'bg-white/5 text-gray-400 hover:text-white'
-    : 'bg-gray-100 text-gray-500 hover:text-gray-900'
+
+const bg =
+  'bg-[#07070c] bg-[radial-gradient(circle_at_top_left,rgba(124,58,237,0.24),transparent_35%),radial-gradient(circle_at_top_right,rgba(6,182,212,0.16),transparent_30%)]'
+
+const sidebar =
+  'bg-white/[0.055] border-white/10 backdrop-blur-2xl shadow-2xl'
+
+const card =
+  'bg-white/[0.055] border-white/10 backdrop-blur-2xl shadow-[0_18px_45px_rgba(0,0,0,0.28)]'
+
+const cardHover =
+  'hover:border-violet-400/50 hover:-translate-y-1 hover:shadow-[0_24px_60px_rgba(0,0,0,0.38)]'
+
+const txt = 'text-white'
+const txt2 = 'text-gray-400'
+const txt3 = 'text-gray-500'
+
+const inp =
+  'w-full bg-white/[0.06] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-500/20 placeholder-gray-500 transition'
+
+const lbl = 'text-xs text-gray-400 mb-1.5 block'
+
+const btn =
+  'bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-500 hover:to-cyan-400 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition shadow-[0_14px_30px_rgba(124,58,237,0.32)] hover:-translate-y-0.5 cursor-pointer'
+
+const btnSm =
+  'bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-500 hover:to-cyan-400 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition shadow-lg cursor-pointer'
+
+const divider = 'border-white/10'
+
+const tabActive =
+  'bg-gradient-to-r from-violet-600 to-cyan-500 text-white font-semibold shadow-lg'
+
+const tabInactive =
+  'text-gray-400 hover:text-white hover:bg-white/[0.07]'
+
+const subTabActive =
+  'bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-lg'
+
+const subTabInactive =
+  'bg-white/[0.06] text-gray-400 hover:text-white hover:bg-white/[0.1]'
 
   const flash = (text, type = 'success') => {
     setMsg({ text, type })
@@ -444,8 +459,8 @@ export default function TeacherDashboard() {
   ]
 
   return (
-    <div className={`min-h-screen ${bg} flex transition-colors duration-200`}>
-      <div className={`w-56 ${sidebar} border-r flex flex-col p-4 gap-1 shrink-0`}>
+    <div className={`min-h-screen ${bg} flex transition-colors duration-200 text-white`}>
+      <div className={`w-64 ${sidebar} border-r flex flex-col p-4 gap-1 shrink-0`}>
         <div className={`text-lg font-semibold ${txt} px-2 py-3 mb-1`}>✦ Learnly</div>
         <div className="text-xs text-teal-400 px-3 py-1 bg-teal-400/10 rounded-lg mb-2">
           Teacher Panel
