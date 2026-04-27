@@ -40,7 +40,7 @@ export default function Login({ onSwitch }) {
         <div className="text-center mb-8 animate-fade-up">
           <div className="flex justify-center mb-4">
             <div className="animate-pulse-glow rounded-3xl p-1">
-              <Logo size={64} showText={false}/>
+              <Logo size={60} showText={false}/>
             </div>
           </div>
           <Logo size={0} showText={true} textSize="text-4xl"/>
