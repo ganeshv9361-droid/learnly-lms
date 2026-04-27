@@ -1,17 +1,18 @@
 import { useState, useEffect } from 'react'
 import api from '../api/axios'
 import Particles from '../components/Particles'
+import Logo from '../components/Logo'
 
 export default function Register({ onSwitch }) {
   const [form, setForm] = useState({ name:'', email:'', password:'', role:'student', referral_code:'' })
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [showPass, setShowPass] = useState(false)
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const ref = params.get('ref')
-    if (ref) setForm(f => ({...f, referral_code: ref}))
+    const ref = new URLSearchParams(window.location.search).get('ref')
+    if (ref) setForm(f => ({...f,referral_code:ref}))
   }, [])
 
   const handle = async e => {
@@ -24,21 +25,23 @@ export default function Register({ onSwitch }) {
       await api.post('/users/register', payload)
       setSuccess(true)
     } catch(err) {
-      setError(err.response?.data?.detail || 'Registration failed')
+      setError(err.response?.data?.detail||'Registration failed')
     }
     setLoading(false)
   }
 
   if (success) return (
-    <div className="min-h-screen flex items-center justify-center"
-      style={{background:'linear-gradient(135deg,#0a0a0f,#0f0a1f,#0a0f1a)'}}>
+    <div className="min-h-screen flex items-center justify-center px-4"
+      style={{background:'#080810'}}>
       <Particles />
-      <div className="relative z-10 text-center animate-fade-up">
+      <div className="relative z-10 text-center animate-scale-in">
         <div className="w-24 h-24 rounded-full flex items-center justify-center text-5xl mx-auto mb-6"
-          style={{background:'rgba(52,211,153,0.15)', border:'2px solid #34d399'}}>✓</div>
+          style={{background:'rgba(52,211,153,0.1)',border:'2px solid rgba(52,211,153,0.4)'}}>
+          ✓
+        </div>
         <h2 className="font-display text-3xl font-bold text-white mb-2">You're in!</h2>
-        <p className="text-gray-400 mb-8">Account created successfully</p>
-        <button onClick={onSwitch} className="btn-primary text-white px-8 py-3 rounded-xl font-semibold">
+        <p className="mb-8" style={{color:'var(--text2)'}}>Account created. Start learning today.</p>
+        <button onClick={onSwitch} className="btn-primary text-white px-8 py-3 rounded-2xl font-semibold">
           Sign in now →
         </button>
       </div>
@@ -46,69 +49,80 @@ export default function Register({ onSwitch }) {
   )
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden"
-      style={{background:'linear-gradient(135deg,#0a0a0f 0%,#0f0a1f 50%,#0a0f1a 100%)'}}>
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden px-4 py-8"
+      style={{background:'radial-gradient(ellipse at 80% 20%, rgba(6,182,212,0.1) 0%, transparent 50%), radial-gradient(ellipse at 20% 80%, rgba(124,58,237,0.1) 0%, transparent 50%), #080810'}}>
       <Particles />
-      <div className="absolute top-1/3 right-1/4 w-80 h-80 rounded-full opacity-10"
-        style={{background:'radial-gradient(circle,#06b6d4,transparent)',filter:'blur(60px)'}}/>
-      <div className="relative z-10 w-full max-w-md px-4">
-        <div className="text-center mb-8 animate-fade-up">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl btn-primary mb-4">
-            <span className="font-display text-2xl text-white">✦</span>
+
+      <div className="relative z-10 w-full max-w-sm">
+        <div className="text-center mb-6 animate-fade-up">
+          <div className="flex justify-center mb-3">
+            <Logo size={52} showText={false}/>
           </div>
-          <h1 className="font-display text-4xl font-bold gradient-text mb-2">Join Learnly</h1>
-          <p className="text-gray-400 text-sm">Start your learning journey today</p>
+          <Logo size={0} showText={true} textSize="text-3xl"/>
+          <p className="text-sm mt-1" style={{color:'var(--text3)'}}>Join thousands of learners</p>
         </div>
-        <div className="animate-fade-up delay-200 rounded-2xl p-8"
-          style={{background:'rgba(15,17,23,0.9)',border:'1px solid rgba(124,58,237,0.2)',backdropFilter:'blur(20px)'}}>
+
+        <div className="card-base animate-fade-up delay-100 p-6 sm:p-8"
+          style={{background:'rgba(13,13,26,0.85)',backdropFilter:'blur(40px)'}}>
+
+          <div className="mb-5">
+            <h2 className="text-xl font-semibold text-white">Create account</h2>
+            <p className="text-sm mt-0.5" style={{color:'var(--text3)'}}>Free forever. No credit card needed.</p>
+          </div>
+
           {error && (
-            <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-4 py-3 rounded-xl mb-4 flex items-center gap-2">
-              <span>⚠</span>{error}
+            <div className="animate-scale-in mb-4 px-4 py-3 rounded-2xl flex items-center gap-3 text-sm"
+              style={{background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.2)',color:'#fca5a5'}}>
+              <span>⚠️</span><span>{error}</span>
             </div>
           )}
+
           <form onSubmit={handle} className="space-y-4">
-            {[
-              {label:'Full name',key:'name',type:'text',placeholder:'Your full name'},
-              {label:'Email',key:'email',type:'email',placeholder:'you@example.com'},
-              {label:'Password',key:'password',type:'password',placeholder:'Min 8 characters'},
-            ].map(({label,key,type,placeholder}) => (
-              <div key={key}>
-                <label className="text-xs text-gray-400 mb-2 block font-medium tracking-wide uppercase">{label}</label>
-                <input type={type} required value={form[key]}
-                  onChange={e => setForm({...form,[key]:e.target.value})}
-                  className="w-full rounded-xl px-4 py-3 text-sm text-white outline-none transition-all duration-200"
-                  style={{background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.1)'}}
-                  placeholder={placeholder}
-                  onFocus={e => e.target.style.border='1px solid rgba(124,58,237,0.6)'}
-                  onBlur={e => e.target.style.border='1px solid rgba(255,255,255,0.1)'}/>
-              </div>
-            ))}
             <div>
-              <label className="text-xs text-gray-400 mb-2 block font-medium tracking-wide uppercase">I am a</label>
-              <div className="grid grid-cols-2 gap-3">
+              <label className="block text-xs font-medium mb-2 uppercase tracking-widest" style={{color:'var(--text3)'}}>Full name</label>
+              <input required value={form.name} onChange={e=>setForm({...form,name:e.target.value})}
+                className="input-base" placeholder="Your full name"/>
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-2 uppercase tracking-widest" style={{color:'var(--text3)'}}>Email</label>
+              <input type="email" required value={form.email} onChange={e=>setForm({...form,email:e.target.value})}
+                className="input-base" placeholder="you@example.com"/>
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-2 uppercase tracking-widest" style={{color:'var(--text3)'}}>Password</label>
+              <div className="relative">
+                <input type={showPass?'text':'password'} required value={form.password}
+                  onChange={e=>setForm({...form,password:e.target.value})}
+                  className="input-base pr-12" placeholder="Min 8 characters"/>
+                <button type="button" onClick={()=>setShowPass(s=>!s)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{color:'var(--text3)'}}>
+                  {showPass?'Hide':'Show'}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium mb-2 uppercase tracking-widest" style={{color:'var(--text3)'}}>I am a</label>
+              <div className="grid grid-cols-2 gap-2">
                 {[['student','🎓','Student'],['teacher','👨‍🏫','Teacher']].map(([role,icon,label]) => (
-                  <button key={role} type="button" onClick={() => setForm({...form,role})}
-                    className={`py-3 rounded-xl text-sm font-medium transition-all duration-200 ${form.role===role?'btn-primary text-white':'text-gray-400 hover:text-white'}`}
-                    style={form.role!==role?{background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.1)'}:{}}>
+                  <button key={role} type="button" onClick={()=>setForm({...form,role})}
+                    className={`py-3 rounded-2xl text-sm font-medium transition-all ${form.role===role?'btn-primary text-white':'btn-ghost text-white/60 hover:text-white'}`}>
                     {icon} {label}
                   </button>
                 ))}
               </div>
             </div>
+
             <div>
-              <label className="text-xs text-gray-400 mb-2 block font-medium tracking-wide uppercase">
-                Referral code <span className="normal-case text-gray-600">(optional)</span>
+              <label className="block text-xs font-medium mb-2 uppercase tracking-widest" style={{color:'var(--text3)'}}>
+                Referral code <span className="normal-case opacity-50">(optional)</span>
               </label>
-              <input value={form.referral_code}
-                onChange={e => setForm({...form,referral_code:e.target.value})}
-                className="w-full rounded-xl px-4 py-3 text-sm text-white outline-none transition-all duration-200"
-                style={{background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.1)'}}
-                placeholder="Enter referral code"
-                onFocus={e => e.target.style.border='1px solid rgba(124,58,237,0.6)'}
-                onBlur={e => e.target.style.border='1px solid rgba(255,255,255,0.1)'}/>
+              <input value={form.referral_code} onChange={e=>setForm({...form,referral_code:e.target.value})}
+                className="input-base" placeholder="Enter code"/>
             </div>
+
             <button type="submit" disabled={loading}
-              className="w-full btn-primary text-white py-3 rounded-xl font-semibold text-sm disabled:opacity-50">
+              className="btn-primary w-full text-white py-3 rounded-2xl font-semibold text-sm disabled:opacity-50">
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
                   <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/>
@@ -117,10 +131,11 @@ export default function Register({ onSwitch }) {
               ) : 'Create account →'}
             </button>
           </form>
-          <div className="mt-6 pt-6 border-t border-white/5 text-center">
-            <p className="text-sm text-gray-400">
+
+          <div className="mt-5 pt-5 border-t text-center" style={{borderColor:'rgba(255,255,255,0.06)'}}>
+            <p className="text-sm" style={{color:'var(--text3)'}}>
               Already have an account?{' '}
-              <button onClick={onSwitch} className="text-violet-400 hover:text-violet-300 font-medium transition">
+              <button onClick={onSwitch} className="font-semibold hover:opacity-80 transition" style={{color:'#a78bfa'}}>
                 Sign in →
               </button>
             </p>

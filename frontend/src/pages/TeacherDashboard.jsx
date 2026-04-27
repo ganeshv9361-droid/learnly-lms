@@ -1,3 +1,5 @@
+import Logo from '../components/Logo'
+import MobileLayout from '../components/MobileLayout'
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../context/AuthContext'
 import api from '../api/axios'
@@ -441,11 +443,10 @@ const subTabInactive = 'learnly-subtab-inactive'
 
   return (
     <div className={`min-h-screen ${bg} flex transition-colors duration-200 text-white`}>
-      <div className={`w-64 ${sidebar} border-r flex flex-col p-4 gap-1 shrink-0`}>
-        <div className={`text-lg font-semibold ${txt} px-2 py-3 mb-1`}>✦ Learnly</div>
-        <div className="text-xs text-teal-400 px-3 py-1 bg-teal-400/10 rounded-lg mb-2">
-          Teacher Panel
-        </div>
+      <div className={`w-56 ${sidebar} border-r flex flex-col p-4 gap-1 shrink-0`}>
+        <div className="px-2 py-3 mb-1"><Logo size={32} textSize="text-lg"/></div>
+        <div className="text-xs text-teal-400 px-3 py-1 bg-teal-400/10 rounded-lg mb-2">Teacher Panel</div>
+          
 
         {navItems.map(([key, icon, label]) => (
           <button
