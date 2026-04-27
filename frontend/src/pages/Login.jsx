@@ -57,7 +57,7 @@ export default function Login({ onSwitch }) {
           style={{background:'rgba(13,13,26,0.8)',backdropFilter:'blur(40px)'}}>
 
           <div className="mb-6">
-            <h2 className="text-xl mt-2 text-white">Welcome back</h2>
+            <h2 className="text-sm mt-2 text-white">Welcome back</h2>
             <p className="text-sm mt-1" style={{color:'var(--text3)'}}>Sign in to continue your journey</p>
           </div>
 
