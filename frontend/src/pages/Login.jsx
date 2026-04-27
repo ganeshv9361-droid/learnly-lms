@@ -47,6 +47,9 @@ export default function Login({ onSwitch }) {
           <p className="text-sm mt-2" style={{color:'var(--text3)'}}>
             The platform for continuous learning
           </p>
+          <p className="text-sm mt-2" style={{color:'var(--text3)'}}>
+            By Ganesh V
+          </p>
         </div>
 
         {/* Card */}
