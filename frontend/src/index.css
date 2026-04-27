@@ -672,3 +672,119 @@ body.light {
   background: rgba(255,255,255,0.1);
   color: white;
 }
+
+/* ===============================
+   TEACHER DASHBOARD MOBILE FIX
+   =============================== */
+
+@media (max-width: 768px) {
+  .learnly-page {
+    display: block !important;
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+
+  .learnly-sidebar {
+    width: 100% !important;
+    min-height: auto !important;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    flex-direction: row !important;
+    align-items: center;
+    overflow-x: auto;
+    gap: 8px !important;
+    padding: 10px !important;
+    border-right: none !important;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .learnly-sidebar > div:first-child {
+    min-width: max-content;
+    margin: 0 !important;
+    padding: 6px 10px !important;
+  }
+
+  .learnly-sidebar button {
+    min-width: max-content;
+    white-space: nowrap;
+    font-size: 12px !important;
+    padding: 9px 12px !important;
+  }
+
+  .learnly-sidebar .mt-auto {
+    display: none !important;
+  }
+
+  .learnly-sidebar .text-teal-400 {
+    display: none !important;
+  }
+
+  .learnly-page > .flex-1 {
+    padding: 14px !important;
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  .grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .grid-cols-2,
+  .grid-cols-4 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .learnly-card {
+    border-radius: 18px !important;
+    padding: 16px !important;
+  }
+
+  .learnly-card-hover:hover {
+    transform: none;
+  }
+
+  .learnly-input {
+    font-size: 14px;
+    padding: 12px;
+  }
+
+  .learnly-btn,
+  .learnly-btn-sm {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .flex.items-center.gap-4.text-xs {
+    flex-wrap: wrap;
+    gap: 8px !important;
+  }
+
+  .flex.items-start.gap-3 {
+    flex-direction: column;
+  }
+
+  .flex.flex-col.gap-1\.5 {
+    width: 100%;
+  }
+
+  .flex.flex-col.gap-1\.5 button {
+    width: 100%;
+  }
+
+  .max-h-64 {
+    max-height: none !important;
+  }
+
+  .w-28,
+  .w-32 {
+    width: 90px !important;
+  }
+
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
