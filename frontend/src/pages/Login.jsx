@@ -78,8 +78,8 @@ export default function Login({ onSwitch }) {
           </div>
 
           {/* Gradient title */}
-          <p className="flex justify-centre font-display gradient-text">
-            Learnly
+           <p className="text-sm mt-2" style={{ color: 'var(--text3)' }}>
+            LEARNLY
           </p>
 
           <p className="text-sm mt-2" style={{ color: 'var(--text3)' }}>
