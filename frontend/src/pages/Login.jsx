@@ -78,9 +78,9 @@ export default function Login({ onSwitch }) {
           </div>
 
           {/* Gradient title */}
-          <p className="text-sm mt-2" style={{ color: 'var(--text3)' }}>
+          <h1 className="text-4xl font-display gradient-text">
             Learnly
-          </p>
+          </h1>
 
           <p className="text-sm mt-2" style={{ color: 'var(--text3)' }}>
             The platform for continuous learning
@@ -103,9 +103,9 @@ export default function Login({ onSwitch }) {
             <h2 className="text-xl font-semibold text-white">
               Welcome back
             </h2>
-            <p className="text-sm mt-1" style={{ color: 'var(--text3)' }}>
-              Sign in to continue your journey
-            </p>
+            <h2 className="text-xl font-semibold text-white">
+              Sign in to continue your learning
+            </h2>
           </div>
 
           {error && (
