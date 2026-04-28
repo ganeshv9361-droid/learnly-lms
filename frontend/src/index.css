@@ -308,3 +308,90 @@ body {
   }
   .mobile-overlay.open { display: block; }
 }
+/* ===============================
+   MOBILE APP UI (BOTTOM NAV)
+   =============================== */
+
+@media (max-width: 768px) {
+
+  /* Hide sidebar completely */
+  .learnly-sidebar {
+    display: none !important;
+  }
+
+  /* Content spacing */
+  .learnly-page > .flex-1 {
+    padding: 14px !important;
+    padding-bottom: 90px !important;
+  }
+
+  /* Bottom Navigation */
+  .mobile-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+    background: rgba(10, 12, 30, 0.85);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .mobile-nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 11px;
+    color: #9ca3af;
+    gap: 3px;
+    transition: 0.2s;
+  }
+
+  .mobile-nav-btn span:first-child {
+    font-size: 18px;
+  }
+
+  .mobile-nav-btn.active {
+    color: #7c3aed;
+    transform: scale(1.05);
+  }
+
+  /* Floating Logout Button */
+  .mobile-logout-btn {
+    position: fixed;
+    bottom: 80px;
+    right: 16px;
+    z-index: 110;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
+    transition: 0.2s;
+  }
+
+  .mobile-logout-btn:hover {
+    transform: scale(1.1);
+  }
+
+  /* Make all grids single column */
+  .grid-cols-2,
+  .grid-cols-4 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Buttons full width */
+  .learnly-btn,
+  .learnly-btn-sm {
+    width: 100%;
+  }
+}
