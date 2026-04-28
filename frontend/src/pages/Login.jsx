@@ -103,9 +103,9 @@ export default function Login({ onSwitch }) {
             <h2 className="text-xl font-semibold text-white">
               Welcome back
             </h2>
-            <h2 className="text-xl font-semibold text-white">
-              Sign in to continue your learning
-            </h2>
+            <p className="text-sm mt-1" style={{ color: 'var(--text3)' }}>
+              Sign in to continue your journey
+            </p>
           </div>
 
           {error && (
