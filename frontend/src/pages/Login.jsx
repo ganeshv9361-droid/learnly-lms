@@ -78,7 +78,7 @@ export default function Login({ onSwitch }) {
           </div>
 
           {/* Gradient title */}
-          <h1 className="text-sm mt-1 font-display gradient-text">
+          <h1 className="text-4xl font-display gradient-text">
             Learnly
           </h1>
 
