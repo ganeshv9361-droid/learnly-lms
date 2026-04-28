@@ -45,6 +45,9 @@ export default function Login({ onSwitch }) {
           <p className="text-sm mt-2" style={{color:'var(--text3)'}}>
             The platform for continuous learning
           </p>
+           <p className="text-sm mt-2" style={{color:'var(--text3)'}}>
+            By Ganesh V
+          </p>
         </div>
 
         <div className="card-base animate-fade-up delay-100 p-6 sm:p-8"
