@@ -4,6 +4,7 @@ import api from '../api/axios'
 import AnimatedCounter from '../components/AnimatedCounter'
 import PaymentModal from '../components/PaymentModal'
 import MobileLayout from '../components/MobileLayout'
+import Logo from '../components/Logo'
 
 function getYoutubeId(url) {
   const match = url?.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/)
@@ -194,10 +195,8 @@ export default function StudentDashboard() {
     <>
       <div className="p-4 border-b border-white/5">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl btn-primary flex items-center justify-center shrink-0">
-            <span className="font-display text-sm text-white font-bold">✦</span>
-          </div>
-          <span className="font-display text-lg font-bold gradient-text">Learnly</span>
+           <Logo size={42} showText={false} />
+           <span className="font-display text-lg font-bold gradient-text">Learnly</span>
         </div>
       </div>
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
