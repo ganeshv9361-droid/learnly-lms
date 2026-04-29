@@ -53,6 +53,7 @@ export default function TeacherDashboard() {
     due_date: '',
     google_form_url: '',
   })
+  const [showMobileMore, setShowMobileMore] = useState(false)
   const [gradeForm, setGradeForm] = useState({})
   const [ytForm, setYtForm] = useState({
     title: '',
@@ -2034,6 +2035,68 @@ export default function TeacherDashboard() {
             user={user}
           />
         )}
+        {/* MOBILE MORE MENU */}
+{showMobileMore && (
+  <div className="teacher-mobile-more">
+    {[
+      ['certificates', '🏅', 'Certificates'],
+      ['progress', '📈', 'Progress'],
+      ['revenue', '💰', 'Revenue'],
+      ['payout', '💳', 'Payout'],
+      ['profile', '👤', 'Profile'],
+    ].map(([key, icon, label]) => (
+      <button
+        key={key}
+        onClick={() => {
+          setTab(key)
+          setSelectedCourse(null)
+          setEditCourse(null)
+          setShowMobileMore(false)
+        }}
+      >
+        <span>{icon}</span>
+        {label}
+      </button>
+    ))}
+
+    <button onClick={logout} className="logout">
+      <span>⏻</span>
+      Logout
+    </button>
+  </div>
+)}
+
+{/* MOBILE BOTTOM NAV */}
+<div className="teacher-bottom-nav">
+  {[
+    ['overview', '⌂', 'Overview'],
+    ['students', '👥', 'Students'],
+    ['courses', '📚', 'Courses'],
+    ['attendance', '🕐', 'Attendance'],
+  ].map(([key, icon, label]) => (
+    <button
+      key={key}
+      onClick={() => {
+        setTab(key)
+        setSelectedCourse(null)
+        setEditCourse(null)
+        setShowMobileMore(false)
+      }}
+      className={tab === key ? 'active' : ''}
+    >
+      <span>{icon}</span>
+      <small>{label}</small>
+    </button>
+  ))}
+
+  <button
+    onClick={() => setShowMobileMore(!showMobileMore)}
+    className={showMobileMore ? 'active' : ''}
+  >
+    <span>•••</span>
+    <small>More</small>
+  </button>
+</div>
       </div>
     </div>
   )
