@@ -87,49 +87,31 @@ export default function TeacherDashboard() {
   })
   const [quizType, setQuizType] = useState('custom')
 
-const d = theme === 'dark'
-
-const bg =
-  'bg-[#07070c] bg-[radial-gradient(circle_at_top_left,rgba(124,58,237,0.24),transparent_35%),radial-gradient(circle_at_top_right,rgba(6,182,212,0.16),transparent_30%)]'
-
-const sidebar =
-  'bg-white/[0.055] border-white/10 backdrop-blur-2xl shadow-2xl'
-
-const card =
-  'bg-white/[0.055] border-white/10 backdrop-blur-2xl shadow-[0_18px_45px_rgba(0,0,0,0.28)]'
-
-const cardHover =
-  'hover:border-violet-400/50 hover:-translate-y-1 hover:shadow-[0_24px_60px_rgba(0,0,0,0.38)]'
-
+const d = true
+const bg = 'learnly-page'
+const sidebar = 'learnly-sidebar'
+const card = 'learnly-card'
+const cardHover = 'learnly-card-hover'
 const txt = 'text-white'
 const txt2 = 'text-gray-400'
 const txt3 = 'text-gray-500'
 
 const inp =
-  'w-full bg-white/[0.06] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-500/20 placeholder-gray-500 transition'
+  'w-full learnly-input'
 
 const lbl = 'text-xs text-gray-400 mb-1.5 block'
 
-const btn =
-  'bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-500 hover:to-cyan-400 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition shadow-[0_14px_30px_rgba(124,58,237,0.32)] hover:-translate-y-0.5 cursor-pointer'
-
-const btnSm =
-  'bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-500 hover:to-cyan-400 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition shadow-lg cursor-pointer'
+const btn = 'learnly-btn'
+const btnSm = 'learnly-btn-sm'
 
 const divider = 'border-white/10'
 
-const tabActive =
-  'bg-gradient-to-r from-violet-600 to-cyan-500 text-white font-semibold shadow-lg'
+const tabActive = 'learnly-nav-active'
+const tabInactive = 'learnly-nav-inactive'
 
-const tabInactive =
-  'text-gray-400 hover:text-white hover:bg-white/[0.07]'
+const subTabActive = 'learnly-subtab-active'
+const subTabInactive = 'learnly-subtab-inactive'
 
-const subTabActive =
-  'bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-lg'
-
-const subTabInactive =
-  'bg-white/[0.06] text-gray-400 hover:text-white hover:bg-white/[0.1]'
-  
   const flash = (text, type = 'success') => {
     setMsg({ text, type })
     setTimeout(() => setMsg({ text: '', type: 'success' }), 3000)
