@@ -58,7 +58,7 @@ export default function Register({ onSwitch }) {
           <div className="flex justify-center mb-3">
             <Logo size={52} showText={false}/>
           </div>
-          <Logo size={0} showText={true} textSize="text-3xl"/>
+          <Logo size={0} showText={true} textSize="text-4xl"/>
           <p className="text-sm mt-1" style={{color:'var(--text3)'}}>Join thousands of learners</p>
         </div>
 
