@@ -1,9 +1,7 @@
 import Logo from '../components/Logo'
-import MobileLayout from '../components/MobileLayout'
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../context/AuthContext'
 import api from '../api/axios'
-import AnimatedCounter from '../components/AnimatedCounter'
 import RevenueTab from '../components/RevenueTab'
 import PayoutTab from '../components/PayoutTab'
 import ProfileTab from '../components/ProfileTab'
@@ -35,6 +33,7 @@ export default function TeacherDashboard() {
     is_paid: false,
     price: '',
   })
+
   const [editCourse, setEditCourse] = useState(null)
   const [editForm, setEditForm] = useState({})
   const [attendForm, setAttendForm] = useState({
@@ -85,32 +84,26 @@ export default function TeacherDashboard() {
       },
     ],
   })
+
   const [quizType, setQuizType] = useState('custom')
 
-const d = true
-const bg = 'learnly-page'
-const sidebar = 'learnly-sidebar'
-const card = 'learnly-card'
-const cardHover = 'learnly-card-hover'
-const txt = 'text-white'
-const txt2 = 'text-gray-400'
-const txt3 = 'text-gray-500'
-
-const inp =
-  'w-full learnly-input'
-
-const lbl = 'text-xs text-gray-400 mb-1.5 block'
-
-const btn = 'learnly-btn'
-const btnSm = 'learnly-btn-sm'
-
-const divider = 'border-white/10'
-
-const tabActive = 'learnly-nav-active'
-const tabInactive = 'learnly-nav-inactive'
-
-const subTabActive = 'learnly-subtab-active'
-const subTabInactive = 'learnly-subtab-inactive'
+  const d = theme === 'dark'
+  const bg = 'learnly-page'
+  const sidebar = 'learnly-sidebar'
+  const card = 'learnly-card'
+  const cardHover = 'learnly-card-hover'
+  const txt = 'text-white'
+  const txt2 = 'text-gray-400'
+  const txt3 = 'text-gray-500'
+  const inp = 'w-full learnly-input'
+  const lbl = 'text-xs text-gray-400 mb-1.5 block'
+  const btn = 'learnly-btn'
+  const btnSm = 'learnly-btn-sm'
+  const divider = 'border-white/10'
+  const tabActive = 'learnly-nav-active'
+  const tabInactive = 'learnly-nav-inactive'
+  const subTabActive = 'learnly-subtab-active'
+  const subTabInactive = 'learnly-subtab-inactive'
 
   const flash = (text, type = 'success') => {
     setMsg({ text, type })
@@ -129,12 +122,14 @@ const subTabInactive = 'learnly-subtab-inactive'
   const loadCourseContent = async (course) => {
     setSelectedCourse(course)
     setCourseTab('videos-tab')
+
     const [v, a, q, ann] = await Promise.all([
       api.get(`/videos/course/${course.id}`),
       api.get(`/assignments/course/${course.id}`),
       api.get(`/quizzes/course/${course.id}`),
       api.get(`/announcements/course/${course.id}`),
     ])
+
     setVideos(v.data)
     setAssignments(a.data)
     setQuizzes(q.data)
@@ -154,6 +149,7 @@ const subTabInactive = 'learnly-subtab-inactive'
         total_modules: parseInt(newCourse.total_modules) || 0,
         price: parseFloat(newCourse.price) || 0,
       })
+
       setNewCourse({
         title: '',
         description: '',
@@ -162,6 +158,7 @@ const subTabInactive = 'learnly-subtab-inactive'
         is_paid: false,
         price: '',
       })
+
       loadAll()
       flash('Course created!')
     } catch (e) {
@@ -177,6 +174,7 @@ const subTabInactive = 'learnly-subtab-inactive'
         total_modules: parseInt(editForm.total_modules) || 0,
         price: parseFloat(editForm.price) || 0,
       })
+
       setEditCourse(null)
       loadAll()
       flash('Course updated!')
@@ -187,6 +185,7 @@ const subTabInactive = 'learnly-subtab-inactive'
 
   const deleteCourse = async (id) => {
     if (!confirm('Delete this course and all its content?')) return
+
     try {
       await api.delete(`/courses/${id}`)
       loadAll()
@@ -204,6 +203,7 @@ const subTabInactive = 'learnly-subtab-inactive'
         course_id: parseInt(attendForm.course_id),
         present: attendForm.present,
       })
+
       loadAll()
       flash('Attendance marked!')
     } catch (e) {
@@ -218,6 +218,7 @@ const subTabInactive = 'learnly-subtab-inactive'
         student_id: parseInt(certForm.student_id),
         course_id: parseInt(certForm.course_id),
       })
+
       flash('Certificate issued!')
     } catch (e) {
       flash(e.response?.data?.detail || 'Error', 'error')
@@ -232,6 +233,7 @@ const subTabInactive = 'learnly-subtab-inactive'
         enrollment_id: parseInt(progressForm.enrollment_id),
         progress: parseFloat(progressForm.progress),
       })
+
       loadAll()
       flash('Progress updated!')
     } catch (e) {
@@ -243,6 +245,7 @@ const subTabInactive = 'learnly-subtab-inactive'
     e.preventDefault()
     try {
       await api.post('/assignments/', assignForm)
+
       setAssignForm((f) => ({
         ...f,
         title: '',
@@ -250,6 +253,7 @@ const subTabInactive = 'learnly-subtab-inactive'
         due_date: '',
         google_form_url: '',
       }))
+
       loadCourseContent(selectedCourse)
       flash('Assignment created!')
     } catch (e) {
@@ -276,11 +280,13 @@ const subTabInactive = 'learnly-subtab-inactive'
   const gradeSubmission = async (sub_id) => {
     const g = gradeForm[sub_id]
     if (!g?.grade) return
+
     try {
       await api.patch(`/assignments/grade/${sub_id}`, {
         grade: parseFloat(g.grade),
         feedback: g.feedback || '',
       })
+
       loadSubmissions(submissions[0]?.assignment_id || 0)
       flash('Graded!')
     } catch (e) {
@@ -297,6 +303,7 @@ const subTabInactive = 'learnly-subtab-inactive'
         youtube_url: ytForm.youtube_url,
         order: videos.length,
       })
+
       setYtForm((f) => ({ ...f, title: '', youtube_url: '' }))
       loadCourseContent(selectedCourse)
       flash('YouTube video added!')
@@ -307,25 +314,32 @@ const subTabInactive = 'learnly-subtab-inactive'
 
   const uploadVideo = async (e) => {
     e.preventDefault()
+
     if (!uploadForm.file) {
       flash('Please select a file', 'error')
       return
     }
+
     setUploading(true)
+
     const fd = new FormData()
     fd.append('course_id', String(uploadForm.course_id))
     fd.append('title', uploadForm.title)
     fd.append('order', String(videos.length))
     fd.append('file', uploadForm.file)
+
     try {
       await api.post('/videos/upload', fd)
       setUploadForm((f) => ({ ...f, title: '', file: null }))
+
       if (fileRef.current) fileRef.current.value = ''
+
       loadCourseContent(selectedCourse)
       flash('Video uploaded!')
     } catch (e) {
       flash(e.response?.data?.detail || 'Upload failed', 'error')
     }
+
     setUploading(false)
   }
 
@@ -337,6 +351,7 @@ const subTabInactive = 'learnly-subtab-inactive'
 
   const createQuiz = async (e) => {
     e.preventDefault()
+
     try {
       const payload = {
         course_id: parseInt(quizForm.course_id),
@@ -344,7 +359,9 @@ const subTabInactive = 'learnly-subtab-inactive'
         google_form_url: quizType === 'google' ? quizForm.google_form_url : null,
         questions: quizType === 'custom' ? quizForm.questions : [],
       }
+
       await api.post('/quizzes/', payload)
+
       setQuizForm((f) => ({
         ...f,
         title: '',
@@ -360,6 +377,7 @@ const subTabInactive = 'learnly-subtab-inactive'
           },
         ],
       }))
+
       loadCourseContent(selectedCourse)
       flash('Quiz created!')
     } catch (e) {
@@ -383,6 +401,7 @@ const subTabInactive = 'learnly-subtab-inactive'
     e.preventDefault()
     try {
       await api.post('/announcements/', announceForm)
+
       setAnnounceForm((f) => ({ ...f, title: '', body: '' }))
       loadCourseContent(selectedCourse)
       flash('Announcement posted!')
@@ -422,12 +441,18 @@ const subTabInactive = 'learnly-subtab-inactive'
   const updateQuestion = (i, field, val) =>
     setQuizForm((f) => ({
       ...f,
-      questions: f.questions.map((q, idx) => (idx === i ? { ...q, [field]: val } : q)),
+      questions: f.questions.map((q, idx) =>
+        idx === i ? { ...q, [field]: val } : q
+      ),
     }))
 
   const totalStudents = students.length
+
   const avgAttendance = students.length
-    ? Math.round(students.reduce((s, st) => s + st.attendance_rate, 0) / students.length)
+    ? Math.round(
+        students.reduce((s, st) => s + (st.attendance_rate || 0), 0) /
+          students.length
+      )
     : 0
 
   const navItems = [
@@ -444,10 +469,14 @@ const subTabInactive = 'learnly-subtab-inactive'
 
   return (
     <div className={`min-h-screen ${bg} flex transition-colors duration-200 text-white`}>
-      <div className={`w-56 ${sidebar} border-r flex flex-col p-4 gap-1 shrink-0`}>
-        <div className="px-2 py-3 mb-1"><Logo size={32} textSize="text-lg"/></div>
-        <div className="text-xs text-teal-400 px-3 py-1 bg-teal-400/10 rounded-lg mb-2">Teacher Panel</div>
-          
+      <div className={`w-64 ${sidebar} border-r flex flex-col p-4 gap-1 shrink-0`}>
+        <div className="px-2 py-3 mb-1">
+          <Logo size={32} textSize="text-lg" />
+        </div>
+
+        <div className="text-xs text-teal-400 px-3 py-1 bg-teal-400/10 rounded-lg mb-2">
+          Teacher Panel
+        </div>
 
         {navItems.map(([key, icon, label]) => (
           <button
@@ -473,9 +502,14 @@ const subTabInactive = 'learnly-subtab-inactive'
           >
             {theme === 'dark' ? '☀️ Light mode' : '🌙 Dark mode'}
           </button>
+
           <div className={`text-xs ${txt3} px-2 mb-0.5`}>{user?.name}</div>
           <div className="text-xs text-teal-400 px-2 mb-2">Teacher</div>
-          <button onClick={logout} className="text-xs text-red-400 hover:text-red-300 px-2">
+
+          <button
+            onClick={logout}
+            className="text-xs text-red-400 hover:text-red-300 px-2"
+          >
             Sign out
           </button>
         </div>
@@ -501,10 +535,16 @@ const subTabInactive = 'learnly-subtab-inactive'
                 ['Students', totalStudents, 'text-violet-400'],
                 ['Courses', courses.length, 'text-teal-400'],
                 ['Avg Attendance', avgAttendance + '%', 'text-green-400'],
-                ['Certs Issued', students.reduce((s, st) => s + st.certificates, 0), 'text-amber-400'],
+                [
+                  'Certs Issued',
+                  students.reduce((s, st) => s + (st.certificates || 0), 0),
+                  'text-amber-400',
+                ],
               ].map(([label, val, color]) => (
                 <div key={label} className={`${card} border rounded-xl p-4`}>
-                  <div className={`text-xs ${txt3} uppercase tracking-wider mb-2`}>{label}</div>
+                  <div className={`text-xs ${txt3} uppercase tracking-wider mb-2`}>
+                    {label}
+                  </div>
                   <div className={`text-2xl font-semibold ${color}`}>{val}</div>
                 </div>
               ))}
@@ -512,7 +552,10 @@ const subTabInactive = 'learnly-subtab-inactive'
 
             <div className="grid grid-cols-2 gap-4">
               <div className={`${card} border rounded-xl p-5`}>
-                <div className={`text-sm font-medium ${txt} mb-3`}>Recent students</div>
+                <div className={`text-sm font-medium ${txt} mb-3`}>
+                  Recent students
+                </div>
+
                 {students.slice(0, 6).map((s) => (
                   <div
                     key={s.id}
@@ -521,19 +564,30 @@ const subTabInactive = 'learnly-subtab-inactive'
                     <div className="w-8 h-8 rounded-full bg-violet-600/20 flex items-center justify-center text-xs text-violet-400 font-medium">
                       {s.name?.[0]?.toUpperCase()}
                     </div>
+
                     <div className="flex-1">
                       <div className={`text-sm ${txt}`}>{s.name}</div>
-                      <div className={`text-xs ${txt2}`}>{s.enrollments?.length} courses</div>
+                      <div className={`text-xs ${txt2}`}>
+                        {s.enrollments?.length || 0} courses
+                      </div>
                     </div>
-                    <div className={`text-xs ${s.attendance_rate >= 75 ? 'text-green-400' : 'text-amber-400'}`}>
-                      {s.attendance_rate}%
+
+                    <div
+                      className={`text-xs ${
+                        s.attendance_rate >= 75 ? 'text-green-400' : 'text-amber-400'
+                      }`}
+                    >
+                      {s.attendance_rate || 0}%
                     </div>
                   </div>
                 ))}
               </div>
 
               <div className={`${card} border rounded-xl p-5`}>
-                <div className={`text-sm font-medium ${txt} mb-3`}>Your courses</div>
+                <div className={`text-sm font-medium ${txt} mb-3`}>
+                  Your courses
+                </div>
+
                 {courses.map((c) => (
                   <div
                     key={c.id}
@@ -543,9 +597,12 @@ const subTabInactive = 'learnly-subtab-inactive'
                       <div className={`text-sm ${txt}`}>{c.title}</div>
                       <div className={`text-xs ${txt2}`}>
                         {c.total_modules} modules{' '}
-                        {c.is_paid && <span className="text-amber-400">· ₹{c.price}</span>}
+                        {c.is_paid && (
+                          <span className="text-amber-400">· ₹{c.price}</span>
+                        )}
                       </div>
                     </div>
+
                     <button
                       onClick={() => {
                         setTab('courses')
@@ -564,44 +621,67 @@ const subTabInactive = 'learnly-subtab-inactive'
 
         {tab === 'students' && (
           <div>
-            <div className={`text-sm font-medium ${txt2} mb-3`}>{students.length} students</div>
+            <div className={`text-sm font-medium ${txt2} mb-3`}>
+              {students.length} students
+            </div>
+
             <div className="flex flex-col gap-3">
               {students.map((s) => (
                 <div key={s.id} className={`${card} border rounded-xl overflow-hidden`}>
                   <div
-                    className={`p-4 flex items-center gap-3 cursor-pointer hover:bg-white/5 transition`}
-                    onClick={() => setExpandedStudent(expandedStudent === s.id ? null : s.id)}
+                    className="p-4 flex items-center gap-3 cursor-pointer hover:bg-white/5 transition"
+                    onClick={() =>
+                      setExpandedStudent(expandedStudent === s.id ? null : s.id)
+                    }
                   >
                     <div className="w-9 h-9 rounded-full bg-violet-600/20 flex items-center justify-center text-sm font-medium text-violet-400">
                       {s.name?.[0]?.toUpperCase()}
                     </div>
+
                     <div className="flex-1">
                       <div className={`text-sm font-medium ${txt}`}>{s.name}</div>
                       <div className={`text-xs ${txt2}`}>{s.email}</div>
                     </div>
+
                     <div className={`flex items-center gap-4 text-xs ${txt3}`}>
                       <span>{s.enrollments?.length || 0} courses</span>
-                      <span className={s.attendance_rate >= 75 ? 'text-green-400' : 'text-amber-400'}>
-                        {s.attendance_rate}% att
+                      <span
+                        className={
+                          s.attendance_rate >= 75 ? 'text-green-400' : 'text-amber-400'
+                        }
+                      >
+                        {s.attendance_rate || 0}% att
                       </span>
-                      <span className="text-amber-400">🏅 {s.certificates}</span>
+                      <span className="text-amber-400">🏅 {s.certificates || 0}</span>
                       <span>{expandedStudent === s.id ? '▲' : '▼'}</span>
                     </div>
                   </div>
 
                   {expandedStudent === s.id && (
-                    <div className={`border-t ${divider} p-4 ${d ? 'bg-[#0f1117]' : 'bg-gray-50'}`}>
-                      <div className={`text-xs ${txt3} mb-3`}>Enrolled courses</div>
+                    <div className={`border-t ${divider} p-4 bg-[#0f1117]`}>
+                      <div className={`text-xs ${txt3} mb-3`}>
+                        Enrolled courses
+                      </div>
+
                       {s.enrollments?.length === 0 ? (
                         <div className={`text-xs ${txt3}`}>No enrollments</div>
                       ) : (
                         s.enrollments?.map((e, i) => (
                           <div key={i} className="flex items-center gap-3 mb-2">
-                            <div className={`flex-1 text-xs ${txt2} truncate`}>{e.course_title}</div>
-                            <div className="w-32 h-1.5 bg-white/10 rounded-full">
-                              <div className="h-1.5 bg-violet-500 rounded-full" style={{ width: e.progress + '%' }} />
+                            <div className={`flex-1 text-xs ${txt2} truncate`}>
+                              {e.course_title}
                             </div>
-                            <div className={`text-xs ${txt2} w-10 text-right`}>{e.progress}%</div>
+
+                            <div className="w-32 h-1.5 bg-white/10 rounded-full">
+                              <div
+                                className="h-1.5 bg-violet-500 rounded-full"
+                                style={{ width: `${e.progress || 0}%` }}
+                              />
+                            </div>
+
+                            <div className={`text-xs ${txt2} w-10 text-right`}>
+                              {e.progress || 0}%
+                            </div>
                           </div>
                         ))
                       )}
@@ -616,23 +696,40 @@ const subTabInactive = 'learnly-subtab-inactive'
         {tab === 'courses' && !selectedCourse && !editCourse && (
           <div className="grid grid-cols-2 gap-6">
             <div>
-              <div className={`text-sm font-medium ${txt2} mb-3`}>Your courses ({courses.length})</div>
+              <div className={`text-sm font-medium ${txt2} mb-3`}>
+                Your courses ({courses.length})
+              </div>
+
               <div className="flex flex-col gap-3">
                 {courses.map((c) => (
-                  <div key={c.id} className={`${card} border ${cardHover} rounded-xl p-4 transition`}>
+                  <div
+                    key={c.id}
+                    className={`${card} border ${cardHover} rounded-xl p-4 transition`}
+                  >
                     <div className="flex items-start gap-3">
                       <div className="flex-1">
-                        <div className={`font-medium ${txt} mb-0.5`}>{c.title}</div>
+                        <div className={`font-medium ${txt} mb-0.5`}>
+                          {c.title}
+                        </div>
+
                         <div className={`text-xs ${txt2} mb-1`}>
                           {c.instructor} · {c.total_modules} modules
                         </div>
+
                         <div className={`text-xs ${txt3}`}>{c.description}</div>
-                        {c.is_paid && <div className="text-xs text-amber-400 mt-1">Paid · ₹{c.price}</div>}
+
+                        {c.is_paid && (
+                          <div className="text-xs text-amber-400 mt-1">
+                            Paid · ₹{c.price}
+                          </div>
+                        )}
                       </div>
+
                       <div className="flex flex-col gap-1.5">
                         <button onClick={() => loadCourseContent(c)} className={btnSm}>
                           Manage
                         </button>
+
                         <button
                           onClick={() => {
                             setEditCourse(c)
@@ -649,6 +746,7 @@ const subTabInactive = 'learnly-subtab-inactive'
                         >
                           Edit
                         </button>
+
                         <button
                           onClick={() => deleteCourse(c.id)}
                           className="text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400 px-3 py-1.5 rounded-lg transition"
@@ -663,14 +761,19 @@ const subTabInactive = 'learnly-subtab-inactive'
             </div>
 
             <div className={`${card} border rounded-xl p-5`}>
-              <div className={`text-sm font-medium ${txt} mb-4`}>Create new course</div>
+              <div className={`text-sm font-medium ${txt} mb-4`}>
+                Create new course
+              </div>
+
               <form onSubmit={createCourse} className="space-y-3">
                 <div>
                   <label className={lbl}>Title</label>
                   <input
                     required
                     value={newCourse.title}
-                    onChange={(e) => setNewCourse({ ...newCourse, title: e.target.value })}
+                    onChange={(e) =>
+                      setNewCourse({ ...newCourse, title: e.target.value })
+                    }
                     className={inp}
                     placeholder="Course title"
                   />
@@ -680,7 +783,9 @@ const subTabInactive = 'learnly-subtab-inactive'
                   <label className={lbl}>Description</label>
                   <input
                     value={newCourse.description}
-                    onChange={(e) => setNewCourse({ ...newCourse, description: e.target.value })}
+                    onChange={(e) =>
+                      setNewCourse({ ...newCourse, description: e.target.value })
+                    }
                     className={inp}
                     placeholder="Short description"
                   />
@@ -690,7 +795,9 @@ const subTabInactive = 'learnly-subtab-inactive'
                   <label className={lbl}>Instructor name</label>
                   <input
                     value={newCourse.instructor}
-                    onChange={(e) => setNewCourse({ ...newCourse, instructor: e.target.value })}
+                    onChange={(e) =>
+                      setNewCourse({ ...newCourse, instructor: e.target.value })
+                    }
                     className={inp}
                     placeholder="Your name"
                   />
@@ -701,7 +808,9 @@ const subTabInactive = 'learnly-subtab-inactive'
                   <input
                     type="number"
                     value={newCourse.total_modules}
-                    onChange={(e) => setNewCourse({ ...newCourse, total_modules: e.target.value })}
+                    onChange={(e) =>
+                      setNewCourse({ ...newCourse, total_modules: e.target.value })
+                    }
                     className={inp}
                     placeholder="10"
                   />
@@ -712,7 +821,9 @@ const subTabInactive = 'learnly-subtab-inactive'
                     <input
                       type="checkbox"
                       checked={newCourse.is_paid}
-                      onChange={(e) => setNewCourse({ ...newCourse, is_paid: e.target.checked })}
+                      onChange={(e) =>
+                        setNewCourse({ ...newCourse, is_paid: e.target.checked })
+                      }
                       className="accent-violet-500"
                     />
                     <span className={`text-sm ${txt2}`}>Paid course</span>
@@ -722,14 +833,16 @@ const subTabInactive = 'learnly-subtab-inactive'
                     <input
                       type="number"
                       value={newCourse.price}
-                      onChange={(e) => setNewCourse({ ...newCourse, price: e.target.value })}
-                      className={inp + ' flex-1'}
+                      onChange={(e) =>
+                        setNewCourse({ ...newCourse, price: e.target.value })
+                      }
+                      className={`${inp} flex-1`}
                       placeholder="Price ₹"
                     />
                   )}
                 </div>
 
-                <button type="submit" className={btn + ' w-full'}>
+                <button type="submit" className={`${btn} w-full`}>
                   Create Course
                 </button>
               </form>
@@ -740,9 +853,13 @@ const subTabInactive = 'learnly-subtab-inactive'
         {tab === 'courses' && editCourse && (
           <div className="max-w-lg">
             <div className="flex items-center gap-3 mb-5">
-              <button onClick={() => setEditCourse(null)} className={`${txt2} text-sm`}>
+              <button
+                onClick={() => setEditCourse(null)}
+                className={`${txt2} text-sm`}
+              >
                 ← Back
               </button>
+
               <div className={`font-medium ${txt}`}>Edit: {editCourse.title}</div>
             </div>
 
@@ -753,7 +870,9 @@ const subTabInactive = 'learnly-subtab-inactive'
                   <input
                     required
                     value={editForm.title || ''}
-                    onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, title: e.target.value })
+                    }
                     className={inp}
                   />
                 </div>
@@ -762,8 +881,10 @@ const subTabInactive = 'learnly-subtab-inactive'
                   <label className={lbl}>Description</label>
                   <textarea
                     value={editForm.description || ''}
-                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                    className={inp + ' h-20 resize-none'}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, description: e.target.value })
+                    }
+                    className={`${inp} h-20 resize-none`}
                   />
                 </div>
 
@@ -771,7 +892,9 @@ const subTabInactive = 'learnly-subtab-inactive'
                   <label className={lbl}>Instructor</label>
                   <input
                     value={editForm.instructor || ''}
-                    onChange={(e) => setEditForm({ ...editForm, instructor: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, instructor: e.target.value })
+                    }
                     className={inp}
                   />
                 </div>
@@ -781,7 +904,9 @@ const subTabInactive = 'learnly-subtab-inactive'
                   <input
                     type="number"
                     value={editForm.total_modules || ''}
-                    onChange={(e) => setEditForm({ ...editForm, total_modules: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, total_modules: e.target.value })
+                    }
                     className={inp}
                   />
                 </div>
@@ -791,7 +916,9 @@ const subTabInactive = 'learnly-subtab-inactive'
                     <input
                       type="checkbox"
                       checked={editForm.is_paid || false}
-                      onChange={(e) => setEditForm({ ...editForm, is_paid: e.target.checked })}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, is_paid: e.target.checked })
+                      }
                       className="accent-violet-500"
                     />
                     <span className={`text-sm ${txt2}`}>Paid course</span>
@@ -801,8 +928,10 @@ const subTabInactive = 'learnly-subtab-inactive'
                     <input
                       type="number"
                       value={editForm.price || ''}
-                      onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
-                      className={inp + ' flex-1'}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, price: e.target.value })
+                      }
+                      className={`${inp} flex-1`}
                       placeholder="Price ₹"
                     />
                   )}
@@ -812,10 +941,11 @@ const subTabInactive = 'learnly-subtab-inactive'
                   <button type="submit" className={btn}>
                     Save changes
                   </button>
+
                   <button
                     type="button"
                     onClick={() => setEditCourse(null)}
-                    className={`px-4 py-2 rounded-lg text-sm ${d ? 'bg-white/5 text-gray-400' : 'bg-gray-100 text-gray-500'}`}
+                    className="px-4 py-2 rounded-lg text-sm bg-white/5 text-gray-400"
                   >
                     Cancel
                   </button>
@@ -828,9 +958,13 @@ const subTabInactive = 'learnly-subtab-inactive'
         {tab === 'courses' && selectedCourse && !editCourse && (
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <button onClick={() => setSelectedCourse(null)} className={`${txt2} text-sm`}>
+              <button
+                onClick={() => setSelectedCourse(null)}
+                className={`${txt2} text-sm`}
+              >
                 ← Back
               </button>
+
               <div className={`font-medium ${txt}`}>{selectedCourse.title}</div>
             </div>
 
@@ -858,19 +992,35 @@ const subTabInactive = 'learnly-subtab-inactive'
             {courseTab === 'videos-tab' && (
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <div className={`text-sm font-medium ${txt2} mb-3`}>Videos ({videos.length})</div>
+                  <div className={`text-sm font-medium ${txt2} mb-3`}>
+                    Videos ({videos.length})
+                  </div>
+
                   <div className="flex flex-col gap-2 mb-4 max-h-64 overflow-y-auto">
-                    {videos.length === 0 && <div className={`text-sm ${txt3}`}>No videos yet</div>}
+                    {videos.length === 0 && (
+                      <div className={`text-sm ${txt3}`}>No videos yet</div>
+                    )}
+
                     {videos.map((v, i) => (
-                      <div key={v.id} className={`${card} border rounded-lg p-3 flex items-center gap-3`}>
-                        <div className={`w-6 h-6 ${d ? 'bg-white/5' : 'bg-gray-100'} rounded text-xs flex items-center justify-center ${txt2}`}>
+                      <div
+                        key={v.id}
+                        className={`${card} border rounded-lg p-3 flex items-center gap-3`}
+                      >
+                        <div className={`w-6 h-6 bg-white/5 rounded text-xs flex items-center justify-center ${txt2}`}>
                           {i + 1}
                         </div>
+
                         <div className="flex-1 min-w-0">
                           <div className={`text-sm ${txt} truncate`}>{v.title}</div>
-                          <div className={`text-xs ${txt3}`}>{v.youtube_url ? 'YouTube' : 'Uploaded file'}</div>
+                          <div className={`text-xs ${txt3}`}>
+                            {v.youtube_url ? 'YouTube' : 'Uploaded file'}
+                          </div>
                         </div>
-                        <button onClick={() => deleteVideo(v.id)} className="text-xs text-red-400 hover:text-red-300 shrink-0">
+
+                        <button
+                          onClick={() => deleteVideo(v.id)}
+                          className="text-xs text-red-400 hover:text-red-300 shrink-0"
+                        >
                           ✕
                         </button>
                       </div>
@@ -878,47 +1028,72 @@ const subTabInactive = 'learnly-subtab-inactive'
                   </div>
 
                   <div className={`${card} border rounded-xl p-4 mb-3`}>
-                    <div className={`text-xs font-medium ${txt2} mb-3`}>Add YouTube video</div>
+                    <div className={`text-xs font-medium ${txt2} mb-3`}>
+                      Add YouTube video
+                    </div>
+
                     <form onSubmit={addYoutube} className="space-y-2">
                       <input
                         required
                         value={ytForm.title}
-                        onChange={(e) => setYtForm({ ...ytForm, title: e.target.value })}
+                        onChange={(e) =>
+                          setYtForm({ ...ytForm, title: e.target.value })
+                        }
                         className={inp}
                         placeholder="Video title"
                       />
+
                       <input
                         required
                         value={ytForm.youtube_url}
-                        onChange={(e) => setYtForm({ ...ytForm, youtube_url: e.target.value })}
+                        onChange={(e) =>
+                          setYtForm({ ...ytForm, youtube_url: e.target.value })
+                        }
                         className={inp}
                         placeholder="https://youtube.com/watch?v=..."
                       />
-                      <button type="submit" className={btn + ' w-full'}>
+
+                      <button type="submit" className={`${btn} w-full`}>
                         Add YouTube
                       </button>
                     </form>
                   </div>
 
                   <div className={`${card} border rounded-xl p-4`}>
-                    <div className={`text-xs font-medium ${txt2} mb-3`}>Upload video file</div>
+                    <div className={`text-xs font-medium ${txt2} mb-3`}>
+                      Upload video file
+                    </div>
+
                     <form onSubmit={uploadVideo} className="space-y-2">
                       <input
                         required
                         value={uploadForm.title}
-                        onChange={(e) => setUploadForm({ ...uploadForm, title: e.target.value })}
+                        onChange={(e) =>
+                          setUploadForm({ ...uploadForm, title: e.target.value })
+                        }
                         className={inp}
                         placeholder="Video title"
                       />
+
                       <input
                         ref={fileRef}
                         required
                         type="file"
                         accept="video/*"
-                        onChange={(e) => setUploadForm({ ...uploadForm, file: e.target.files[0] })}
+                        onChange={(e) =>
+                          setUploadForm({
+                            ...uploadForm,
+                            file: e.target.files[0],
+                          })
+                        }
                         className={inp}
                       />
-                      <button type="submit" disabled={uploading} className={btn + ' w-full disabled:opacity-50'}>
+
+                      <button
+                        type="submit"
+                        disabled={uploading}
+                        className={`${btn} w-full disabled:opacity-50`}
+                      >
                         {uploading ? 'Uploading...' : 'Upload Video'}
                       </button>
                     </form>
@@ -930,14 +1105,19 @@ const subTabInactive = 'learnly-subtab-inactive'
             {courseTab === 'assignments-tab' && (
               <div className="grid grid-cols-2 gap-6">
                 <div className={`${card} border rounded-xl p-5`}>
-                  <div className={`text-sm font-medium ${txt} mb-4`}>Create assignment</div>
+                  <div className={`text-sm font-medium ${txt} mb-4`}>
+                    Create assignment
+                  </div>
+
                   <form onSubmit={createAssignment} className="space-y-3">
                     <div>
                       <label className={lbl}>Title</label>
                       <input
                         required
                         value={assignForm.title}
-                        onChange={(e) => setAssignForm({ ...assignForm, title: e.target.value })}
+                        onChange={(e) =>
+                          setAssignForm({ ...assignForm, title: e.target.value })
+                        }
                         className={inp}
                         placeholder="Assignment title"
                       />
@@ -947,8 +1127,13 @@ const subTabInactive = 'learnly-subtab-inactive'
                       <label className={lbl}>Instructions</label>
                       <textarea
                         value={assignForm.description}
-                        onChange={(e) => setAssignForm({ ...assignForm, description: e.target.value })}
-                        className={inp + ' h-20 resize-none'}
+                        onChange={(e) =>
+                          setAssignForm({
+                            ...assignForm,
+                            description: e.target.value,
+                          })
+                        }
+                        className={`${inp} h-20 resize-none`}
                         placeholder="What students should do..."
                       />
                     </div>
@@ -957,7 +1142,12 @@ const subTabInactive = 'learnly-subtab-inactive'
                       <label className={lbl}>Google Form URL (optional)</label>
                       <input
                         value={assignForm.google_form_url}
-                        onChange={(e) => setAssignForm({ ...assignForm, google_form_url: e.target.value })}
+                        onChange={(e) =>
+                          setAssignForm({
+                            ...assignForm,
+                            google_form_url: e.target.value,
+                          })
+                        }
                         className={inp}
                         placeholder="https://forms.google.com/..."
                       />
@@ -968,27 +1158,40 @@ const subTabInactive = 'learnly-subtab-inactive'
                       <input
                         type="datetime-local"
                         value={assignForm.due_date}
-                        onChange={(e) => setAssignForm({ ...assignForm, due_date: e.target.value })}
+                        onChange={(e) =>
+                          setAssignForm({ ...assignForm, due_date: e.target.value })
+                        }
                         className={inp}
                       />
                     </div>
 
-                    <button type="submit" className={btn + ' w-full'}>
+                    <button type="submit" className={`${btn} w-full`}>
                       Create Assignment
                     </button>
                   </form>
                 </div>
 
                 <div>
-                  <div className={`text-sm font-medium ${txt2} mb-3`}>Assignments ({assignments.length})</div>
+                  <div className={`text-sm font-medium ${txt2} mb-3`}>
+                    Assignments ({assignments.length})
+                  </div>
+
                   <div className="flex flex-col gap-2">
-                    {assignments.length === 0 && <div className={`text-sm ${txt3}`}>No assignments yet</div>}
+                    {assignments.length === 0 && (
+                      <div className={`text-sm ${txt3}`}>No assignments yet</div>
+                    )}
+
                     {assignments.map((a) => (
                       <div key={a.id} className={`${card} border rounded-xl p-4`}>
                         <div className="flex items-start gap-2 mb-2">
                           <div className="flex-1">
-                            <div className={`font-medium text-sm ${txt}`}>{a.title}</div>
-                            <div className={`text-xs ${txt2} mt-0.5`}>{a.description}</div>
+                            <div className={`font-medium text-sm ${txt}`}>
+                              {a.title}
+                            </div>
+                            <div className={`text-xs ${txt2} mt-0.5`}>
+                              {a.description}
+                            </div>
+
                             {a.google_form_url && (
                               <a
                                 href={a.google_form_url}
@@ -999,17 +1202,26 @@ const subTabInactive = 'learnly-subtab-inactive'
                                 Open Google Form ↗
                               </a>
                             )}
+
                             {a.due_date && (
                               <div className="text-xs text-amber-400 mt-1">
                                 Due: {new Date(a.due_date).toLocaleDateString()}
                               </div>
                             )}
                           </div>
-                          <button onClick={() => deleteAssignment(a.id)} className="text-xs text-red-400 hover:text-red-300 shrink-0">
+
+                          <button
+                            onClick={() => deleteAssignment(a.id)}
+                            className="text-xs text-red-400 hover:text-red-300 shrink-0"
+                          >
                             ✕
                           </button>
                         </div>
-                        <button onClick={() => loadSubmissions(a.id)} className="text-xs text-teal-400 hover:underline">
+
+                        <button
+                          onClick={() => loadSubmissions(a.id)}
+                          className="text-xs text-teal-400 hover:underline"
+                        >
                           View submissions
                         </button>
                       </div>
@@ -1021,12 +1233,16 @@ const subTabInactive = 'learnly-subtab-inactive'
 
             {courseTab === 'submissions-tab' && (
               <div>
-                <div className={`text-sm font-medium ${txt2} mb-3`}>Submissions ({submissions.length})</div>
+                <div className={`text-sm font-medium ${txt2} mb-3`}>
+                  Submissions ({submissions.length})
+                </div>
+
                 {submissions.length === 0 && (
                   <div className={`text-sm ${txt3}`}>
                     No submissions yet. Click "View submissions" on an assignment.
                   </div>
                 )}
+
                 <div className="flex flex-col gap-3">
                   {submissions.map((s) => (
                     <div key={s.id} className={`${card} border rounded-xl p-4`}>
@@ -1034,14 +1250,26 @@ const subTabInactive = 'learnly-subtab-inactive'
                         <div className="w-8 h-8 rounded-full bg-violet-600/20 flex items-center justify-center text-xs text-violet-400 font-medium shrink-0">
                           {s.student_name?.[0]?.toUpperCase()}
                         </div>
+
                         <div className="flex-1">
-                          <div className={`font-medium text-sm ${txt}`}>{s.student_name}</div>
-                          <div className={`text-xs ${txt2}`}>{s.student_email}</div>
-                          {s.note && <div className={`text-xs ${txt3} mt-1`}>Note: {s.note}</div>}
+                          <div className={`font-medium text-sm ${txt}`}>
+                            {s.student_name}
+                          </div>
+                          <div className={`text-xs ${txt2}`}>
+                            {s.student_email}
+                          </div>
+
+                          {s.note && (
+                            <div className={`text-xs ${txt3} mt-1`}>
+                              Note: {s.note}
+                            </div>
+                          )}
+
                           <div className={`text-xs ${txt3} mt-1`}>
                             Submitted: {new Date(s.submitted_at).toLocaleString()}
                           </div>
                         </div>
+
                         <div className="flex flex-col items-end gap-1">
                           {s.file_path && (
                             <a
@@ -1053,8 +1281,11 @@ const subTabInactive = 'learnly-subtab-inactive'
                               ⬇ Download
                             </a>
                           )}
+
                           {s.grade !== null ? (
-                            <div className="text-sm font-medium text-green-400">Graded: {s.grade}/100</div>
+                            <div className="text-sm font-medium text-green-400">
+                              Graded: {s.grade}/100
+                            </div>
                           ) : (
                             <div className="text-xs text-amber-400">Not graded</div>
                           )}
@@ -1071,29 +1302,42 @@ const subTabInactive = 'learnly-subtab-inactive'
                             onChange={(e) =>
                               setGradeForm((f) => ({
                                 ...f,
-                                [s.id]: { ...f[s.id], grade: e.target.value },
+                                [s.id]: {
+                                  ...f[s.id],
+                                  grade: e.target.value,
+                                },
                               }))
                             }
-                            className={`${d ? 'bg-[#252c42] border-gray-700 text-white' : 'bg-gray-50 border-gray-300 text-gray-900'} border rounded-lg px-3 py-1.5 text-sm outline-none w-28`}
+                            className="bg-[#252c42] border border-gray-700 text-white rounded-lg px-3 py-1.5 text-sm outline-none w-28"
                           />
+
                           <input
                             placeholder="Feedback (optional)"
                             onChange={(e) =>
                               setGradeForm((f) => ({
                                 ...f,
-                                [s.id]: { ...f[s.id], feedback: e.target.value },
+                                [s.id]: {
+                                  ...f[s.id],
+                                  feedback: e.target.value,
+                                },
                               }))
                             }
-                            className={`${d ? 'bg-[#252c42] border-gray-700 text-white' : 'bg-gray-50 border-gray-300 text-gray-900'} border rounded-lg px-3 py-1.5 text-sm outline-none flex-1`}
+                            className="bg-[#252c42] border border-gray-700 text-white rounded-lg px-3 py-1.5 text-sm outline-none flex-1"
                           />
-                          <button onClick={() => gradeSubmission(s.id)} className={btnSm}>
+
+                          <button
+                            onClick={() => gradeSubmission(s.id)}
+                            className={btnSm}
+                          >
                             Grade
                           </button>
                         </div>
                       )}
 
                       {s.grade !== null && s.feedback && (
-                        <div className={`text-xs ${txt3} mt-1`}>Feedback: {s.feedback}</div>
+                        <div className={`text-xs ${txt3} mt-1`}>
+                          Feedback: {s.feedback}
+                        </div>
                       )}
                     </div>
                   ))}
@@ -1104,21 +1348,30 @@ const subTabInactive = 'learnly-subtab-inactive'
             {courseTab === 'quizzes-tab' && (
               <div className="grid grid-cols-2 gap-6">
                 <div className={`${card} border rounded-xl p-5`}>
-                  <div className={`text-sm font-medium ${txt} mb-4`}>Create quiz</div>
+                  <div className={`text-sm font-medium ${txt} mb-4`}>
+                    Create quiz
+                  </div>
 
                   <div className="flex gap-2 mb-4">
                     <button
+                      type="button"
                       onClick={() => setQuizType('custom')}
                       className={`flex-1 py-2 rounded-lg text-sm transition ${
-                        quizType === 'custom' ? 'bg-violet-600 text-white' : subTabInactive
+                        quizType === 'custom'
+                          ? 'bg-violet-600 text-white'
+                          : subTabInactive
                       }`}
                     >
                       Custom Quiz
                     </button>
+
                     <button
+                      type="button"
                       onClick={() => setQuizType('google')}
                       className={`flex-1 py-2 rounded-lg text-sm transition ${
-                        quizType === 'google' ? 'bg-blue-600 text-white' : subTabInactive
+                        quizType === 'google'
+                          ? 'bg-blue-600 text-white'
+                          : subTabInactive
                       }`}
                     >
                       Google Form
@@ -1131,7 +1384,9 @@ const subTabInactive = 'learnly-subtab-inactive'
                       <input
                         required
                         value={quizForm.title}
-                        onChange={(e) => setQuizForm({ ...quizForm, title: e.target.value })}
+                        onChange={(e) =>
+                          setQuizForm({ ...quizForm, title: e.target.value })
+                        }
                         className={inp}
                         placeholder="Quiz title"
                       />
@@ -1143,10 +1398,16 @@ const subTabInactive = 'learnly-subtab-inactive'
                         <input
                           required
                           value={quizForm.google_form_url}
-                          onChange={(e) => setQuizForm({ ...quizForm, google_form_url: e.target.value })}
+                          onChange={(e) =>
+                            setQuizForm({
+                              ...quizForm,
+                              google_form_url: e.target.value,
+                            })
+                          }
                           className={inp}
                           placeholder="https://forms.google.com/..."
                         />
+
                         <div className={`text-xs ${txt3} mt-1`}>
                           Students will see this form embedded in their dashboard
                         </div>
@@ -1154,11 +1415,21 @@ const subTabInactive = 'learnly-subtab-inactive'
                     ) : (
                       <div className="space-y-3">
                         {quizForm.questions.map((q, i) => (
-                          <div key={i} className={`${d ? 'bg-[#0f1117]' : 'bg-gray-50'} rounded-lg p-4 space-y-2`}>
+                          <div
+                            key={i}
+                            className="bg-[#0f1117] rounded-lg p-4 space-y-2"
+                          >
                             <div className="flex items-center justify-between">
-                              <div className={`text-xs ${txt3}`}>Question {i + 1}</div>
+                              <div className={`text-xs ${txt3}`}>
+                                Question {i + 1}
+                              </div>
+
                               {i > 0 && (
-                                <button type="button" onClick={() => removeQuestion(i)} className="text-xs text-red-400">
+                                <button
+                                  type="button"
+                                  onClick={() => removeQuestion(i)}
+                                  className="text-xs text-red-400"
+                                >
                                   Remove
                                 </button>
                               )}
@@ -1167,7 +1438,9 @@ const subTabInactive = 'learnly-subtab-inactive'
                             <input
                               required
                               value={q.question}
-                              onChange={(e) => updateQuestion(i, 'question', e.target.value)}
+                              onChange={(e) =>
+                                updateQuestion(i, 'question', e.target.value)
+                              }
                               className={inp}
                               placeholder="Question text"
                             />
@@ -1177,7 +1450,9 @@ const subTabInactive = 'learnly-subtab-inactive'
                                 key={opt}
                                 required
                                 value={q[`option_${opt}`]}
-                                onChange={(e) => updateQuestion(i, `option_${opt}`, e.target.value)}
+                                onChange={(e) =>
+                                  updateQuestion(i, `option_${opt}`, e.target.value)
+                                }
                                 className={inp}
                                 placeholder={`Option ${opt.toUpperCase()}`}
                               />
@@ -1187,7 +1462,9 @@ const subTabInactive = 'learnly-subtab-inactive'
                               <label className={lbl}>Correct answer</label>
                               <select
                                 value={q.correct}
-                                onChange={(e) => updateQuestion(i, 'correct', e.target.value)}
+                                onChange={(e) =>
+                                  updateQuestion(i, 'correct', e.target.value)
+                                }
                                 className={inp}
                               >
                                 {['A', 'B', 'C', 'D'].map((o) => (
@@ -1201,38 +1478,55 @@ const subTabInactive = 'learnly-subtab-inactive'
                         <button
                           type="button"
                           onClick={addQuestion}
-                          className={`w-full py-2 rounded-lg text-sm transition ${
-                            d ? 'bg-white/5 text-gray-400 hover:text-white' : 'bg-gray-100 text-gray-500 hover:text-gray-900'
-                          }`}
+                          className="w-full py-2 rounded-lg text-sm transition bg-white/5 text-gray-400 hover:text-white"
                         >
                           + Add Question
                         </button>
                       </div>
                     )}
 
-                    <button type="submit" className={btn + ' w-full'}>
+                    <button type="submit" className={`${btn} w-full`}>
                       Create Quiz
                     </button>
                   </form>
                 </div>
 
                 <div>
-                  <div className={`text-sm font-medium ${txt2} mb-3`}>Quizzes ({quizzes.length})</div>
+                  <div className={`text-sm font-medium ${txt2} mb-3`}>
+                    Quizzes ({quizzes.length})
+                  </div>
+
                   <div className="flex flex-col gap-2">
-                    {quizzes.length === 0 && <div className={`text-sm ${txt3}`}>No quizzes yet</div>}
+                    {quizzes.length === 0 && (
+                      <div className={`text-sm ${txt3}`}>No quizzes yet</div>
+                    )}
+
                     {quizzes.map((q) => (
                       <div key={q.id} className={`${card} border rounded-xl p-4`}>
                         <div className="flex items-center gap-3">
                           <div className="flex-1">
-                            <div className={`font-medium text-sm ${txt}`}>{q.title}</div>
+                            <div className={`font-medium text-sm ${txt}`}>
+                              {q.title}
+                            </div>
+
                             <div className={`text-xs ${txt2}`}>
-                              {q.google_form_url ? 'Google Form' : `${q.question_count} questions`}
+                              {q.google_form_url
+                                ? 'Google Form'
+                                : `${q.question_count} questions`}
                             </div>
                           </div>
-                          <button onClick={() => loadQuizResults(q.id)} className="text-xs text-teal-400 hover:underline mr-2">
+
+                          <button
+                            onClick={() => loadQuizResults(q.id)}
+                            className="text-xs text-teal-400 hover:underline mr-2"
+                          >
                             Results
                           </button>
-                          <button onClick={() => deleteQuiz(q.id)} className="text-xs text-red-400 hover:text-red-300">
+
+                          <button
+                            onClick={() => deleteQuiz(q.id)}
+                            className="text-xs text-red-400 hover:text-red-300"
+                          >
                             ✕
                           </button>
                         </div>
@@ -1259,23 +1553,44 @@ const subTabInactive = 'learnly-subtab-inactive'
                 <div className={`text-sm font-medium ${txt2} mb-3`}>
                   Quiz results ({quizResults.length} attempts)
                 </div>
+
                 {quizResults.length === 0 && (
-                  <div className={`text-sm ${txt3}`}>No attempts yet. Select a quiz and click Results.</div>
+                  <div className={`text-sm ${txt3}`}>
+                    No attempts yet. Select a quiz and click Results.
+                  </div>
                 )}
+
                 <div className="flex flex-col gap-2">
                   {quizResults.map((r, i) => (
-                    <div key={i} className={`${card} border rounded-xl p-4 flex items-center gap-4`}>
+                    <div
+                      key={i}
+                      className={`${card} border rounded-xl p-4 flex items-center gap-4`}
+                    >
                       <div className="w-8 h-8 rounded-full bg-violet-600/20 flex items-center justify-center text-xs text-violet-400 font-medium">
                         {r.student_name?.[0]?.toUpperCase()}
                       </div>
+
                       <div className="flex-1">
-                        <div className={`font-medium text-sm ${txt}`}>{r.student_name}</div>
-                        <div className={`text-xs ${txt2}`}>{r.student_email}</div>
+                        <div className={`font-medium text-sm ${txt}`}>
+                          {r.student_name}
+                        </div>
+                        <div className={`text-xs ${txt2}`}>
+                          {r.student_email}
+                        </div>
                       </div>
-                      <div className={`text-xl font-semibold ${r.percentage >= 50 ? 'text-green-400' : 'text-red-400'}`}>
+
+                      <div
+                        className={`text-xl font-semibold ${
+                          r.percentage >= 50 ? 'text-green-400' : 'text-red-400'
+                        }`}
+                      >
                         {r.percentage}%
                       </div>
-                      <div className={`text-xs ${txt3}`}>{r.score}/{r.total}</div>
+
+                      <div className={`text-xs ${txt3}`}>
+                        {r.score}/{r.total}
+                      </div>
+
                       <div
                         className={`text-xs px-2 py-1 rounded-full ${
                           r.percentage >= 50
@@ -1294,14 +1609,22 @@ const subTabInactive = 'learnly-subtab-inactive'
             {courseTab === 'announcements-tab' && (
               <div className="grid grid-cols-2 gap-6">
                 <div className={`${card} border rounded-xl p-5`}>
-                  <div className={`text-sm font-medium ${txt} mb-4`}>Post announcement</div>
+                  <div className={`text-sm font-medium ${txt} mb-4`}>
+                    Post announcement
+                  </div>
+
                   <form onSubmit={createAnnouncement} className="space-y-3">
                     <div>
                       <label className={lbl}>Title</label>
                       <input
                         required
                         value={announceForm.title}
-                        onChange={(e) => setAnnounceForm({ ...announceForm, title: e.target.value })}
+                        onChange={(e) =>
+                          setAnnounceForm({
+                            ...announceForm,
+                            title: e.target.value,
+                          })
+                        }
                         className={inp}
                         placeholder="Announcement title"
                       />
@@ -1312,33 +1635,54 @@ const subTabInactive = 'learnly-subtab-inactive'
                       <textarea
                         required
                         value={announceForm.body}
-                        onChange={(e) => setAnnounceForm({ ...announceForm, body: e.target.value })}
-                        className={inp + ' h-28 resize-none'}
+                        onChange={(e) =>
+                          setAnnounceForm({
+                            ...announceForm,
+                            body: e.target.value,
+                          })
+                        }
+                        className={`${inp} h-28 resize-none`}
                         placeholder="Write your message..."
                       />
                     </div>
 
-                    <button type="submit" className={btn + ' w-full'}>
+                    <button type="submit" className={`${btn} w-full`}>
                       Post Announcement
                     </button>
                   </form>
                 </div>
 
                 <div>
-                  <div className={`text-sm font-medium ${txt2} mb-3`}>Posted ({announcements.length})</div>
-                  {announcements.length === 0 && <div className={`text-sm ${txt3}`}>No announcements yet</div>}
+                  <div className={`text-sm font-medium ${txt2} mb-3`}>
+                    Posted ({announcements.length})
+                  </div>
+
+                  {announcements.length === 0 && (
+                    <div className={`text-sm ${txt3}`}>No announcements yet</div>
+                  )}
+
                   <div className="flex flex-col gap-3">
                     {announcements.map((a) => (
                       <div key={a.id} className={`${card} border rounded-xl p-4`}>
                         <div className="flex items-start justify-between gap-2">
                           <div>
-                            <div className={`font-medium text-sm ${txt}`}>{a.title}</div>
-                            <div className={`text-xs ${txt2} mt-1`}>{a.body}</div>
+                            <div className={`font-medium text-sm ${txt}`}>
+                              {a.title}
+                            </div>
+
+                            <div className={`text-xs ${txt2} mt-1`}>
+                              {a.body}
+                            </div>
+
                             <div className={`text-xs ${txt3} mt-2`}>
                               {new Date(a.created_at).toLocaleDateString()}
                             </div>
                           </div>
-                          <button onClick={() => deleteAnnouncement(a.id)} className="text-xs text-red-400 hover:text-red-300 shrink-0">
+
+                          <button
+                            onClick={() => deleteAnnouncement(a.id)}
+                            className="text-xs text-red-400 hover:text-red-300 shrink-0"
+                          >
                             ✕
                           </button>
                         </div>
@@ -1354,14 +1698,22 @@ const subTabInactive = 'learnly-subtab-inactive'
         {tab === 'attendance' && (
           <div className="grid grid-cols-2 gap-6">
             <div className={`${card} border rounded-xl p-5`}>
-              <div className={`text-sm font-medium ${txt} mb-4`}>Mark attendance</div>
+              <div className={`text-sm font-medium ${txt} mb-4`}>
+                Mark attendance
+              </div>
+
               <form onSubmit={markAttendance} className="space-y-3">
                 <div>
                   <label className={lbl}>Student</label>
                   <select
                     required
                     value={attendForm.student_id}
-                    onChange={(e) => setAttendForm({ ...attendForm, student_id: e.target.value })}
+                    onChange={(e) =>
+                      setAttendForm({
+                        ...attendForm,
+                        student_id: e.target.value,
+                      })
+                    }
                     className={inp}
                   >
                     <option value="">Select student</option>
@@ -1378,7 +1730,12 @@ const subTabInactive = 'learnly-subtab-inactive'
                   <select
                     required
                     value={attendForm.course_id}
-                    onChange={(e) => setAttendForm({ ...attendForm, course_id: e.target.value })}
+                    onChange={(e) =>
+                      setAttendForm({
+                        ...attendForm,
+                        course_id: e.target.value,
+                      })
+                    }
                     className={inp}
                   >
                     <option value="">Select course</option>
@@ -1392,21 +1749,31 @@ const subTabInactive = 'learnly-subtab-inactive'
 
                 <div>
                   <label className={lbl}>Status</label>
+
                   <div className="flex gap-3">
                     <button
                       type="button"
-                      onClick={() => setAttendForm({ ...attendForm, present: true })}
+                      onClick={() =>
+                        setAttendForm({ ...attendForm, present: true })
+                      }
                       className={`flex-1 py-2 rounded-lg text-sm transition ${
-                        attendForm.present ? 'bg-green-600 text-white' : subTabInactive
+                        attendForm.present
+                          ? 'bg-green-600 text-white'
+                          : subTabInactive
                       }`}
                     >
                       Present
                     </button>
+
                     <button
                       type="button"
-                      onClick={() => setAttendForm({ ...attendForm, present: false })}
+                      onClick={() =>
+                        setAttendForm({ ...attendForm, present: false })
+                      }
                       className={`flex-1 py-2 rounded-lg text-sm transition ${
-                        !attendForm.present ? 'bg-red-600 text-white' : subTabInactive
+                        !attendForm.present
+                          ? 'bg-red-600 text-white'
+                          : subTabInactive
                       }`}
                     >
                       Absent
@@ -1414,26 +1781,40 @@ const subTabInactive = 'learnly-subtab-inactive'
                   </div>
                 </div>
 
-                <button type="submit" className={btn + ' w-full'}>
+                <button type="submit" className={`${btn} w-full`}>
                   Mark Attendance
                 </button>
               </form>
             </div>
 
             <div>
-              <div className={`text-sm font-medium ${txt2} mb-3`}>Attendance overview</div>
+              <div className={`text-sm font-medium ${txt2} mb-3`}>
+                Attendance overview
+              </div>
+
               <div className="flex flex-col gap-2">
                 {students.map((s) => (
-                  <div key={s.id} className={`${card} border rounded-lg p-3 flex items-center gap-3`}>
+                  <div
+                    key={s.id}
+                    className={`${card} border rounded-lg p-3 flex items-center gap-3`}
+                  >
                     <div className={`text-sm ${txt} flex-1`}>{s.name}</div>
+
                     <div className="w-28 h-1.5 bg-white/10 rounded-full">
                       <div
-                        className={`h-1.5 rounded-full ${s.attendance_rate >= 75 ? 'bg-green-500' : 'bg-amber-500'}`}
-                        style={{ width: s.attendance_rate + '%' }}
+                        className={`h-1.5 rounded-full ${
+                          s.attendance_rate >= 75 ? 'bg-green-500' : 'bg-amber-500'
+                        }`}
+                        style={{ width: `${s.attendance_rate || 0}%` }}
                       />
                     </div>
-                    <div className={`text-xs w-10 text-right ${s.attendance_rate >= 75 ? 'text-green-400' : 'text-amber-400'}`}>
-                      {s.attendance_rate}%
+
+                    <div
+                      className={`text-xs w-10 text-right ${
+                        s.attendance_rate >= 75 ? 'text-green-400' : 'text-amber-400'
+                      }`}
+                    >
+                      {s.attendance_rate || 0}%
                     </div>
                   </div>
                 ))}
@@ -1445,14 +1826,22 @@ const subTabInactive = 'learnly-subtab-inactive'
         {tab === 'certificates' && (
           <div className="grid grid-cols-2 gap-6">
             <div className={`${card} border rounded-xl p-5`}>
-              <div className={`text-sm font-medium ${txt} mb-4`}>Issue certificate</div>
+              <div className={`text-sm font-medium ${txt} mb-4`}>
+                Issue certificate
+              </div>
+
               <form onSubmit={issueCertificate} className="space-y-3">
                 <div>
                   <label className={lbl}>Student</label>
                   <select
                     required
                     value={certForm.student_id}
-                    onChange={(e) => setCertForm({ ...certForm, student_id: e.target.value })}
+                    onChange={(e) =>
+                      setCertForm({
+                        ...certForm,
+                        student_id: e.target.value,
+                      })
+                    }
                     className={inp}
                   >
                     <option value="">Select student</option>
@@ -1469,7 +1858,12 @@ const subTabInactive = 'learnly-subtab-inactive'
                   <select
                     required
                     value={certForm.course_id}
-                    onChange={(e) => setCertForm({ ...certForm, course_id: e.target.value })}
+                    onChange={(e) =>
+                      setCertForm({
+                        ...certForm,
+                        course_id: e.target.value,
+                      })
+                    }
                     className={inp}
                   >
                     <option value="">Select course</option>
@@ -1481,16 +1875,21 @@ const subTabInactive = 'learnly-subtab-inactive'
                   </select>
                 </div>
 
-                <button type="submit" className={btn + ' w-full'}>
+                <button type="submit" className={`${btn} w-full`}>
                   Issue Certificate
                 </button>
               </form>
             </div>
 
             <div>
-              <div className={`text-sm font-medium ${txt2} mb-3`}>Issued certificates</div>
+              <div className={`text-sm font-medium ${txt2} mb-3`}>
+                Issued certificates
+              </div>
+
               {students.filter((s) => s.certificates > 0).length === 0 ? (
-                <div className={`text-sm ${txt3}`}>No certificates issued yet.</div>
+                <div className={`text-sm ${txt3}`}>
+                  No certificates issued yet.
+                </div>
               ) : (
                 students
                   .filter((s) => s.certificates > 0)
@@ -1503,7 +1902,10 @@ const subTabInactive = 'learnly-subtab-inactive'
                         <div className={`text-sm ${txt}`}>{s.name}</div>
                         <div className={`text-xs ${txt2}`}>{s.email}</div>
                       </div>
-                      <div className="text-xs text-amber-400">🏅 {s.certificates}</div>
+
+                      <div className="text-xs text-amber-400">
+                        🏅 {s.certificates}
+                      </div>
                     </div>
                   ))
               )}
@@ -1514,13 +1916,21 @@ const subTabInactive = 'learnly-subtab-inactive'
         {tab === 'progress' && (
           <div className="grid grid-cols-2 gap-6">
             <div className={`${card} border rounded-xl p-5`}>
-              <div className={`text-sm font-medium ${txt} mb-4`}>Update student progress</div>
+              <div className={`text-sm font-medium ${txt} mb-4`}>
+                Update student progress
+              </div>
+
               <form onSubmit={updateProgress} className="space-y-3">
                 <div>
                   <label className={lbl}>Student & course</label>
                   <select
                     required
-                    onChange={(e) => setProgressForm({ ...progressForm, enrollment_id: e.target.value })}
+                    onChange={(e) =>
+                      setProgressForm({
+                        ...progressForm,
+                        enrollment_id: e.target.value,
+                      })
+                    }
                     className={inp}
                   >
                     <option value="">Select enrollment</option>
@@ -1542,34 +1952,54 @@ const subTabInactive = 'learnly-subtab-inactive'
                     min="0"
                     max="100"
                     value={progressForm.progress}
-                    onChange={(e) => setProgressForm({ ...progressForm, progress: e.target.value })}
+                    onChange={(e) =>
+                      setProgressForm({
+                        ...progressForm,
+                        progress: e.target.value,
+                      })
+                    }
                     className={inp}
                     placeholder="0 to 100"
                   />
                 </div>
 
-                <button type="submit" className={btn + ' w-full'}>
+                <button type="submit" className={`${btn} w-full`}>
                   Update
                 </button>
               </form>
             </div>
 
             <div>
-              <div className={`text-sm font-medium ${txt2} mb-3`}>All progress</div>
+              <div className={`text-sm font-medium ${txt2} mb-3`}>
+                All progress
+              </div>
+
               <div className="flex flex-col gap-3">
                 {students.map((s) => (
                   <div key={s.id} className={`${card} border rounded-xl p-4`}>
-                    <div className={`font-medium text-sm ${txt} mb-2`}>{s.name}</div>
+                    <div className={`font-medium text-sm ${txt} mb-2`}>
+                      {s.name}
+                    </div>
+
                     {s.enrollments?.length === 0 ? (
                       <div className={`text-xs ${txt3}`}>No enrollments</div>
                     ) : (
                       s.enrollments?.map((e, i) => (
                         <div key={i} className="flex items-center gap-3 mb-1.5">
-                          <div className={`flex-1 text-xs ${txt2} truncate`}>{e.course_title}</div>
-                          <div className="w-28 h-1.5 bg-white/10 rounded-full">
-                            <div className="h-1.5 bg-violet-500 rounded-full" style={{ width: e.progress + '%' }} />
+                          <div className={`flex-1 text-xs ${txt2} truncate`}>
+                            {e.course_title}
                           </div>
-                          <div className={`text-xs ${txt2} w-8 text-right`}>{e.progress}%</div>
+
+                          <div className="w-28 h-1.5 bg-white/10 rounded-full">
+                            <div
+                              className="h-1.5 bg-violet-500 rounded-full"
+                              style={{ width: `${e.progress || 0}%` }}
+                            />
+                          </div>
+
+                          <div className={`text-xs ${txt2} w-8 text-right`}>
+                            {e.progress || 0}%
+                          </div>
                         </div>
                       ))
                     )}
