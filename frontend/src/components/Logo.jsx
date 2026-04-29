@@ -1,4 +1,4 @@
-export default function Logo({ size = 40, showText = true, textSize = 'text-xl' }) {
+export default function Logo({ size = 50, showText = true, textSize = 'text-xl' }) {
   return (
     <div className="flex items-center gap-3">
       
