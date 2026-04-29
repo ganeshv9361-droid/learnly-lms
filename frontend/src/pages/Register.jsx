@@ -55,8 +55,8 @@ export default function Register({ onSwitch }) {
 
       <div className="relative z-10 w-full max-w-sm">
         <div className="text-center mb-6 animate-fade-up">
-          <div className="flex justify-center mb-3">
-            <Logo size={52} showText={false}/>
+          <div className="flex justify-center mb-4">
+            <Logo size={64} showText={false}/>
           </div>
           <Logo size={0} showText={true} textSize="text-4xl"/>
           <p className="text-sm mt-1" style={{color:'var(--text3)'}}>Join thousands of learners</p>
@@ -67,7 +67,7 @@ export default function Register({ onSwitch }) {
 
           <div className="mb-5">
             <h2 className="flex justify-center text-white">Create account</h2>
-            <p className="text-sm mt-0.5" style={{color:'var(--text3)'}}>Free forever. No credit card needed.</p>
+            <p className="flex justify-center" style={{color:'var(--text3)'}}>Free forever. No credit card needed.</p>
           </div>
 
           {error && (
