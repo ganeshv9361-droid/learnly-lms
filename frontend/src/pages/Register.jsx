@@ -66,7 +66,7 @@ export default function Register({ onSwitch }) {
           style={{background:'rgba(13,13,26,0.85)',backdropFilter:'blur(40px)'}}>
 
           <div className="mb-5">
-            <h2 className="text-xl font-semibold text-white">Create account</h2>
+            <h2 className="flex justify-center text-white">Create account</h2>
             <p className="text-sm mt-0.5" style={{color:'var(--text3)'}}>Free forever. No credit card needed.</p>
           </div>
 
