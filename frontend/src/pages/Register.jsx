@@ -49,9 +49,9 @@ export default function Register({ onSwitch }) {
   )
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden px-4 py-8"
-      style={{background:'radial-gradient(ellipse at 80% 20%, rgba(6,182,212,0.1) 0%, transparent 50%), radial-gradient(ellipse at 20% 80%, rgba(124,58,237,0.1) 0%, transparent 50%), #080810'}}>
-      <Particles />
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden px-4"
+          style={{background:'radial-gradient(ellipse at 20% 50%, rgba(124,58,237,0.12) 0%, transparent 60%), radial-gradient(ellipse at 80% 50%, rgba(6,182,212,0.08) 0%, transparent 60%), #080810'}}>
+          <Particles />
 
       <div className="relative z-10 w-full max-w-sm">
         <div className="text-center mb-6 animate-fade-up">
