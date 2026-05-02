@@ -5,27 +5,46 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   build:
     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
+
+      - name: Setup Android SDK
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y wget unzip
+          mkdir -p $HOME/android-sdk/cmdline-tools
+          cd $HOME/android-sdk/cmdline-tools
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip -q commandlinetools-linux-11076708_latest.zip
+          mv cmdline-tools latest
+          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
+          echo "$HOME/android-sdk/platform-tools" >> $GITHUB_PATH
+
+      - name: Accept licenses and install SDK packages
+        run: |
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager \
+            "platforms;android-34" \
+            "build-tools;34.0.0" \
+            "platform-tools"
 
       - name: Install frontend dependencies
         working-directory: frontend
@@ -35,7 +54,7 @@ jobs:
         working-directory: frontend
         run: npm run build
 
-      - name: Install Capacitor packages
+      - name: Install Capacitor
         working-directory: frontend
         run: npm install @capacitor/core @capacitor/cli @capacitor/android
 
@@ -59,22 +78,20 @@ jobs:
 
       - name: Add Android platform
         working-directory: frontend
-        run: npx cap add android --no-telemetry
+        run: npx cap add android
 
-      - name: Sync web assets
+      - name: Sync Capacitor
         working-directory: frontend
-        run: npx cap sync android --no-telemetry
-
-      - name: Make gradlew executable
-        working-directory: frontend/android
-        run: chmod +x gradlew
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        run: npx cap sync android
 
       - name: Build Debug APK
         working-directory: frontend/android
-        run: ./gradlew assembleDebug --no-daemon --stacktrace
+        env:
+          ANDROID_HOME: ${{ env.ANDROID_HOME }}
+          ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
