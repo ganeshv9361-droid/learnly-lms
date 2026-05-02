@@ -1,0 +1,85 @@
+name: Build Learnly APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm install
+
+      - name: Build React app
+        working-directory: frontend
+        run: npm run build
+
+      - name: Install Capacitor
+        working-directory: frontend
+        run: |
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+
+      - name: Create Capacitor config
+        working-directory: frontend
+        run: |
+          cat > capacitor.config.json << 'CAPEOF'
+          {
+            "appId": "com.learnly.app",
+            "appName": "Learnly",
+            "webDir": "dist",
+            "server": {
+              "androidScheme": "https",
+              "cleartext": true
+            },
+            "android": {
+              "allowMixedContent": true,
+              "backgroundColor": "#080810",
+              "minSdkVersion": 22
+            }
+          }
+          CAPEOF
+
+      - name: Initialize Capacitor
+        working-directory: frontend
+        run: npx cap init "Learnly" "com.learnly.app" --web-dir dist
+
+      - name: Add Android platform
+        working-directory: frontend
+        run: npx cap add android
+
+      - name: Sync Capacitor
+        working-directory: frontend
+        run: npx cap sync android
+
+      - name: Make gradlew executable
+        working-directory: frontend/android
+        run: chmod +x gradlew
+
+      - name: Build Debug APK
+        working-directory: frontend/android
+        run: ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: Learnly-APK
+          path: frontend/android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 7
