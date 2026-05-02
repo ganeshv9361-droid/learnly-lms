@@ -5,6 +5,9 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -32,15 +35,14 @@ jobs:
         working-directory: frontend
         run: npm run build
 
-      - name: Install Capacitor
+      - name: Install Capacitor packages
         working-directory: frontend
         run: npm install @capacitor/core @capacitor/cli @capacitor/android
 
-      - name: Create Capacitor config
+      - name: Write Capacitor config
         working-directory: frontend
         run: |
-          cat > capacitor.config.json << 'CAPEOF'
-          {
+          echo '{
             "appId": "com.learnly.app",
             "appName": "Learnly",
             "webDir": "dist",
@@ -53,30 +55,28 @@ jobs:
               "backgroundColor": "#080810",
               "minSdkVersion": 22
             }
-          }
-          CAPEOF
-
-      - name: Initialize Capacitor
-        working-directory: frontend
-        run: npx cap init "Learnly" "com.learnly.app" --web-dir dist
+          }' > capacitor.config.json
 
       - name: Add Android platform
         working-directory: frontend
-        run: npx cap add android
+        run: npx cap add android --no-telemetry
 
-      - name: Sync Capacitor
+      - name: Sync web assets
         working-directory: frontend
-        run: npx cap sync android
+        run: npx cap sync android --no-telemetry
 
       - name: Make gradlew executable
         working-directory: frontend/android
         run: chmod +x gradlew
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
       - name: Build Debug APK
         working-directory: frontend/android
-        run: ./gradlew assembleDebug
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
 
-      - name: Upload APK artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Learnly-APK
