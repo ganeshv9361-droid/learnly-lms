@@ -5,9 +5,11 @@ from database import get_db
 from auth import hash_password, verify_password, create_token, get_current_user
 from pydantic import BaseModel
 from typing import Optional
-import models, uuid
+import models, uuid, requests, os
 
 router = APIRouter()
+
+FIREBASE_PROJECT_ID = os.getenv("FIREBASE_PROJECT_ID", "learnly-app-12579")
 
 class RegisterIn(BaseModel):
     name: str
@@ -23,13 +25,65 @@ class ChangePasswordIn(BaseModel):
     current_password: str
     new_password: str
 
+class FirebaseLoginIn(BaseModel):
+    firebase_token: str
+    role: Optional[str] = "student"
+    referral_code: Optional[str] = None
+
+def verify_firebase_token(token: str) -> dict:
+    url = f"https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=AIzaSyDFrVUnncjkaJyH0oCRnYrR7dByl9PrLrA"
+    resp = requests.post(url, json={"idToken": token})
+    if resp.status_code != 200:
+        raise HTTPException(status_code=401, detail="Invalid Firebase token")
+    users = resp.json().get("users", [])
+    if not users:
+        raise HTTPException(status_code=401, detail="Firebase user not found")
+    return users[0]
+
+@router.post("/firebase-login")
+def firebase_login(data: FirebaseLoginIn, db: Session = Depends(get_db)):
+    firebase_user = verify_firebase_token(data.firebase_token)
+    email = firebase_user.get("email") or f"{firebase_user.get('localId')}@phone.learnly.app"
+    name = firebase_user.get("displayName") or firebase_user.get("email", "").split("@")[0] or "User"
+    user = db.query(models.User).filter(models.User.email == email).first()
+    if not user:
+        referrer = None
+        if data.referral_code:
+            referrer = db.query(models.User).filter(
+                models.User.referral_code == data.referral_code
+            ).first()
+        user = models.User(
+            name=name,
+            email=email,
+            hashed_password=hash_password(str(uuid.uuid4())),
+            role=data.role,
+            referral_code=str(uuid.uuid4())[:8].upper(),
+            referred_by=referrer.id if referrer else None
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+        if referrer:
+            ref = models.Referral(referrer_id=referrer.id, referred_id=user.id)
+            db.add(ref)
+            db.commit()
+    token = create_token({"sub": user.email})
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "role": user.role,
+        "name": user.name
+    }
+
 @router.post("/register")
 def register(data: RegisterIn, db: Session = Depends(get_db)):
     if db.query(models.User).filter(models.User.email == data.email).first():
         raise HTTPException(status_code=400, detail="Email already registered")
     referrer = None
     if data.referral_code:
-        referrer = db.query(models.User).filter(models.User.referral_code == data.referral_code).first()
+        referrer = db.query(models.User).filter(
+            models.User.referral_code == data.referral_code
+        ).first()
     user = models.User(
         name=data.name,
         email=data.email,
@@ -87,19 +141,32 @@ def all_users(db: Session = Depends(get_db), _=Depends(get_current_user)):
     users = db.query(models.User).all()
     result = []
     for u in users:
-        enrollments = db.query(models.Enrollment).filter(models.Enrollment.user_id == u.id).all()
+        enrollments = db.query(models.Enrollment).filter(
+            models.Enrollment.user_id == u.id
+        ).all()
         enroll_details = []
         for e in enrollments:
             course = db.query(models.Course).filter(models.Course.id == e.course_id).first()
-            enroll_details.append({"course_title": course.title if course else "", "progress": e.progress})
-        assessments = db.query(models.Assessment).filter(models.Assessment.user_id == u.id).all()
-        avg_score = round(sum(a.score/a.max_score*100 for a in assessments)/len(assessments),1) if assessments else 0
+            enroll_details.append({
+                "course_title": course.title if course else "",
+                "progress": e.progress
+            })
+        assessments = db.query(models.Assessment).filter(
+            models.Assessment.user_id == u.id
+        ).all()
+        avg_score = round(
+            sum(a.score/a.max_score*100 for a in assessments)/len(assessments), 1
+        ) if assessments else 0
         att = db.query(models.Attendance).filter(models.Attendance.user_id == u.id).all()
-        att_rate = round(sum(1 for a in att if a.present)/len(att)*100,1) if att else 0
+        att_rate = round(
+            sum(1 for a in att if a.present)/len(att)*100, 1
+        ) if att else 0
         result.append({
             "id": u.id, "name": u.name, "email": u.email, "role": u.role,
             "created_at": u.created_at, "enrollments": enroll_details,
             "avg_score": avg_score, "attendance_rate": att_rate,
-            "certificates": db.query(models.Certificate).filter(models.Certificate.user_id == u.id).count()
+            "certificates": db.query(models.Certificate).filter(
+                models.Certificate.user_id == u.id
+            ).count()
         })
     return result

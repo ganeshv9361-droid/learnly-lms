@@ -27,7 +27,7 @@ jobs:
       - name: Setup Android SDK
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y wget unzip
+          sudo apt-get install -y wget unzip imagemagick
           mkdir -p $HOME/android-sdk/cmdline-tools
           cd $HOME/android-sdk/cmdline-tools
           wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
@@ -38,7 +38,7 @@ jobs:
           echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
           echo "$HOME/android-sdk/platform-tools" >> $GITHUB_PATH
 
-      - name: Accept licenses and install SDK packages
+      - name: Accept licenses and install SDK
         run: |
           yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
           $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager \
@@ -46,21 +46,16 @@ jobs:
             "build-tools;34.0.0" \
             "platform-tools"
 
-      - name: Install frontend dependencies
-        working-directory: frontend
-        run: npm install
-
-      - name: Build React app
-        working-directory: frontend
-        run: npm run build
-
-      - name: Install Capacitor
-        working-directory: frontend
-        run: npm install @capacitor/core @capacitor/cli @capacitor/android
-
-      - name: Write Capacitor config
+      - name: Install and build frontend
         working-directory: frontend
         run: |
+          npm install
+          npm run build
+
+      - name: Setup Capacitor
+        working-directory: frontend
+        run: |
+          npm install @capacitor/core @capacitor/cli @capacitor/android
           echo '{
             "appId": "com.learnly.app",
             "appName": "Learnly",
@@ -75,14 +70,41 @@ jobs:
               "minSdkVersion": 22
             }
           }' > capacitor.config.json
+          npx cap add android
+          npx cap sync android
 
-      - name: Add Android platform
-        working-directory: frontend
-        run: npx cap add android
-
-      - name: Sync Capacitor
-        working-directory: frontend
-        run: npx cap sync android
+      - name: Generate app icons
+        run: |
+          cat > /tmp/icon.svg << 'SVGEOF'
+          <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+            <rect width="1024" height="1024" fill="#080810" rx="200"/>
+            <circle cx="512" cy="512" r="460" fill="rgba(124,58,237,0.15)" stroke="rgba(124,58,237,0.4)" stroke-width="8"/>
+            <path d="M 256 512 C 256 358, 384 282, 512 358 C 640 434, 768 358, 768 512 C 768 666, 640 742, 512 666 C 384 590, 256 666, 256 512 Z"
+              stroke="url(#g1)" stroke-width="60" fill="none" stroke-linecap="round"/>
+            <path d="M 430 450 C 470 490, 550 530, 590 570" stroke="#06b6d4" stroke-width="60" fill="none" stroke-linecap="round"/>
+            <path d="M 590 450 C 550 490, 470 530, 430 570" stroke="#7c3aed" stroke-width="60" fill="none" stroke-linecap="round"/>
+            <circle cx="512" cy="512" r="40" fill="#7c3aed"/>
+            <circle cx="256" cy="512" r="28" fill="#06b6d4"/>
+            <circle cx="768" cy="512" r="28" fill="#7c3aed"/>
+            <defs>
+              <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#7c3aed"/>
+                <stop offset="50%" stop-color="#06b6d4"/>
+                <stop offset="100%" stop-color="#7c3aed"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          SVGEOF
+          convert -background none /tmp/icon.svg -resize 1024x1024 /tmp/icon.png
+          ANDROID_RES=frontend/android/app/src/main/res
+          for size in "48:mdpi" "72:hdpi" "96:xhdpi" "144:xxhdpi" "192:xxxhdpi"; do
+            px="${size%%:*}"
+            dpi="${size##*:}"
+            mkdir -p "$ANDROID_RES/mipmap-$dpi"
+            convert /tmp/icon.png -resize ${px}x${px} "$ANDROID_RES/mipmap-$dpi/ic_launcher.png"
+            convert /tmp/icon.png -resize ${px}x${px} "$ANDROID_RES/mipmap-$dpi/ic_launcher_round.png"
+          done
+          echo "Icons generated successfully"
 
       - name: Build Debug APK
         working-directory: frontend/android

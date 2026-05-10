@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import api from '../api/axios'
+import { auth } from '../firebase'
+import { onAuthStateChanged } from 'firebase/auth'
 
 const AuthContext = createContext()
 
@@ -30,13 +32,26 @@ export function AuthProvider({ children }) {
     return me.data
   }
 
-  const logout = () => {
+  const loginWithFirebase = async (firebaseToken, role = 'student', referral_code = '') => {
+    const res = await api.post('/users/firebase-login', {
+      firebase_token: firebaseToken,
+      role,
+      referral_code: referral_code || undefined
+    })
+    localStorage.setItem('token', res.data.access_token)
+    const me = await api.get('/users/me')
+    setUser(me.data)
+    return me.data
+  }
+
+  const logout = async () => {
     localStorage.removeItem('token')
+    try { await auth.signOut() } catch(e) {}
     setUser(null)
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, loginWithFirebase, logout, loading }}>
       {children}
     </AuthContext.Provider>
   )

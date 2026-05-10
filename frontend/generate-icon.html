@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;background:#080810;">
+<canvas id="c" width="1024" height="1024"></canvas>
+<script>
+const c = document.getElementById('c')
+const ctx = c.getContext('2d')
+const s = 1024
+
+ctx.fillStyle = '#080810'
+ctx.fillRect(0,0,s,s)
+
+const r = s/2
+const g1 = ctx.createLinearGradient(0,0,s,s)
+g1.addColorStop(0,'#7c3aed')
+g1.addColorStop(0.5,'#06b6d4')
+g1.addColorStop(1,'#7c3aed')
+
+ctx.beginPath()
+ctx.arc(r,r,r-20,0,Math.PI*2)
+ctx.fillStyle='rgba(124,58,237,0.15)'
+ctx.fill()
+ctx.strokeStyle='rgba(124,58,237,0.4)'
+ctx.lineWidth=8
+ctx.stroke()
+
+ctx.strokeStyle=g1
+ctx.lineWidth=60
+ctx.lineCap='round'
+ctx.beginPath()
+ctx.moveTo(256,512)
+ctx.bezierCurveTo(256,358,384,282,512,358)
+ctx.bezierCurveTo(640,434,768,358,768,512)
+ctx.bezierCurveTo(768,666,640,742,512,666)
+ctx.bezierCurveTo(384,590,256,666,256,512)
+ctx.stroke()
+
+ctx.strokeStyle='#06b6d4'
+ctx.lineWidth=60
+ctx.beginPath()
+ctx.moveTo(430,450)
+ctx.bezierCurveTo(470,490,550,530,590,570)
+ctx.stroke()
+
+ctx.strokeStyle='#7c3aed'
+ctx.lineWidth=60
+ctx.beginPath()
+ctx.moveTo(590,450)
+ctx.bezierCurveTo(550,490,470,530,430,570)
+ctx.stroke()
+
+ctx.fillStyle=g1
+ctx.beginPath()
+ctx.arc(512,512,40,0,Math.PI*2)
+ctx.fill()
+
+ctx.fillStyle='#06b6d4'
+ctx.beginPath()
+ctx.arc(256,512,30,0,Math.PI*2)
+ctx.fill()
+
+ctx.fillStyle='#7c3aed'
+ctx.beginPath()
+ctx.arc(768,512,30,0,Math.PI*2)
+ctx.fill()
+
+const link = document.createElement('a')
+link.download = 'learnly-icon.png'
+link.href = c.toDataURL()
+link.click()
+</script>
+</body>
+</html>
