@@ -6,11 +6,12 @@ from pydantic import BaseModel
 from typing import Optional
 import models
 import os
-from dotenv import load_dotenv
-load_dotenv()
 
+from dotenv import load_dotenv
 import cloudinary
 import cloudinary.uploader
+
+load_dotenv()
 
 router = APIRouter()
 
@@ -27,6 +28,7 @@ class YoutubeIn(BaseModel):
     youtube_url: str
     order: Optional[int] = 0
 
+
 @router.post("/youtube")
 def add_youtube(
     data: YoutubeIn,
@@ -40,10 +42,13 @@ def add_youtube(
         file_path=None,
         order=data.order
     )
+
     db.add(video)
     db.commit()
     db.refresh(video)
+
     return video
+
 
 @router.post("/upload")
 async def upload_video(
@@ -54,21 +59,24 @@ async def upload_video(
     db: Session = Depends(get_db),
     _=Depends(get_current_user)
 ):
-    if not os.getenv("CLOUDINARY_CLOUD_NAME"):
+    cloud_name = os.getenv("CLOUDINARY_CLOUD_NAME")
+    api_key = os.getenv("CLOUDINARY_API_KEY")
+    api_secret = os.getenv("CLOUDINARY_API_SECRET")
+
+    if not cloud_name:
         raise HTTPException(status_code=500, detail="Cloudinary cloud name missing")
 
-    if not os.getenv("CLOUDINARY_API_KEY"):
+    if not api_key:
         raise HTTPException(status_code=500, detail="Cloudinary API key missing")
 
-    if not os.getenv("CLOUDINARY_API_SECRET"):
+    if not api_secret:
         raise HTTPException(status_code=500, detail="Cloudinary API secret missing")
 
     try:
-        result = cloudinary.uploader.upload(
+        result = cloudinary.uploader.upload_large(
             file.file,
             resource_type="video",
             folder="learnly/videos",
-            public_id=f"course_{course_id}_{title.replace(' ', '_')}",
             overwrite=False
         )
 
@@ -76,6 +84,12 @@ async def upload_video(
 
         if not video_url:
             raise HTTPException(status_code=500, detail="Cloudinary upload failed")
+
+        # Convert video to browser-friendly MP4 format
+        video_url = video_url.replace(
+            "/video/upload/",
+            "/video/upload/f_mp4,q_auto/"
+        )
 
         video = models.Video(
             course_id=course_id,
@@ -88,10 +102,12 @@ async def upload_video(
         db.add(video)
         db.commit()
         db.refresh(video)
+
         return video
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Video upload failed: {str(e)}")
+
 
 @router.get("/course/{course_id}")
 def get_videos(
@@ -102,6 +118,7 @@ def get_videos(
     return db.query(models.Video).filter(
         models.Video.course_id == course_id
     ).order_by(models.Video.order).all()
+
 
 @router.delete("/{video_id}")
 def delete_video(
