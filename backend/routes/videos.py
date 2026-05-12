@@ -6,6 +6,9 @@ from pydantic import BaseModel
 from typing import Optional
 import models
 import os
+from dotenv import load_dotenv
+load_dotenv()
+
 import cloudinary
 import cloudinary.uploader
 
