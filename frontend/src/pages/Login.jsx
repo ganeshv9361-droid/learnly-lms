@@ -34,16 +34,16 @@ export default function Login({ onSwitch }) {
     >
       <Particles />
 
-      <div className="relative z-10 w-full max-w-sm">
-        <div className="text-center mb-6 animate-fade-up">
+      <div className="relative z-10 w-full max-w-sm py-8">
+        <div className="text-center mb-4 animate-fade-up">
           <div className="flex justify-center mb-3">
             <div className="animate-pulse-glow rounded-3xl p-1">
-              <Logo size={60} showText={false} />
+              <Logo size={52} showText={false} />
             </div>
           </div>
 
           <div className="flex justify-center">
-            <Logo size={0} showText={true} textSize="text-4xl" />
+            <Logo size={0} showText={true} textSize="text-3xl" />
           </div>
 
           <p className="text-sm mt-1" style={{ color: 'var(--text3)' }}>
@@ -52,7 +52,7 @@ export default function Login({ onSwitch }) {
         </div>
 
         <div
-          className="card-base animate-fade-up delay-100 p-6"
+          className="card-base animate-fade-up delay-100 p-5"
           style={{
             background: 'rgba(13,13,26,0.85)',
             backdropFilter: 'blur(40px)'
