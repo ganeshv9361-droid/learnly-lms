@@ -902,114 +902,307 @@ export default function StudentDashboard() {
         const certUrl = `${window.location.origin}/certificate/${c.id}`
 
         const downloadPDF = () => {
-          const certificateHTML = `
-            <html>
-              <head>
-                <title>Learnly Certificate</title>
-                <style>
-                  body {
-                    margin: 0;
-                    padding: 40px;
-                    background: #0f0b1f;
-                    font-family: Georgia, serif;
-                    color: white;
-                  }
-                  .cert {
-                    border: 2px solid #7c3aed;
-                    border-radius: 24px;
-                    padding: 60px;
-                    text-align: center;
-                    background: linear-gradient(135deg, #100b24, #17122d);
-                  }
-                  .logo {
-                    font-size: 42px;
-                    color: #a78bfa;
-                    margin-bottom: 10px;
-                  }
-                  .small {
-                    letter-spacing: 8px;
-                    color: #9ca3af;
-                    font-size: 13px;
-                  }
-                  .name {
-                    font-size: 64px;
-                    margin: 35px 0;
-                  }
-                  .course {
-                    font-size: 34px;
-                    color: #a78bfa;
-                    font-family: Arial, sans-serif;
-                    font-weight: bold;
-                  }
-                  .line {
-                    border-top: 1px solid #6d28d9;
-                    margin: 30px 0;
-                  }
-                  .bottom {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: end;
-                    margin-top: 70px;
-                  }
-                  .code {
-                    border: 1px solid #7c3aed;
-                    border-radius: 12px;
-                    padding: 12px 20px;
-                    color: #e5e7eb;
-                    font-family: Arial, sans-serif;
-                  }
-                  .sign {
-                    font-size: 38px;
-                    font-style: italic;
-                  }
-                  .founder {
-                    color: #a78bfa;
-                    font-family: Arial, sans-serif;
-                    font-weight: bold;
-                  }
-                </style>
-              </head>
-              <body>
-                <div class="cert">
-                  <div class="logo">
-                  <img src="/logo.png" style="width:60px;height:60px;object-fit:contain;vertical-align:middle;margin-right:10px;" />
-                   Learnly
-                  </div>
-                  <div class="small">CERTIFICATE OF COMPLETION</div>
+         const uniqueCode = `LRNL-${new Date(c.issued_at).getFullYear()}-${c.id}-${Math.random().toString(36).substring(2,8).toUpperCase()}`
 
-                  <div style="font-size:55px;margin:45px 0 20px;">🏅</div>
+const certificateHTML = `
+<html>
+<head>
+<title>Learnly Certificate</title>
 
-                  <div class="small">THIS CERTIFIES THAT</div>
-                  <div class="name">${user?.name || 'Ganesh'}</div>
+<style>
+body{
+  margin:0;
+  padding:40px;
+  background:#070312;
+  font-family:Arial,sans-serif;
+}
 
-                  <div class="line"></div>
+.cert{
+  position:relative;
+  overflow:hidden;
+  border:2px solid #7c3aed;
+  border-radius:28px;
+  padding:70px;
+  background:
+    radial-gradient(circle at top left,#1f1147 0%,#090312 60%);
+  color:white;
+}
 
-                  <div class="small">HAS SUCCESSFULLY COMPLETED</div>
-                  <div class="course">${c.course}</div>
+.cert:before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(90deg,
+    transparent,
+    rgba(124,58,237,0.06),
+    transparent);
+}
 
-                  <p style="color:#9ca3af;margin-top:35px;">Issued on ${issueDate}</p>
+.logo-wrap{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:18px;
+}
 
-                  <div class="bottom">
-                    <div>
-                      <div class="small" style="letter-spacing:4px;margin-bottom:12px;">CERTIFICATE CODE</div>
-                      <div class="code">LRNL-${c.id}</div>
-                    </div>
+.logo{
+  width:75px;
+  height:75px;
+  object-fit:contain;
+}
 
-                    <div style="color:#10b981;font-family:Arial,sans-serif;">
-                      ✓ Verified by Learnly
-                    </div>
+.brand{
+  font-size:72px;
+  font-family:Georgia,serif;
+  color:#c4b5fd;
+}
 
-                    <div>
-                     <img src="/signature.png" style="width:140px;height:auto;margin-bottom:6px;" />
-                     <hr style="border-color:#7c3aed;" />
-                     <div class="founder">Learnly Founder</div>
-                      <div style="color:#9ca3af;font-size:12px;letter-spacing:4px;">FOUNDER, LEARNLY</div>
-                    </div>
-                  </div>
-                </div>
-              </body>
-            </html>
-          `
+.sub{
+  text-align:center;
+  letter-spacing:10px;
+  color:#9ca3af;
+  margin-top:10px;
+  font-size:15px;
+}
+
+.medal{
+  text-align:center;
+  font-size:70px;
+  margin:45px 0 25px;
+}
+
+.certifies{
+  text-align:center;
+  letter-spacing:8px;
+  color:#cbd5e1;
+  font-size:15px;
+}
+
+.name{
+  text-align:center;
+  font-size:90px;
+  font-family:Georgia,serif;
+  margin:30px 0;
+}
+
+.line{
+  width:100%;
+  height:2px;
+  background:#7c3aed;
+  margin:25px 0;
+  position:relative;
+}
+
+.line:after{
+  content:'✦';
+  position:absolute;
+  left:50%;
+  top:-16px;
+  transform:translateX(-50%);
+  color:#c084fc;
+  background:#0b0419;
+  padding:0 14px;
+  font-size:24px;
+}
+
+.complete{
+  text-align:center;
+  letter-spacing:8px;
+  color:#9ca3af;
+  font-size:14px;
+}
+
+.course{
+  text-align:center;
+  font-size:54px;
+  font-weight:bold;
+  margin-top:20px;
+  color:#a78bfa;
+}
+
+.issue{
+  text-align:center;
+  color:#9ca3af;
+  margin-top:30px;
+  font-size:24px;
+}
+
+.bottom{
+  margin-top:70px;
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  align-items:end;
+  gap:40px;
+}
+
+.code-title{
+  color:#cbd5e1;
+  letter-spacing:5px;
+  font-size:13px;
+  margin-bottom:14px;
+}
+
+.code-box{
+  border:2px solid #7c3aed;
+  border-radius:14px;
+  padding:16px;
+  font-size:24px;
+  color:white;
+}
+
+.verify-text{
+  margin-top:18px;
+  color:#a1a1aa;
+  line-height:1.7;
+  font-size:18px;
+}
+
+.verify-link{
+  color:#a78bfa;
+  font-weight:bold;
+}
+
+.verify-center{
+  text-align:center;
+}
+
+.verify-badge{
+  width:160px;
+  margin-bottom:20px;
+}
+
+.verify-btn{
+  display:inline-block;
+  padding:14px 34px;
+  border-radius:999px;
+  border:2px solid #10b981;
+  color:#10b981;
+  font-size:24px;
+  font-weight:bold;
+}
+
+.signature{
+  width:280px;
+  object-fit:contain;
+  margin-bottom:10px;
+}
+
+.sign-line{
+  border-top:2px solid #7c3aed;
+  margin-top:10px;
+  width:100%;
+}
+
+.founder{
+  color:#a78bfa;
+  font-size:32px;
+  font-weight:bold;
+  margin-top:14px;
+}
+
+.role{
+  color:#9ca3af;
+  letter-spacing:6px;
+  margin-top:10px;
+  font-size:14px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="cert">
+
+<div class="logo-wrap">
+  <img src="/logo.png" class="logo"/>
+  <div class="brand">Learnly</div>
+</div>
+
+<div class="sub">
+CERTIFICATE OF COMPLETION
+</div>
+
+<div class="medal">🏅</div>
+
+<div class="certifies">
+THIS CERTIFIES THAT
+</div>
+
+<div class="name">
+${user?.name || 'Ganesh'}
+</div>
+
+<div class="line"></div>
+
+<div class="complete">
+HAS SUCCESSFULLY COMPLETED
+</div>
+
+<div class="course">
+${c.course}
+</div>
+
+<div class="issue">
+Issued on ${issueDate}
+</div>
+
+<div class="bottom">
+
+<div>
+<div class="code-title">
+CERTIFICATE CODE
+</div>
+
+<div class="code-box">
+${uniqueCode}
+</div>
+
+<div class="verify-text">
+Use this code to verify authenticity at
+<br/>
+<span class="verify-link">
+learnly.com/verify
+</span>
+</div>
+</div>
+
+<div class="verify-center">
+
+<img
+src="https://cdn-icons-png.flaticon.com/512/190/190411.png"
+class="verify-badge"
+/>
+
+<div class="verify-btn">
+✓ Verified by Learnly
+</div>
+
+</div>
+
+<div style="text-align:center">
+
+<img src="/signature.png" class="signature"/>
+
+<div class="sign-line"></div>
+
+<div class="founder">
+Learnly Founder
+</div>
+
+<div class="role">
+FOUNDER, LEARNLY
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</body>
+</html>
+` 
 
           const printWindow = window.open('', '_blank')
           printWindow.document.write(certificateHTML)
