@@ -34,11 +34,11 @@ export default function Login({ onSwitch }) {
     >
       <Particles />
 
-      <div className="relative z-10 w-full max-w-sm mx-auto">
-        <div className="text-center mb-4 animate-fade-up">
+      <div className="relative z-10 w-full max-w-md mx-auto">
+        <div className="text-center mb-2 animate-fade-up">
           <div className="flex justify-center mb-3">
             <div className="animate-pulse-glow rounded-3xl p-1">
-              <Logo size={52} showText={false} />
+              <Logo size={46} showText={false} />
             </div>
           </div>
 
@@ -52,13 +52,13 @@ export default function Login({ onSwitch }) {
         </div>
 
         <div
-          className="card-base animate-fade-up delay-100 p-5 rounded-3xl"
+          className="animate-fade-up delay-100 p-6 rounded-2xl border border-white/10 w-full"
           style={{
-            background: 'rgba(13,13,26,0.92)',
-            WebkitBackdropFilter: 'blur(40px)',
-            backdropFilter: 'blur(40px)',
-            marginTop: '0px'
-          }}
+  background: 'rgba(12,12,24,0.55)',
+  WebkitBackdropFilter: 'blur(25px)',
+  backdropFilter: 'blur(25px)',
+  boxShadow: '0 8px 40px rgba(0,0,0,0.35)'
+}}
         >
           {error && (
             <div
