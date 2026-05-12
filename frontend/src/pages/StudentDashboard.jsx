@@ -258,6 +258,7 @@ export default function StudentDashboard() {
       )}
 
       <div className="flex-1 flex flex-col sm:flex-row p-4 gap-4 overflow-hidden">
+
 {courseTab === 'videos' && (
   <>
     <div className="flex-1 min-w-0">
@@ -293,15 +294,23 @@ export default function StudentDashboard() {
                 controls
                 autoPlay
                 playsInline
-                preload="metadata"
+                preload="auto"
                 className="w-full h-full bg-black"
-                src={activeVideo.file_path}
                 onEnded={() => markVideoWatched(activeVideo)}
                 onError={(e) => {
                   console.log("Video play error:", e.currentTarget.error)
                   console.log("Video URL:", activeVideo.file_path)
                 }}
               >
+                <source
+                  src={
+                    activeVideo.file_path?.startsWith("https")
+                      ? activeVideo.file_path
+                      : `https://learnly-lms-hqch.onrender.com${activeVideo.file_path}`
+                  }
+                  type="video/mp4"
+                />
+
                 Your browser does not support the video tag.
               </video>
             )}
@@ -319,7 +328,9 @@ export default function StudentDashboard() {
                   : 'bg-blue-500/15 text-blue-400'
               }`}
             >
-              {activeVideo.youtube_url ? '▶ YouTube' : '▶ Cloudinary Video'}
+              {activeVideo.youtube_url
+                ? '▶ YouTube'
+                : '▶ Cloudinary Video'}
             </span>
           </div>
         </div>
@@ -367,9 +378,14 @@ export default function StudentDashboard() {
             </div>
 
             <div className="flex-1 min-w-0">
-              <div className="text-sm text-white truncate">{v.title}</div>
+              <div className="text-sm text-white truncate">
+                {v.title}
+              </div>
+
               <div className="text-xs text-gray-500">
-                {v.youtube_url ? 'YouTube' : 'Cloudinary Video'}
+                {v.youtube_url
+                  ? 'YouTube'
+                  : 'Cloudinary Video'}
               </div>
             </div>
           </div>
@@ -378,7 +394,6 @@ export default function StudentDashboard() {
     </div>
   </>
 )}
-
         {courseTab==='assignments' && (
           <div className="flex-1 space-y-3">
             <div className="text-xs text-gray-500 uppercase tracking-widest mb-3">Assignments</div>
