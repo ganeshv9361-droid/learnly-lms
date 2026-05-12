@@ -1214,21 +1214,36 @@ FOUNDER, LEARNLY
         }
 
         const shareCertificate = async () => {
-          const shareText = `I successfully completed ${c.course} on Learnly. Certificate Code: LRNL-${c.id}`
+  const uniqueCode = `LRNL-${new Date(c.issued_at).getFullYear()}-${c.id}`
 
-          if (navigator.share) {
-            await navigator.share({
-              title: 'My Learnly Certificate',
-              text: shareText,
-              url: certUrl
-            })
-          } else {
-            window.open(
-              `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(shareText)}`,
-              '_blank'
-            )
-          }
-        }
+  const shareText =
+    `🎓 I successfully completed "${c.course}" on Learnly.\n\n` +
+    `Certificate Code: ${uniqueCode}\n` +
+    `Verified by Learnly.`
+
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: 'My Learnly Certificate',
+        text: shareText,
+        url: window.location.origin
+      })
+    } catch (err) {
+      console.log(err)
+    }
+  } else {
+    const linkedInShareUrl =
+      `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.origin)}`
+
+    window.open(linkedInShareUrl, '_blank')
+
+    navigator.clipboard.writeText(shareText)
+
+    alert(
+      'Certificate text copied! Paste it into your LinkedIn post.'
+    )
+  }
+}
 
         return (
           <div
