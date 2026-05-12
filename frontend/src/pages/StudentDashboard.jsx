@@ -258,66 +258,126 @@ export default function StudentDashboard() {
       )}
 
       <div className="flex-1 flex flex-col sm:flex-row p-4 gap-4 overflow-hidden">
+{courseTab === 'videos' && (
+  <>
+    <div className="flex-1 min-w-0">
+      {!activeVideo ? (
+        <div className="glass rounded-2xl h-48 flex items-center justify-center">
+          <div className="text-center text-gray-500">
+            <div className="text-3xl mb-2">🎬</div>
+            <div className="text-sm">No videos yet</div>
+          </div>
+        </div>
+      ) : (
+        <div>
+          <div
+            className="rounded-2xl overflow-hidden mb-3 shadow-2xl bg-black"
+            style={{ aspectRatio: '16/9' }}
+          >
+            {activeVideo.youtube_url ? (
+              <iframe
+                key={activeVideo.id}
+                width="100%"
+                height="100%"
+                src={`https://www.youtube.com/embed/${getYoutubeId(activeVideo.youtube_url)}?autoplay=1`}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full"
+                onLoad={() =>
+                  setTimeout(() => markVideoWatched(activeVideo), 30000)
+                }
+              />
+            ) : (
+              <video
+                key={activeVideo.id}
+                controls
+                autoPlay
+                playsInline
+                preload="metadata"
+                className="w-full h-full bg-black"
+                src={activeVideo.file_path}
+                onEnded={() => markVideoWatched(activeVideo)}
+                onError={(e) => {
+                  console.log("Video play error:", e.currentTarget.error)
+                  console.log("Video URL:", activeVideo.file_path)
+                }}
+              >
+                Your browser does not support the video tag.
+              </video>
+            )}
+          </div>
 
-        {courseTab==='videos' && (
-          <>
-            <div className="flex-1 min-w-0">
-              {!activeVideo ? (
-                <div className="glass rounded-2xl h-48 flex items-center justify-center">
-                  <div className="text-center text-gray-500">
-                    <div className="text-3xl mb-2">🎬</div>
-                    <div className="text-sm">No videos yet</div>
-                  </div>
-                </div>
-              ) : (
-                <div>
-                  <div className="rounded-2xl overflow-hidden mb-3 shadow-2xl bg-black"
-                    style={{aspectRatio:'16/9'}}>
-                    {activeVideo.youtube_url ? (
-                      <iframe key={activeVideo.id} width="100%" height="100%"
-                        src={`https://www.youtube.com/embed/${getYoutubeId(activeVideo.youtube_url)}?autoplay=1`}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen className="w-full h-full"
-                        onLoad={() => setTimeout(() => markVideoWatched(activeVideo), 30000)}/>
-                    ) : (
-                      <video key={activeVideo.id} controls autoPlay className="w-full h-full"
-                        src={`https://learnly-lms-hqch.onrender.com${activeVideo.file_path}`}
-                        onEnded={() => markVideoWatched(activeVideo)}/>
-                    )}
-                  </div>
-                  <div className="glass rounded-xl p-3 border border-white/5">
-                    <div className="font-semibold text-white text-sm">{activeVideo.title}</div>
-                    <span className={`text-xs px-2 py-0.5 rounded-full mt-1 inline-block ${activeVideo.youtube_url?'bg-red-500/15 text-red-400':'bg-blue-500/15 text-blue-400'}`}>
-                      {activeVideo.youtube_url?'▶ YouTube':'▶ Uploaded'}
-                    </span>
-                  </div>
-                </div>
-              )}
+          <div className="glass rounded-xl p-3 border border-white/5">
+            <div className="font-semibold text-white text-sm">
+              {activeVideo.title}
             </div>
-            <div className="w-full sm:w-64 shrink-0">
-              <div className="text-xs text-gray-500 uppercase tracking-widest mb-2 px-1">
-                Playlist · {videos.length} videos
-              </div>
-              <div className="flex flex-col gap-2 max-h-64 sm:max-h-full overflow-y-auto">
-                {videos.length===0 && <div className="text-sm text-gray-600 text-center py-4">No videos yet</div>}
-                {videos.map((v,i) => (
-                  <div key={v.id} onClick={() => setActiveVideo(v)}
-                    className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer border transition-all ${activeVideo?.id===v.id?'border-violet-500/40':'border-white/5 glass hover:border-white/15'}`}
-                    style={activeVideo?.id===v.id?{background:'rgba(124,58,237,0.15)'}:{}}>
-                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${activeVideo?.id===v.id?'btn-primary text-white':''}`}
-                      style={activeVideo?.id!==v.id?{background:'rgba(255,255,255,0.06)'}:{}}>
-                      {activeVideo?.id===v.id?'▶':i+1}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm text-white truncate">{v.title}</div>
-                      <div className="text-xs text-gray-500">{v.youtube_url?'YouTube':'Uploaded'}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </>
+
+            <span
+              className={`text-xs px-2 py-0.5 rounded-full mt-1 inline-block ${
+                activeVideo.youtube_url
+                  ? 'bg-red-500/15 text-red-400'
+                  : 'bg-blue-500/15 text-blue-400'
+              }`}
+            >
+              {activeVideo.youtube_url ? '▶ YouTube' : '▶ Cloudinary Video'}
+            </span>
+          </div>
+        </div>
+      )}
+    </div>
+
+    <div className="w-full sm:w-64 shrink-0">
+      <div className="text-xs text-gray-500 uppercase tracking-widest mb-2 px-1">
+        Playlist · {videos.length} videos
+      </div>
+
+      <div className="flex flex-col gap-2 max-h-64 sm:max-h-full overflow-y-auto">
+        {videos.length === 0 && (
+          <div className="text-sm text-gray-600 text-center py-4">
+            No videos yet
+          </div>
         )}
+
+        {videos.map((v, i) => (
+          <div
+            key={v.id}
+            onClick={() => setActiveVideo(v)}
+            className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer border transition-all ${
+              activeVideo?.id === v.id
+                ? 'border-violet-500/40'
+                : 'border-white/5 glass hover:border-white/15'
+            }`}
+            style={
+              activeVideo?.id === v.id
+                ? { background: 'rgba(124,58,237,0.15)' }
+                : {}
+            }
+          >
+            <div
+              className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${
+                activeVideo?.id === v.id ? 'btn-primary text-white' : ''
+              }`}
+              style={
+                activeVideo?.id !== v.id
+                  ? { background: 'rgba(255,255,255,0.06)' }
+                  : {}
+              }
+            >
+              {activeVideo?.id === v.id ? '▶' : i + 1}
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <div className="text-sm text-white truncate">{v.title}</div>
+              <div className="text-xs text-gray-500">
+                {v.youtube_url ? 'YouTube' : 'Cloudinary Video'}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </>
+)}
 
         {courseTab==='assignments' && (
           <div className="flex-1 space-y-3">
