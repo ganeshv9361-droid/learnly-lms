@@ -11,6 +11,16 @@ function getYoutubeId(url) {
   return match ? match[1] : null
 }
 
+function getVideoSrc(filePath) {
+  if (!filePath) return ''
+
+  if (filePath.startsWith('https://') || filePath.startsWith('http://')) {
+    return filePath
+  }
+
+  return `https://learnly-lms-hqch.onrender.com${filePath}`
+}
+
 const navItems = [
   ['courses','📚','Courses'],
   ['my-courses','📖','My Courses'],
@@ -85,16 +95,19 @@ export default function StudentDashboard() {
     setActiveQuiz(null)
     setCourseTab('videos')
     setTeacherContact(null)
+
     const [vids, asgn, qzs, contact] = await Promise.all([
       api.get(`/videos/course/${enrollment.course_id}`),
       api.get(`/assignments/course/${enrollment.course_id}`),
       api.get(`/quizzes/course/${enrollment.course_id}`),
       api.get(`/teacher-profile/course/${enrollment.course_id}/teacher-contact`).catch(() => ({data:null}))
     ])
+
     setVideos(vids.data)
     setAssignments(asgn.data)
     setQuizzes(qzs.data)
     setTeacherContact(contact.data)
+
     if (vids.data.length > 0) setActiveVideo(vids.data[0])
   }
 
@@ -111,10 +124,12 @@ export default function StudentDashboard() {
   const submitAssignment = async (e) => {
     e.preventDefault()
     if (!submitForm.file) return
+
     const fd = new FormData()
     fd.append('assignment_id', submitForm.assignment_id)
     fd.append('note', submitForm.note)
     fd.append('file', submitForm.file)
+
     try {
       await api.post('/assignments/submit', fd, { headers:{'Content-Type':'multipart/form-data'} })
       setSubmitForm({ assignment_id:'', note:'', file:null })
@@ -138,6 +153,7 @@ export default function StudentDashboard() {
     const ans = Object.entries(answers).map(([question_id, answer]) => ({
       question_id: parseInt(question_id), answer
     }))
+
     try {
       const r = await api.post('/quizzes/attempt', { quiz_id: activeQuiz.id, answers: ans })
       setQuizResult(r.data)
@@ -177,6 +193,7 @@ export default function StudentDashboard() {
   <div class="verified">✓ Verified by Learnly</div>
 </div>
 </body></html>`
+
     const blob = new Blob([html], { type:'text/html' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -195,38 +212,50 @@ export default function StudentDashboard() {
     <>
       <div className="p-4 border-b border-white/5">
         <div className="flex items-center gap-3">
-           <Logo size={42} showText={false} />
-           <span className="font-display text-lg font-bold gradient-text">Learnly</span>
+          <Logo size={42} showText={false} />
+          <span className="font-display text-lg font-bold gradient-text">Learnly</span>
         </div>
       </div>
+
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
         {navItems.map(([key,icon,label]) => (
-          <button key={key} onClick={() => { setTab(key); closeSidebar() }}
+          <button
+            key={key}
+            onClick={() => { setTab(key); closeSidebar() }}
             className={`nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${tab===key?'active':''}`}
-            style={tab!==key?{color:'#6b7280'}:{}}>
+            style={tab!==key?{color:'#6b7280'}:{}}
+          >
             <span style={{fontSize:16}}>{icon}</span>
             <span className="flex-1 text-left">{label}</span>
+
             {key==='announcements' && announcements.length>0 && (
-              <span className="text-xs px-2 py-0.5 rounded-full font-semibold"
-                style={{background:'rgba(124,58,237,0.3)',color:'#a78bfa'}}>
+              <span
+                className="text-xs px-2 py-0.5 rounded-full font-semibold"
+                style={{background:'rgba(124,58,237,0.3)',color:'#a78bfa'}}
+              >
                 {announcements.length}
               </span>
             )}
           </button>
         ))}
       </nav>
+
       <div className="p-3 border-t border-white/5">
         <div className="glass rounded-xl p-3 mb-3 flex items-center gap-3">
           <div className="w-8 h-8 rounded-full btn-primary flex items-center justify-center text-xs font-bold text-white shrink-0">
             {user?.name?.[0]?.toUpperCase()}
           </div>
+
           <div className="flex-1 min-w-0">
             <div className="text-sm font-medium text-white truncate">{user?.name}</div>
             <div className="text-xs" style={{color:'#8b5cf6'}}>Student</div>
           </div>
         </div>
-        <button onClick={logout}
-          className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10 transition">
+
+        <button
+          onClick={logout}
+          className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10 transition"
+        >
           <span>⏻</span> Sign out
         </button>
       </div>
@@ -236,15 +265,24 @@ export default function StudentDashboard() {
   if (playingCourse) return (
     <div className="min-h-screen flex flex-col" style={{background:'#0a0a0f'}}>
       <div className="glass border-b border-white/5 px-4 py-3 flex items-center gap-3 flex-wrap">
-        <button onClick={() => { setPlayingCourse(null); loadAll() }}
-          className="flex items-center gap-1 text-gray-400 hover:text-white transition text-sm shrink-0">
+        <button
+          onClick={() => { setPlayingCourse(null); loadAll() }}
+          className="flex items-center gap-1 text-gray-400 hover:text-white transition text-sm shrink-0"
+        >
           ← Back
         </button>
-        <div className="font-semibold text-white text-sm flex-1 min-w-0 truncate">{playingCourse.course_title}</div>
+
+        <div className="font-semibold text-white text-sm flex-1 min-w-0 truncate">
+          {playingCourse.course_title}
+        </div>
+
         <div className="flex gap-2 flex-wrap w-full sm:w-auto">
           {[['videos','🎬'],['assignments','📝'],['quizzes','🧪'],['contact','📞']].map(([t,icon]) => (
-            <button key={t} onClick={() => { setCourseTab(t); setActiveQuiz(null); setQuizResult(null) }}
-              className={`text-xs px-3 py-2 rounded-xl transition flex-1 sm:flex-none ${courseTab===t?'btn-primary text-white':'text-gray-400 glass'}`}>
+            <button
+              key={t}
+              onClick={() => { setCourseTab(t); setActiveQuiz(null); setQuizResult(null) }}
+              className={`text-xs px-3 py-2 rounded-xl transition flex-1 sm:flex-none ${courseTab===t?'btn-primary text-white':'text-gray-400 glass'}`}
+            >
               {icon} {t.charAt(0).toUpperCase()+t.slice(1)}
             </button>
           ))}
@@ -258,142 +296,131 @@ export default function StudentDashboard() {
       )}
 
       <div className="flex-1 flex flex-col sm:flex-row p-4 gap-4 overflow-hidden">
+        {courseTab === 'videos' && (
+          <>
+            <div className="flex-1 min-w-0">
+              {!activeVideo ? (
+                <div className="glass rounded-2xl h-48 flex items-center justify-center">
+                  <div className="text-center text-gray-500">
+                    <div className="text-3xl mb-2">🎬</div>
+                    <div className="text-sm">No videos yet</div>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <div
+                    className="rounded-2xl overflow-hidden mb-3 shadow-2xl bg-black"
+                    style={{ aspectRatio: '16/9' }}
+                  >
+                    {activeVideo.youtube_url ? (
+                      <iframe
+                        key={activeVideo.id}
+                        width="100%"
+                        height="100%"
+                        src={`https://www.youtube.com/embed/${getYoutubeId(activeVideo.youtube_url)}?autoplay=1`}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="w-full h-full"
+                        onLoad={() =>
+                          setTimeout(() => markVideoWatched(activeVideo), 30000)
+                        }
+                      />
+                    ) : (
+                      <video
+                        key={activeVideo.id}
+                        controls
+                        autoPlay
+                        playsInline
+                        preload="auto"
+                        className="w-full h-full bg-black"
+                        src={getVideoSrc(activeVideo.file_path)}
+                        onEnded={() => markVideoWatched(activeVideo)}
+                        onError={(e) => {
+                          console.log('Video play error:', e.currentTarget.error)
+                          console.log('Video URL:', getVideoSrc(activeVideo.file_path))
+                        }}
+                      >
+                        Your browser does not support the video tag.
+                      </video>
+                    )}
+                  </div>
 
-{courseTab === 'videos' && (
-  <>
-    <div className="flex-1 min-w-0">
-      {!activeVideo ? (
-        <div className="glass rounded-2xl h-48 flex items-center justify-center">
-          <div className="text-center text-gray-500">
-            <div className="text-3xl mb-2">🎬</div>
-            <div className="text-sm">No videos yet</div>
-          </div>
-        </div>
-      ) : (
-        <div>
-          <div
-            className="rounded-2xl overflow-hidden mb-3 shadow-2xl bg-black"
-            style={{ aspectRatio: '16/9' }}
-          >
-            {activeVideo.youtube_url ? (
-              <iframe
-                key={activeVideo.id}
-                width="100%"
-                height="100%"
-                src={`https://www.youtube.com/embed/${getYoutubeId(activeVideo.youtube_url)}?autoplay=1`}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="w-full h-full"
-                onLoad={() =>
-                  setTimeout(() => markVideoWatched(activeVideo), 30000)
-                }
-              />
-            ) : (
-              <video
-                key={activeVideo.id}
-                controls
-                autoPlay
-                playsInline
-                preload="auto"
-                className="w-full h-full bg-black"
-                onEnded={() => markVideoWatched(activeVideo)}
-                onError={(e) => {
-                  console.log("Video play error:", e.currentTarget.error)
-                  console.log("Video URL:", activeVideo.file_path)
-                }}
-              >
-                <source
-                  src={
-                    activeVideo.file_path?.startsWith("https")
-                      ? activeVideo.file_path
-                      : `https://learnly-lms-hqch.onrender.com${activeVideo.file_path}`
-                  }
-                  type="video/mp4"
-                />
+                  <div className="glass rounded-xl p-3 border border-white/5">
+                    <div className="font-semibold text-white text-sm">
+                      {activeVideo.title}
+                    </div>
 
-                Your browser does not support the video tag.
-              </video>
-            )}
-          </div>
+                    <div className="text-xs text-gray-500 break-all mt-1">
+                      {getVideoSrc(activeVideo.file_path)}
+                    </div>
 
-          <div className="glass rounded-xl p-3 border border-white/5">
-            <div className="font-semibold text-white text-sm">
-              {activeVideo.title}
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full mt-2 inline-block ${
+                        activeVideo.youtube_url
+                          ? 'bg-red-500/15 text-red-400'
+                          : 'bg-blue-500/15 text-blue-400'
+                      }`}
+                    >
+                      {activeVideo.youtube_url ? '▶ YouTube' : '▶ Cloudinary Video'}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
 
-            <span
-              className={`text-xs px-2 py-0.5 rounded-full mt-1 inline-block ${
-                activeVideo.youtube_url
-                  ? 'bg-red-500/15 text-red-400'
-                  : 'bg-blue-500/15 text-blue-400'
-              }`}
-            >
-              {activeVideo.youtube_url
-                ? '▶ YouTube'
-                : '▶ Cloudinary Video'}
-            </span>
-          </div>
-        </div>
-      )}
-    </div>
+            <div className="w-full sm:w-64 shrink-0">
+              <div className="text-xs text-gray-500 uppercase tracking-widest mb-2 px-1">
+                Playlist · {videos.length} videos
+              </div>
 
-    <div className="w-full sm:w-64 shrink-0">
-      <div className="text-xs text-gray-500 uppercase tracking-widest mb-2 px-1">
-        Playlist · {videos.length} videos
-      </div>
+              <div className="flex flex-col gap-2 max-h-64 sm:max-h-full overflow-y-auto">
+                {videos.length === 0 && (
+                  <div className="text-sm text-gray-600 text-center py-4">
+                    No videos yet
+                  </div>
+                )}
 
-      <div className="flex flex-col gap-2 max-h-64 sm:max-h-full overflow-y-auto">
-        {videos.length === 0 && (
-          <div className="text-sm text-gray-600 text-center py-4">
-            No videos yet
-          </div>
+                {videos.map((v, i) => (
+                  <div
+                    key={v.id}
+                    onClick={() => setActiveVideo(v)}
+                    className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer border transition-all ${
+                      activeVideo?.id === v.id
+                        ? 'border-violet-500/40'
+                        : 'border-white/5 glass hover:border-white/15'
+                    }`}
+                    style={
+                      activeVideo?.id === v.id
+                        ? { background: 'rgba(124,58,237,0.15)' }
+                        : {}
+                    }
+                  >
+                    <div
+                      className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${
+                        activeVideo?.id === v.id ? 'btn-primary text-white' : ''
+                      }`}
+                      style={
+                        activeVideo?.id !== v.id
+                          ? { background: 'rgba(255,255,255,0.06)' }
+                          : {}
+                      }
+                    >
+                      {activeVideo?.id === v.id ? '▶' : i + 1}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm text-white truncate">{v.title}</div>
+                      <div className="text-xs text-gray-500">
+                        {v.youtube_url ? 'YouTube' : 'Cloudinary Video'}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
         )}
 
-        {videos.map((v, i) => (
-          <div
-            key={v.id}
-            onClick={() => setActiveVideo(v)}
-            className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer border transition-all ${
-              activeVideo?.id === v.id
-                ? 'border-violet-500/40'
-                : 'border-white/5 glass hover:border-white/15'
-            }`}
-            style={
-              activeVideo?.id === v.id
-                ? { background: 'rgba(124,58,237,0.15)' }
-                : {}
-            }
-          >
-            <div
-              className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${
-                activeVideo?.id === v.id ? 'btn-primary text-white' : ''
-              }`}
-              style={
-                activeVideo?.id !== v.id
-                  ? { background: 'rgba(255,255,255,0.06)' }
-                  : {}
-              }
-            >
-              {activeVideo?.id === v.id ? '▶' : i + 1}
-            </div>
-
-            <div className="flex-1 min-w-0">
-              <div className="text-sm text-white truncate">
-                {v.title}
-              </div>
-
-              <div className="text-xs text-gray-500">
-                {v.youtube_url
-                  ? 'YouTube'
-                  : 'Cloudinary Video'}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  </>
-)}
         {courseTab==='assignments' && (
           <div className="flex-1 space-y-3">
             <div className="text-xs text-gray-500 uppercase tracking-widest mb-3">Assignments</div>
@@ -625,11 +652,12 @@ export default function StudentDashboard() {
           onSuccess={() => { setPayingCourse(null); loadAll(); flash('Payment successful! 🎉') }}
         />
       )}
+
       <MobileLayout
         sidebar={sidebarContent}
         topbarTitle={tab.replace(/-/g,' ').replace(/\b\w/g,l=>l.toUpperCase())}
-        topbarSub={`Welcome back, ${user?.name?.split(' ')[0]} 👋`}>
-
+        topbarSub={`Welcome back, ${user?.name?.split(' ')[0]} 👋`}
+      >
         {msg.text && (
           <div className={`mx-4 mt-3 text-sm px-4 py-2 rounded-xl border animate-fade-in ${msg.type==='error'?'bg-red-500/10 border-red-500/20 text-red-400':'bg-violet-500/10 border-violet-500/20 text-violet-400'}`}>
             {msg.text}
@@ -842,7 +870,7 @@ export default function StudentDashboard() {
                       {attendance.present} present · {attendance.total-attendance.present} absent · {attendance.total} total
                     </div>
                     <div className="h-3 rounded-full" style={{background:'rgba(255,255,255,0.07)'}}>
-                      <div className={`h-3 rounded-full progress-bar`}
+                      <div className="h-3 rounded-full progress-bar"
                         style={{width:attendance.rate+'%',background:attendance.rate>=75?'#10b981':'#f59e0b'}}/>
                     </div>
                     <div className={`text-xs mt-2 ${attendance.rate>=75?'text-green-400':'text-amber-400'}`}>
@@ -943,7 +971,6 @@ export default function StudentDashboard() {
               </div>
             </div>
           )}
-
         </div>
       </MobileLayout>
     </>
