@@ -1221,26 +1221,34 @@ FOUNDER, LEARNLY
     `Certificate Code: ${uniqueCode}\n` +
     `Verified by Learnly.`
 
-  if (navigator.share) {
-    try {
-      await navigator.share({
-        title: 'My Learnly Certificate',
-        text: shareText,
-        url: window.location.origin
-      })
-    } catch (err) {
-      console.log(err)
-    }
-  } else {
-    const linkedInShareUrl =
-      `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.origin)}`
+  const linkedInAppUrl =
+    `linkedin://shareArticle?mini=true&url=${encodeURIComponent(window.location.origin)}&title=${encodeURIComponent('Learnly Certificate')}`
 
-    window.open(linkedInShareUrl, '_blank')
+  const linkedInWebUrl =
+    `https://www.linkedin.com/feed/`
+
+  if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+
+    navigator.clipboard.writeText(shareText)
+
+    window.location.href = linkedInAppUrl
+
+    setTimeout(() => {
+      window.open(linkedInWebUrl, '_blank')
+    }, 1500)
+
+    alert(
+      'Certificate text copied.\nPaste it into your LinkedIn post.'
+    )
+
+  } else {
+
+    window.open(linkedInWebUrl, '_blank')
 
     navigator.clipboard.writeText(shareText)
 
     alert(
-      'Certificate text copied! Paste it into your LinkedIn post.'
+      'Certificate text copied.\nPaste it into your LinkedIn post.'
     )
   }
 }
