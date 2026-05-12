@@ -26,7 +26,7 @@ export default function Login({ onSwitch }) {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center relative overflow-hidden px-4"
+      className="min-h-screen min-h-dvh relative overflow-y-auto px-4 py-8 flex items-start sm:items-center justify-center"
       style={{
         background:
           'radial-gradient(ellipse at 20% 50%, rgba(124,58,237,0.12) 0%, transparent 60%), radial-gradient(ellipse at 80% 50%, rgba(6,182,212,0.08) 0%, transparent 60%), #080810'
@@ -34,7 +34,7 @@ export default function Login({ onSwitch }) {
     >
       <Particles />
 
-      <div className="relative z-10 w-full max-w-sm py-8">
+      <div className="relative z-10 w-full max-w-sm mx-auto">
         <div className="text-center mb-4 animate-fade-up">
           <div className="flex justify-center mb-3">
             <div className="animate-pulse-glow rounded-3xl p-1">
@@ -52,10 +52,12 @@ export default function Login({ onSwitch }) {
         </div>
 
         <div
-          className="card-base animate-fade-up delay-100 p-5"
+          className="card-base animate-fade-up delay-100 p-5 rounded-3xl"
           style={{
-            background: 'rgba(13,13,26,0.85)',
-            backdropFilter: 'blur(40px)'
+            background: 'rgba(13,13,26,0.92)',
+            WebkitBackdropFilter: 'blur(40px)',
+            backdropFilter: 'blur(40px)',
+            marginTop: '0px'
           }}
         >
           {error && (
@@ -72,10 +74,10 @@ export default function Login({ onSwitch }) {
             </div>
           )}
 
-          <form onSubmit={handleEmailLogin} className="space-y-3">
+          <form onSubmit={handleEmailLogin} className="space-y-4">
             <div>
               <label
-                className="block text-xs font-medium mb-1.5 uppercase tracking-widest"
+                className="block text-xs font-medium mb-2 uppercase tracking-widest"
                 style={{ color: 'var(--text3)' }}
               >
                 Email
@@ -86,14 +88,14 @@ export default function Login({ onSwitch }) {
                 required
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="input-base"
+                className="input-base w-full"
                 placeholder="you@example.com"
               />
             </div>
 
             <div>
               <label
-                className="block text-xs font-medium mb-1.5 uppercase tracking-widest"
+                className="block text-xs font-medium mb-2 uppercase tracking-widest"
                 style={{ color: 'var(--text3)' }}
               >
                 Password
@@ -104,17 +106,15 @@ export default function Login({ onSwitch }) {
                   type={showPass ? 'text' : 'password'}
                   required
                   value={form.password}
-                  onChange={(e) =>
-                    setForm({ ...form, password: e.target.value })
-                  }
-                  className="input-base pr-12"
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  className="input-base w-full pr-14"
                   placeholder="••••••••"
                 />
 
                 <button
                   type="button"
                   onClick={() => setShowPass((s) => !s)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-xs"
                   style={{ color: 'var(--text3)' }}
                 >
                   {showPass ? 'Hide' : 'Show'}
@@ -127,14 +127,7 @@ export default function Login({ onSwitch }) {
               disabled={loading}
               className="btn-primary w-full text-white py-3 rounded-2xl font-semibold text-sm disabled:opacity-50"
             >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Signing in...
-                </span>
-              ) : (
-                'Sign in →'
-              )}
+              {loading ? 'Signing in...' : 'Sign in →'}
             </button>
           </form>
 
