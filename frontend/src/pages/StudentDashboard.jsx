@@ -882,39 +882,202 @@ export default function StudentDashboard() {
             </div>
           )}
 
-          {tab==='certificates' && (
-            <div className="animate-fade-up">
-              <div className="text-base font-semibold text-white mb-4">My Certificates</div>
-              {certificates.length===0 && (
-                <div className="glass rounded-2xl p-10 text-center">
-                  <div className="text-4xl mb-2">🏅</div>
-                  <div className="text-gray-400 text-sm">No certificates yet</div>
-                </div>
-              )}
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {certificates.map(c => (
-                  <div key={c.id} className="rounded-2xl p-5 card-hover"
-                    style={{background:'linear-gradient(135deg,rgba(245,158,11,0.1),rgba(217,119,6,0.05))',border:'1px solid rgba(245,158,11,0.2)'}}>
-                    <div className="text-3xl mb-3">🏅</div>
-                    <div className="font-semibold text-white mb-1 text-sm">{c.course}</div>
-                    <div className="text-xs text-gray-400 mb-3">
-                      {new Date(c.issued_at).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}
+         {/* CERTIFICATES */}
+{tab === 'certificates' && (
+  <div>
+    <div className="text-sm font-medium text-gray-400 mb-3">My certificates</div>
+
+    {certificates.length === 0 && (
+      <div className="text-gray-500 text-sm">No certificates yet.</div>
+    )}
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {certificates.map(c => {
+        const issueDate = new Date(c.issued_at).toLocaleDateString('en-IN', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        })
+
+        const certUrl = `${window.location.origin}/certificate/${c.id}`
+
+        const downloadPDF = () => {
+          const certificateHTML = `
+            <html>
+              <head>
+                <title>Learnly Certificate</title>
+                <style>
+                  body {
+                    margin: 0;
+                    padding: 40px;
+                    background: #0f0b1f;
+                    font-family: Georgia, serif;
+                    color: white;
+                  }
+                  .cert {
+                    border: 2px solid #7c3aed;
+                    border-radius: 24px;
+                    padding: 60px;
+                    text-align: center;
+                    background: linear-gradient(135deg, #100b24, #17122d);
+                  }
+                  .logo {
+                    font-size: 42px;
+                    color: #a78bfa;
+                    margin-bottom: 10px;
+                  }
+                  .small {
+                    letter-spacing: 8px;
+                    color: #9ca3af;
+                    font-size: 13px;
+                  }
+                  .name {
+                    font-size: 64px;
+                    margin: 35px 0;
+                  }
+                  .course {
+                    font-size: 34px;
+                    color: #a78bfa;
+                    font-family: Arial, sans-serif;
+                    font-weight: bold;
+                  }
+                  .line {
+                    border-top: 1px solid #6d28d9;
+                    margin: 30px 0;
+                  }
+                  .bottom {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: end;
+                    margin-top: 70px;
+                  }
+                  .code {
+                    border: 1px solid #7c3aed;
+                    border-radius: 12px;
+                    padding: 12px 20px;
+                    color: #e5e7eb;
+                    font-family: Arial, sans-serif;
+                  }
+                  .sign {
+                    font-size: 38px;
+                    font-style: italic;
+                  }
+                  .founder {
+                    color: #a78bfa;
+                    font-family: Arial, sans-serif;
+                    font-weight: bold;
+                  }
+                </style>
+              </head>
+              <body>
+                <div class="cert">
+                  <div class="logo">
+                  <img src="/logo.png" style="width:60px;height:60px;object-fit:contain;vertical-align:middle;margin-right:10px;" />
+                   Learnly
+                  </div>
+                  <div class="small">CERTIFICATE OF COMPLETION</div>
+
+                  <div style="font-size:55px;margin:45px 0 20px;">🏅</div>
+
+                  <div class="small">THIS CERTIFIES THAT</div>
+                  <div class="name">${user?.name || 'Ganesh'}</div>
+
+                  <div class="line"></div>
+
+                  <div class="small">HAS SUCCESSFULLY COMPLETED</div>
+                  <div class="course">${c.course}</div>
+
+                  <p style="color:#9ca3af;margin-top:35px;">Issued on ${issueDate}</p>
+
+                  <div class="bottom">
+                    <div>
+                      <div class="small" style="letter-spacing:4px;margin-bottom:12px;">CERTIFICATE CODE</div>
+                      <div class="code">LRNL-${c.id}</div>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5 text-xs text-green-400">
-                        <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"/>Verified
-                      </div>
-                      <button onClick={()=>downloadCert(c)}
-                        className="text-xs px-3 py-1.5 rounded-lg"
-                        style={{background:'rgba(124,58,237,0.2)',color:'#a78bfa'}}>
-                        ⬇ Download
-                      </button>
+
+                    <div style="color:#10b981;font-family:Arial,sans-serif;">
+                      ✓ Verified by Learnly
+                    </div>
+
+                    <div>
+                     <img src="/signature.png" style="width:140px;height:auto;margin-bottom:6px;" />
+                     <hr style="border-color:#7c3aed;" />
+                     <div class="founder">Learnly Founder</div>
+                      <div style="color:#9ca3af;font-size:12px;letter-spacing:4px;">FOUNDER, LEARNLY</div>
                     </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              </body>
+            </html>
+          `
+
+          const printWindow = window.open('', '_blank')
+          printWindow.document.write(certificateHTML)
+          printWindow.document.close()
+
+          setTimeout(() => {
+            printWindow.print()
+          }, 500)
+        }
+
+        const shareCertificate = async () => {
+          const shareText = `I successfully completed ${c.course} on Learnly. Certificate Code: LRNL-${c.id}`
+
+          if (navigator.share) {
+            await navigator.share({
+              title: 'My Learnly Certificate',
+              text: shareText,
+              url: certUrl
+            })
+          } else {
+            window.open(
+              `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(shareText)}`,
+              '_blank'
+            )
+          }
+        }
+
+        return (
+          <div
+            key={c.id}
+            className="bg-[#181c27] border border-purple-500/30 rounded-2xl p-6"
+          >
+            <div className="text-3xl mb-3">🏅</div>
+
+            <div className="font-medium text-white mb-1">
+              {c.course}
             </div>
-          )}
+
+            <div className="text-xs text-gray-400 mb-3">
+              Issued {issueDate}
+            </div>
+
+            <div className="flex items-center gap-1.5 mb-5">
+              <div className="w-2 h-2 rounded-full bg-green-400"></div>
+              <span className="text-xs text-green-400">Verified by Learnly</span>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={downloadPDF}
+                className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium"
+              >
+                Download PDF
+              </button>
+
+              <button
+                onClick={shareCertificate}
+                className="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-700 text-white text-sm font-medium"
+              >
+                Share / LinkedIn
+              </button>
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  </div>
+)}
 
           {tab==='orders' && (
             <div className="animate-fade-up">
