@@ -1,7 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import api from '../api/axios'
-import { auth } from '../firebase'
-import { onAuthStateChanged } from 'firebase/auth'
 
 const AuthContext = createContext()
 
@@ -11,10 +9,13 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const token = localStorage.getItem('token')
+
     if (token) {
       api.get('/users/me')
         .then(res => setUser(res.data))
-        .catch(() => localStorage.removeItem('token'))
+        .catch(() => {
+          localStorage.removeItem('token')
+        })
         .finally(() => setLoading(false))
     } else {
       setLoading(false)
@@ -23,35 +24,57 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     const params = new URLSearchParams()
+
     params.append('username', email)
     params.append('password', password)
+
     const res = await api.post('/users/login', params)
+
     localStorage.setItem('token', res.data.access_token)
+
     const me = await api.get('/users/me')
+
     setUser(me.data)
+
     return me.data
   }
 
-  const loginWithFirebase = async (firebaseToken, role = 'student', referral_code = '') => {
+  // Optional future Firebase login support
+  const loginWithFirebase = async (
+    firebaseToken,
+    role = 'student',
+    referral_code = ''
+  ) => {
     const res = await api.post('/users/firebase-login', {
       firebase_token: firebaseToken,
       role,
       referral_code: referral_code || undefined
     })
+
     localStorage.setItem('token', res.data.access_token)
+
     const me = await api.get('/users/me')
+
     setUser(me.data)
+
     return me.data
   }
 
-  const logout = async () => {
+  const logout = () => {
     localStorage.removeItem('token')
-    try { await auth.signOut() } catch(e) {}
     setUser(null)
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, loginWithFirebase, logout, loading }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        login,
+        loginWithFirebase,
+        logout,
+        loading
+      }}
+    >
       {children}
     </AuthContext.Provider>
   )
