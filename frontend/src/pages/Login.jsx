@@ -26,8 +26,10 @@ export default function Login({ onSwitch }) {
 
   return (
     <div
-      className="min-h-screen min-h-dvh relative overflow-y-auto px-4 py-8 flex items-start sm:items-center justify-center"
+      className="min-h-screen min-h-dvh relative overflow-y-auto px-4 flex justify-center"
       style={{
+        paddingTop: '70px',
+        paddingBottom: '40px',
         background:
           'radial-gradient(ellipse at 20% 50%, rgba(124,58,237,0.12) 0%, transparent 60%), radial-gradient(ellipse at 80% 50%, rgba(6,182,212,0.08) 0%, transparent 60%), #080810'
       }}
@@ -35,15 +37,15 @@ export default function Login({ onSwitch }) {
       <Particles />
 
       <div className="relative z-10 w-full max-w-md mx-auto">
-        <div className="text-center mb-2 animate-fade-up">
+        <div className="text-center mb-5 animate-fade-up">
           <div className="flex justify-center mb-3">
             <div className="animate-pulse-glow rounded-3xl p-1">
-              <Logo size={46} showText={false} />
+              <Logo size={58} showText={false} />
             </div>
           </div>
 
           <div className="flex justify-center">
-            <Logo size={0} showText={true} textSize="text-3xl" />
+            <Logo size={0} showText={true} textSize="text-4xl" />
           </div>
 
           <p className="text-sm mt-1" style={{ color: 'var(--text3)' }}>
@@ -54,11 +56,11 @@ export default function Login({ onSwitch }) {
         <div
           className="animate-fade-up delay-100 p-6 rounded-2xl border border-white/10 w-full"
           style={{
-  background: 'rgba(12,12,24,0.55)',
-  WebkitBackdropFilter: 'blur(25px)',
-  backdropFilter: 'blur(25px)',
-  boxShadow: '0 8px 40px rgba(0,0,0,0.35)'
-}}
+            background: 'rgba(12,12,24,0.55)',
+            WebkitBackdropFilter: 'blur(25px)',
+            backdropFilter: 'blur(25px)',
+            boxShadow: '0 8px 40px rgba(0,0,0,0.35)'
+          }}
         >
           {error && (
             <div
