@@ -472,7 +472,11 @@ export default function TeacherDashboard() {
     <div className={`min-h-screen ${bg} flex transition-colors duration-200 text-white`}>
       <div className={`w-64 ${sidebar} border-r flex flex-col p-4 gap-1 shrink-0`}>
         <div className="px-2 py-3 mb-1">
-          <Logo size={32} textSize="text-lg" />
+         <img
+  src="/logo.png"
+  alt="Learnly"
+  className="w-7 h-7 object-contain"
+/>
         </div>
 
         <div className="text-xs text-teal-400 px-3 py-1 bg-teal-400/10 rounded-lg mb-2">

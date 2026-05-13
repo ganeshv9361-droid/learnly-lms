@@ -118,7 +118,11 @@ export default function DeveloperDashboard() {
   const sidebarContent = ({ closeSidebar }) => (
     <>
       <div className="p-5 border-b" style={{borderColor:'rgba(255,255,255,0.06)'}}>
-        <Logo size={36} textSize="text-lg"/>
+        <img
+  src="/logo.png"
+  alt="Learnly"
+  className="w-7 h-7 object-contain"
+/>
         <div className="mt-3 px-3 py-2 rounded-xl text-center"
           style={{background:'rgba(124,58,237,0.12)',border:'1px solid rgba(124,58,237,0.2)'}}>
           <div className="text-xs font-bold" style={{color:'#a78bfa'}}>🛡 Developer Console</div>
