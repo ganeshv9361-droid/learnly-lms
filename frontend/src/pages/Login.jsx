@@ -28,7 +28,7 @@ export default function Login({ onSwitch }) {
     <div
       className="min-h-screen min-h-dvh relative overflow-y-auto px-4 flex justify-center"
       style={{
-        paddingTop: '70px',
+        paddingTop: '50px',
         paddingBottom: '40px',
         background:
           'radial-gradient(ellipse at 20% 50%, rgba(124,58,237,0.12) 0%, transparent 60%), radial-gradient(ellipse at 80% 50%, rgba(6,182,212,0.08) 0%, transparent 60%), #080810'
@@ -39,8 +39,12 @@ export default function Login({ onSwitch }) {
       <div className="relative z-10 w-full max-w-md mx-auto">
         <div className="text-center mb-5 animate-fade-up">
           <div className="flex justify-center mb-3">
-            <div className="animate-pulse-glow rounded-3xl p-1">
-              <Logo size={58} showText={false} />
+            <div className="flex items-center justify-center mb-1"
+                 style={{
+                 background: 'transparent',
+                 boxShadow: 'none'
+                 }}>
+            <Logo size={72} showText={false} />
             </div>
           </div>
 
