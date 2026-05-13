@@ -217,7 +217,7 @@ export default function StudentDashboard() {
   alt="Learnly"
   className="w-7 h-7 object-contain"
 />
-          <span className="font-display text-lg font-bold gradient-text">Learnly</span>
+          
         </div>
       </div>
 
