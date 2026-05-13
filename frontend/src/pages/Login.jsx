@@ -48,7 +48,7 @@ export default function Login({ onSwitch }) {
           <div className="flex justify-center mb-3">
             <img
               src="/logo.png"
-              alt="Learnly"
+              alt="Created by Ganesh V"
               className="w-20 h-20 object-contain mx-auto"
             />
           </div>
