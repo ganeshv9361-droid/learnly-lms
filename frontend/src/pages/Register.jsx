@@ -112,7 +112,7 @@ export default function Register({ onSwitch }) {
         <div className="text-center mb-5 animate-fade-up">
           <div className="flex justify-center mb-4">
             <img
-              src="/logo 1.png"
+              src="/logo.png"
               alt="Learnly"
               className="w-20 h-20 object-contain"
             />
