@@ -212,7 +212,11 @@ export default function StudentDashboard() {
     <>
       <div className="p-4 border-b border-white/5">
         <div className="flex items-center gap-3">
-          <Logo size={28} showText={false} />
+          <img
+  src="/logo.png"
+  alt="Learnly"
+  className="w-7 h-7 object-contain"
+/>
           <span className="font-display text-lg font-bold gradient-text">Learnly</span>
         </div>
       </div>
