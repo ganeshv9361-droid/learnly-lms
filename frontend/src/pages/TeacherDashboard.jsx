@@ -477,8 +477,9 @@ export default function TeacherDashboard() {
   alt="Learnly"
   className="w-7 h-7 object-contain"
 />
+<span className="font-display text-lg font-bold gradient-text">Learnly</span>
         </div>
-        <span className="font-display text-lg font-bold gradient-text">Learnly</span>
+        
 
         <div className="text-xs text-teal-400 px-3 py-1 bg-teal-400/10 rounded-lg mb-2">
           Teacher Panel
