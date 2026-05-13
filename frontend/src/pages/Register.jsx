@@ -19,22 +19,36 @@ export default function Register({ onSwitch }) {
 
   useEffect(() => {
     const ref = new URLSearchParams(window.location.search).get('ref')
-    if (ref) setForm(f => ({ ...f, referral_code: ref }))
+
+    if (ref) {
+      setForm(f => ({
+        ...f,
+        referral_code: ref
+      }))
+    }
   }, [])
 
-  const handle = async e => {
+  const handle = async (e) => {
     e.preventDefault()
+
     setLoading(true)
     setError('')
 
     try {
       const payload = { ...form }
-      if (!payload.referral_code) delete payload.referral_code
+
+      if (!payload.referral_code) {
+        delete payload.referral_code
+      }
 
       await api.post('/users/register', payload)
+
       setSuccess(true)
     } catch (err) {
-      setError(err.response?.data?.detail || 'Registration failed')
+      setError(
+        err.response?.data?.detail ||
+        'Registration failed'
+      )
     }
 
     setLoading(false)
@@ -63,7 +77,10 @@ export default function Register({ onSwitch }) {
             You're in!
           </h2>
 
-          <p className="mb-8" style={{ color: 'var(--text2)' }}>
+          <p
+            className="mb-8"
+            style={{ color: 'var(--text2)' }}
+          >
             Account created. Start learning today.
           </p>
 
@@ -80,8 +97,10 @@ export default function Register({ onSwitch }) {
 
   return (
     <div
-      className="min-h-screen w-full flex items-center justify-center relative overflow-hidden px-4 py-8"
+      className="min-h-screen min-h-dvh w-full flex justify-center relative overflow-y-auto px-4"
       style={{
+        paddingTop: '50px',
+        paddingBottom: '40px',
         background:
           'radial-gradient(ellipse at 20% 50%, rgba(124,58,237,0.12) 0%, transparent 60%), radial-gradient(ellipse at 80% 50%, rgba(6,182,212,0.08) 0%, transparent 60%), #080810'
       }}
@@ -89,27 +108,36 @@ export default function Register({ onSwitch }) {
       <Particles />
 
       <div className="relative z-10 w-full max-w-md mx-auto">
+        {/* LOGO */}
         <div className="text-center mb-5 animate-fade-up">
           <div className="flex justify-center mb-4">
-            <Logo size={72} showText={false} />
+            <img
+              src="/logo 1.png"
+              alt="Learnly"
+              className="w-20 h-20 object-contain"
+            />
           </div>
 
           <h1 className="text-4xl sm:text-5xl font-extrabold text-center bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent leading-tight">
-            Learnly 
+            Learnly
           </h1>
 
-          <p className="text-sm sm:text-base mt-2 text-center" style={{ color: 'var(--text3)' }}>
+          <p
+            className="text-sm sm:text-base mt-2 text-center"
+            style={{ color: 'var(--text3)' }}
+          >
             Join thousands of learners
           </p>
         </div>
 
+        {/* REGISTER BOX */}
         <div
-          className="card-base animate-fade-up delay-100 w-full p-5 sm:p-8 rounded-[28px]"
+          className="animate-fade-up delay-100 w-full p-5 sm:p-8 rounded-2xl border border-white/10"
           style={{
-            background: 'rgba(13,13,26,0.9)',
-            WebkitBackdropFilter: 'blur(40px)',
-            backdropFilter: 'blur(40px)',
-            border: '1px solid rgba(255,255,255,0.08)'
+            background: 'rgba(12,12,24,0.55)',
+            WebkitBackdropFilter: 'blur(25px)',
+            backdropFilter: 'blur(25px)',
+            boxShadow: '0 8px 40px rgba(0,0,0,0.35)'
           }}
         >
           <div className="mb-5 text-center">
@@ -117,7 +145,10 @@ export default function Register({ onSwitch }) {
               Create account
             </h2>
 
-            <p className="text-sm sm:text-base mt-1" style={{ color: 'var(--text3)' }}>
+            <p
+              className="text-sm sm:text-base mt-1"
+              style={{ color: 'var(--text3)' }}
+            >
               Free forever. No credit card needed.
             </p>
           </div>
@@ -136,7 +167,11 @@ export default function Register({ onSwitch }) {
             </div>
           )}
 
-          <form onSubmit={handle} className="space-y-4">
+          <form
+            onSubmit={handle}
+            className="space-y-4"
+          >
+            {/* NAME */}
             <div>
               <label
                 className="block text-xs font-medium mb-2 uppercase tracking-widest"
@@ -148,12 +183,18 @@ export default function Register({ onSwitch }) {
               <input
                 required
                 value={form.name}
-                onChange={e => setForm({ ...form, name: e.target.value })}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    name: e.target.value
+                  })
+                }
                 className="input-base w-full"
                 placeholder="Your full name"
               />
             </div>
 
+            {/* EMAIL */}
             <div>
               <label
                 className="block text-xs font-medium mb-2 uppercase tracking-widest"
@@ -166,12 +207,18 @@ export default function Register({ onSwitch }) {
                 type="email"
                 required
                 value={form.email}
-                onChange={e => setForm({ ...form, email: e.target.value })}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    email: e.target.value
+                  })
+                }
                 className="input-base w-full"
                 placeholder="you@example.com"
               />
             </div>
 
+            {/* PASSWORD */}
             <div>
               <label
                 className="block text-xs font-medium mb-2 uppercase tracking-widest"
@@ -185,14 +232,21 @@ export default function Register({ onSwitch }) {
                   type={showPass ? 'text' : 'password'}
                   required
                   value={form.password}
-                  onChange={e => setForm({ ...form, password: e.target.value })}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      password: e.target.value
+                    })
+                  }
                   className="input-base w-full pr-14"
                   placeholder="Min 8 characters"
                 />
 
                 <button
                   type="button"
-                  onClick={() => setShowPass(s => !s)}
+                  onClick={() =>
+                    setShowPass(s => !s)
+                  }
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-medium"
                   style={{ color: 'var(--text3)' }}
                 >
@@ -201,6 +255,7 @@ export default function Register({ onSwitch }) {
               </div>
             </div>
 
+            {/* ROLE */}
             <div>
               <label
                 className="block text-xs font-medium mb-2 uppercase tracking-widest"
@@ -217,7 +272,12 @@ export default function Register({ onSwitch }) {
                   <button
                     key={role}
                     type="button"
-                    onClick={() => setForm({ ...form, role })}
+                    onClick={() =>
+                      setForm({
+                        ...form,
+                        role
+                      })
+                    }
                     className={`py-3 rounded-2xl text-sm font-semibold transition-all ${
                       form.role === role
                         ? 'btn-primary text-white'
@@ -230,25 +290,32 @@ export default function Register({ onSwitch }) {
               </div>
             </div>
 
+            {/* REFERRAL */}
             <div>
               <label
                 className="block text-xs font-medium mb-2 uppercase tracking-widest"
                 style={{ color: 'var(--text3)' }}
               >
                 Referral code{' '}
-                <span className="normal-case opacity-50">(optional)</span>
+                <span className="normal-case opacity-50">
+                  (optional)
+                </span>
               </label>
 
               <input
                 value={form.referral_code}
-                onChange={e =>
-                  setForm({ ...form, referral_code: e.target.value })
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    referral_code: e.target.value
+                  })
                 }
                 className="input-base w-full"
                 placeholder="Enter code"
               />
             </div>
 
+            {/* BUTTON */}
             <button
               type="submit"
               disabled={loading}
@@ -265,11 +332,18 @@ export default function Register({ onSwitch }) {
             </button>
           </form>
 
+          {/* LOGIN LINK */}
           <div
             className="mt-5 pt-5 border-t text-center"
-            style={{ borderColor: 'rgba(255,255,255,0.06)' }}
+            style={{
+              borderColor:
+                'rgba(255,255,255,0.06)'
+            }}
           >
-            <p className="text-sm" style={{ color: 'var(--text3)' }}>
+            <p
+              className="text-sm"
+              style={{ color: 'var(--text3)' }}
+            >
               Already have an account?{' '}
               <button
                 onClick={onSwitch}
