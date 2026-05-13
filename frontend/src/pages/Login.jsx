@@ -5,13 +5,19 @@ import Logo from '../components/Logo'
 
 export default function Login({ onSwitch }) {
   const { login } = useAuth()
-  const [form, setForm] = useState({ email: '', password: '' })
+
+  const [form, setForm] = useState({
+    email: '',
+    password: ''
+  })
+
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [showPass, setShowPass] = useState(false)
 
   const handleEmailLogin = async (e) => {
     e.preventDefault()
+
     setLoading(true)
     setError('')
 
@@ -37,26 +43,33 @@ export default function Login({ onSwitch }) {
       <Particles />
 
       <div className="relative z-10 w-full max-w-md mx-auto">
+        {/* LOGO */}
         <div className="text-center mb-5 animate-fade-up">
           <div className="flex justify-center mb-3">
-            <div className="flex items-center justify-center mb-1"
-                 style={{
-                 background: 'transparent',
-                 boxShadow: 'none'
-                 }}>
-            <Logo size={72} showText={false} />
-            </div>
+            <img
+              src="/logo.png"
+              alt="Learnly"
+              className="w-20 h-20 object-contain mx-auto"
+            />
           </div>
 
           <div className="flex justify-center">
-            <Logo size={0} showText={true} textSize="text-4xl" />
+            <Logo
+              size={0}
+              showText={true}
+              textSize="text-4xl"
+            />
           </div>
 
-          <p className="text-sm mt-1" style={{ color: 'var(--text3)' }}>
+          <p
+            className="text-sm mt-1"
+            style={{ color: 'var(--text3)' }}
+          >
             The platform for continuous learning
           </p>
         </div>
 
+        {/* LOGIN BOX */}
         <div
           className="animate-fade-up delay-100 p-6 rounded-2xl border border-white/10 w-full"
           style={{
@@ -80,7 +93,11 @@ export default function Login({ onSwitch }) {
             </div>
           )}
 
-          <form onSubmit={handleEmailLogin} className="space-y-4">
+          <form
+            onSubmit={handleEmailLogin}
+            className="space-y-4"
+          >
+            {/* EMAIL */}
             <div>
               <label
                 className="block text-xs font-medium mb-2 uppercase tracking-widest"
@@ -93,12 +110,18 @@ export default function Login({ onSwitch }) {
                 type="email"
                 required
                 value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    email: e.target.value
+                  })
+                }
                 className="input-base w-full"
                 placeholder="you@example.com"
               />
             </div>
 
+            {/* PASSWORD */}
             <div>
               <label
                 className="block text-xs font-medium mb-2 uppercase tracking-widest"
@@ -112,14 +135,21 @@ export default function Login({ onSwitch }) {
                   type={showPass ? 'text' : 'password'}
                   required
                   value={form.password}
-                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      password: e.target.value
+                    })
+                  }
                   className="input-base w-full pr-14"
                   placeholder="••••••••"
                 />
 
                 <button
                   type="button"
-                  onClick={() => setShowPass((s) => !s)}
+                  onClick={() =>
+                    setShowPass((s) => !s)
+                  }
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-xs"
                   style={{ color: 'var(--text3)' }}
                 >
@@ -128,20 +158,30 @@ export default function Login({ onSwitch }) {
               </div>
             </div>
 
+            {/* LOGIN BUTTON */}
             <button
               type="submit"
               disabled={loading}
               className="btn-primary w-full text-white py-3 rounded-2xl font-semibold text-sm disabled:opacity-50"
             >
-              {loading ? 'Signing in...' : 'Sign in →'}
+              {loading
+                ? 'Signing in...'
+                : 'Sign in →'}
             </button>
           </form>
 
+          {/* REGISTER */}
           <div
             className="mt-5 pt-4 border-t text-center"
-            style={{ borderColor: 'rgba(255,255,255,0.06)' }}
+            style={{
+              borderColor:
+                'rgba(255,255,255,0.06)'
+            }}
           >
-            <p className="text-sm" style={{ color: 'var(--text3)' }}>
+            <p
+              className="text-sm"
+              style={{ color: 'var(--text3)' }}
+            >
               New to Learnly?{' '}
               <button
                 onClick={onSwitch}
@@ -154,7 +194,11 @@ export default function Login({ onSwitch }) {
           </div>
         </div>
 
-        <p className="text-center text-xs mt-3" style={{ color: 'var(--text3)' }}>
+        {/* FOOTER */}
+        <p
+          className="text-center text-xs mt-3"
+          style={{ color: 'var(--text3)' }}
+        >
           🔒 Secured with JWT authentication
         </p>
       </div>
