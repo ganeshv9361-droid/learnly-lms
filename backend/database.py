@@ -3,15 +3,18 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://learnly_db_mdz1_user:oVViTAGbtQRyNLj2RKjuIlvqqMLViDaf@dpg-d7m12ijbc2fs7380corg-a/learnly_db_mdz1"
-)
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./learnly.db")
 
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-engine = create_engine(DATABASE_URL)
+connect_args = {}
+if DATABASE_URL.startswith("sqlite"):
+    connect_args = {"check_same_thread": False}
+elif DATABASE_URL.startswith("postgresql"):
+    connect_args = {"sslmode": "require"}
+
+engine = create_engine(DATABASE_URL, connect_args=connect_args, pool_pre_ping=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
