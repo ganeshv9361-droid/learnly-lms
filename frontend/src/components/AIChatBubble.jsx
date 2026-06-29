@@ -7,7 +7,7 @@ export default function AIChatBubble() {
   return (
     <>
       {open && (
-        <div className="fixed inset-0 z-50 flex items-end justify-end sm:p-6 p-0"
+        <div className="fixed inset-0 z-[200] flex items-end justify-start sm:p-6 p-0"
           style={{ background: 'rgba(0,0,0,0.4)' }}
           onClick={(e) => { if (e.target === e.currentTarget) setOpen(false) }}>
           <div className="card-base w-full h-full sm:w-96 sm:h-[600px] sm:rounded-3xl flex flex-col p-4"
@@ -33,9 +33,9 @@ export default function AIChatBubble() {
         </div>
       )}
 
-      {!open && (
+     {!open && (
         <button onClick={() => setOpen(true)}
-          className="fixed bottom-6 right-5 z-40 w-14 h-14 rounded-full btn-primary flex items-center justify-center text-2xl animate-pulse-glow"
+          className="fixed bottom-24 left-4 sm:bottom-6 sm:left-6 z-[150] w-14 h-14 rounded-full btn-primary flex items-center justify-center text-2xl animate-pulse-glow"
           style={{ boxShadow: '0 8px 30px rgba(124,58,237,0.5)' }}>
           🤖
         </button>
