@@ -15,3 +15,8 @@ frontend/.env.local
 # System
 .DS_Store
 *.log
+backend/.env
+.env
+*.env
+backend/.env
+backend/.env

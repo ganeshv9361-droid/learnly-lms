@@ -5,6 +5,7 @@ import Register from './pages/Register'
 import StudentDashboard from './pages/StudentDashboard'
 import TeacherDashboard from './pages/TeacherDashboard'
 import DeveloperDashboard from './pages/DeveloperDashboard'
+import AIChatBubble from './components/AIChatBubble'
 
 function AppInner() {
   const { user, loading } = useAuth()
@@ -31,7 +32,7 @@ function AppInner() {
     ? <Register onSwitch={() => setShowRegister(false)} />
     : <Login onSwitch={() => setShowRegister(true)} />
 
-  if (user.role === 'student') return <StudentDashboard />
+  if (user.role === 'student') return (<><StudentDashboard /><AIChatBubble /></>)
   if (user.role === 'teacher') return <TeacherDashboard />
   if (user.role === 'developer') return <DeveloperDashboard />
 

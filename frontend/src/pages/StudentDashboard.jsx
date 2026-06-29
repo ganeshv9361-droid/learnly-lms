@@ -4,6 +4,7 @@ import api from '../api/axios'
 import AnimatedCounter from '../components/AnimatedCounter'
 import PaymentModal from '../components/PaymentModal'
 import MobileLayout from '../components/MobileLayout'
+import AITutorChat from '../components/AITutorChat'
 import Logo from '../components/Logo'
 
 function getYoutubeId(url) {
@@ -22,6 +23,7 @@ function getVideoSrc(filePath) {
 }
 
 const navItems = [
+  ['ai-tutor','🤖','AI Tutor'],
   ['courses','📚','Courses'],
   ['my-courses','📖','My Courses'],
   ['announcements','📢','Announcements'],
@@ -1321,6 +1323,12 @@ FOUNDER, LEARNLY
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {tab==='ai-tutor' && (
+            <div className="animate-fade-up" style={{height:'calc(100vh - 220px)'}}>
+              <AITutorChat/>
             </div>
           )}
 
