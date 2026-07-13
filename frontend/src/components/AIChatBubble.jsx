@@ -65,7 +65,7 @@ export default function AIChatBubble() {
         onClick={() => setOpen(o => !o)}
         className="fixed z-[150] btn-primary flex items-center gap-2 text-white font-medium text-sm"
         style={{
-          left: '16px',
+          left: '90px',
           bottom: '88px',
           padding: '10px 16px',
           borderRadius: '50px',
