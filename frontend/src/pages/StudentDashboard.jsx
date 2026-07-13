@@ -1326,9 +1326,22 @@ FOUNDER, LEARNLY
             </div>
           )}
 
-          {tab==='ai-tutor' && (
-            <div className="animate-fade-up" style={{height:'calc(100vh - 220px)'}}>
-              <AITutorChat/>
+         {tab==='ai-tutor' && (
+            <div className="animate-fade-up flex justify-center">
+              <div className="w-full max-w-2xl" style={{height:'calc(100vh - 200px)'}}>
+                <div className="card-base p-4 h-full flex flex-col" style={{background:'rgba(13,13,26,0.8)'}}>
+                  <div className="flex items-center gap-3 mb-3 pb-3 shrink-0" style={{borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
+                    <div className="w-9 h-9 rounded-xl btn-primary flex items-center justify-center text-base">🤖</div>
+                    <div>
+                      <div className="font-semibold text-white text-sm">AI Tutor</div>
+                      <div className="text-xs" style={{color:'var(--text3)'}}>Powered by Gemini · Ask anything</div>
+                    </div>
+                  </div>
+                  <div className="flex-1 min-h-0">
+                    <AITutorChat/>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
