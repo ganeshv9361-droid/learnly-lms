@@ -1,7 +1,10 @@
 from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship
-from datetime import datetime
+from datetime import datetime, timezone
 from database import Base
+
+def now():
+    return datetime.now(timezone.utc)
 
 class User(Base):
     __tablename__ = "users"
@@ -12,7 +15,7 @@ class User(Base):
     role = Column(String, default="student")
     referral_code = Column(String, unique=True, nullable=True)
     referred_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=now)
     enrollments = relationship("Enrollment", back_populates="user", foreign_keys="Enrollment.user_id")
     attendance = relationship("Attendance", back_populates="user", foreign_keys="Attendance.user_id")
     assessments = relationship("Assessment", back_populates="user")
@@ -38,7 +41,7 @@ class TeacherProfile(Base):
     upi_id = Column(String, nullable=True)
     payout_pending = Column(Float, default=0.0)
     payout_total = Column(Float, default=0.0)
-    updated_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime(timezone=True), default=now)
     user = relationship("User", back_populates="teacher_profile", foreign_keys=[user_id])
 
 class PlatformSettings(Base):
@@ -46,7 +49,7 @@ class PlatformSettings(Base):
     id = Column(Integer, primary_key=True, index=True)
     key = Column(String, unique=True, nullable=False)
     value = Column(String, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime(timezone=True), default=now)
 
 class Course(Base):
     __tablename__ = "courses"
@@ -58,7 +61,7 @@ class Course(Base):
     total_modules = Column(Integer, default=0)
     is_paid = Column(Boolean, default=False)
     price = Column(Float, default=0.0)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=now)
     enrollments = relationship("Enrollment", back_populates="course")
     attendance = relationship("Attendance", back_populates="course")
     assessments = relationship("Assessment", back_populates="course")
@@ -75,7 +78,7 @@ class Enrollment(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     course_id = Column(Integer, ForeignKey("courses.id"))
     progress = Column(Float, default=0.0)
-    enrolled_at = Column(DateTime, default=datetime.utcnow)
+    enrolled_at = Column(DateTime(timezone=True), default=now)
     user = relationship("User", back_populates="enrollments", foreign_keys=[user_id])
     course = relationship("Course", back_populates="enrollments")
 
@@ -84,7 +87,7 @@ class Attendance(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     course_id = Column(Integer, ForeignKey("courses.id"))
-    date = Column(DateTime, default=datetime.utcnow)
+    date = Column(DateTime(timezone=True), default=now)
     present = Column(Boolean, default=True)
     marked_by = Column(Integer, ForeignKey("users.id"), nullable=True)
     user = relationship("User", back_populates="attendance", foreign_keys=[user_id])
@@ -98,7 +101,7 @@ class Assessment(Base):
     title = Column(String)
     score = Column(Float)
     max_score = Column(Float, default=100.0)
-    taken_at = Column(DateTime, default=datetime.utcnow)
+    taken_at = Column(DateTime(timezone=True), default=now)
     user = relationship("User", back_populates="assessments")
     course = relationship("Course", back_populates="assessments")
 
@@ -107,7 +110,7 @@ class Certificate(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     course_id = Column(Integer, ForeignKey("courses.id"))
-    issued_at = Column(DateTime, default=datetime.utcnow)
+    issued_at = Column(DateTime(timezone=True), default=now)
     verified = Column(Boolean, default=True)
     issued_by = Column(Integer, ForeignKey("users.id"), nullable=True)
     user = relationship("User", back_populates="certificates", foreign_keys=[user_id])
@@ -121,7 +124,7 @@ class Video(Base):
     youtube_url = Column(String, nullable=True)
     file_path = Column(String, nullable=True)
     order = Column(Integer, default=0)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=now)
     course = relationship("Course", back_populates="videos")
     watches = relationship("VideoWatch", back_populates="video")
 
@@ -131,7 +134,7 @@ class VideoWatch(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     video_id = Column(Integer, ForeignKey("videos.id"))
     course_id = Column(Integer, ForeignKey("courses.id"))
-    watched_at = Column(DateTime, default=datetime.utcnow)
+    watched_at = Column(DateTime(timezone=True), default=now)
     user = relationship("User", back_populates="video_watches")
     video = relationship("Video", back_populates="watches")
 
@@ -142,9 +145,9 @@ class Assignment(Base):
     title = Column(String, nullable=False)
     description = Column(Text)
     google_form_url = Column(String, nullable=True)
-    due_date = Column(DateTime, nullable=True)
+    due_date = Column(DateTime(timezone=True), nullable=True)
     created_by = Column(Integer, ForeignKey("users.id"))
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=now)
     course = relationship("Course", back_populates="assignments")
     submissions = relationship("AssignmentSubmission", back_populates="assignment")
 
@@ -157,8 +160,8 @@ class AssignmentSubmission(Base):
     note = Column(Text, nullable=True)
     grade = Column(Float, nullable=True)
     feedback = Column(Text, nullable=True)
-    submitted_at = Column(DateTime, default=datetime.utcnow)
-    graded_at = Column(DateTime, nullable=True)
+    submitted_at = Column(DateTime(timezone=True), default=now)
+    graded_at = Column(DateTime(timezone=True), nullable=True)
     assignment = relationship("Assignment", back_populates="submissions")
     user = relationship("User", back_populates="submissions")
 
@@ -169,7 +172,7 @@ class Quiz(Base):
     title = Column(String, nullable=False)
     google_form_url = Column(String, nullable=True)
     created_by = Column(Integer, ForeignKey("users.id"))
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=now)
     course = relationship("Course", back_populates="quizzes")
     questions = relationship("QuizQuestion", back_populates="quiz")
     attempts = relationship("QuizAttempt", back_populates="quiz")
@@ -194,7 +197,7 @@ class QuizAttempt(Base):
     score = Column(Float, default=0.0)
     total = Column(Integer, default=0)
     answers = Column(Text, nullable=True)
-    attempted_at = Column(DateTime, default=datetime.utcnow)
+    attempted_at = Column(DateTime(timezone=True), default=now)
     quiz = relationship("Quiz", back_populates="attempts")
     user = relationship("User", back_populates="quiz_attempts")
 
@@ -203,7 +206,7 @@ class Referral(Base):
     id = Column(Integer, primary_key=True, index=True)
     referrer_id = Column(Integer, ForeignKey("users.id"))
     referred_id = Column(Integer, ForeignKey("users.id"))
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=now)
 
 class Announcement(Base):
     __tablename__ = "announcements"
@@ -212,7 +215,7 @@ class Announcement(Base):
     title = Column(String, nullable=False)
     body = Column(Text, nullable=False)
     created_by = Column(Integer, ForeignKey("users.id"))
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=now)
     course = relationship("Course", back_populates="announcements")
 
 class Payment(Base):
@@ -227,7 +230,7 @@ class Payment(Base):
     razorpay_payment_id = Column(String, nullable=True)
     status = Column(String, default="created")
     teacher_paid = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=now)
     user = relationship("User", back_populates="payments")
     course = relationship("Course", back_populates="payments")
 
@@ -237,6 +240,4 @@ class AITutorMessage(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     role = Column(String, nullable=False)
     content = Column(Text, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-
-   
+    created_at = Column(DateTime(timezone=True), default=now)
