@@ -19,7 +19,7 @@ export default function AIChatBubble() {
           <div
             className="fixed z-[200] flex flex-col"
             style={{
-              right: '16px',
+              left: '16px',
               bottom: '100px',
               width: 'min(420px, calc(100vw - 32px))',
               height: 'min(580px, calc(100vh - 120px))',
@@ -65,7 +65,7 @@ export default function AIChatBubble() {
         onClick={() => setOpen(o => !o)}
         className="fixed z-[150] btn-primary flex items-center gap-2 text-white font-medium text-sm"
         style={{
-          left: '16px',
+          right: '16px',
           bottom: '88px',
           padding: '10px 16px',
           borderRadius: '50px',
