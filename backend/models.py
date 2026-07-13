@@ -231,10 +231,12 @@ class Payment(Base):
     user = relationship("User", back_populates="payments")
     course = relationship("Course", back_populates="payments")
 
-    class AITutorMessage(Base):
+class AITutorMessage(Base):
     __tablename__ = "ai_tutor_messages"
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     role = Column(String, nullable=False)
     content = Column(Text, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+   
