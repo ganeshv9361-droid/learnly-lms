@@ -19,7 +19,7 @@ export default function AIChatBubble() {
           <div
             className="fixed z-[200] flex flex-col"
             style={{
-              left: '16px',
+              right: '16px',
               bottom: '100px',
               width: 'min(420px, calc(100vw - 32px))',
               height: 'min(580px, calc(100vh - 120px))',
