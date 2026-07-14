@@ -5,6 +5,8 @@ import api from '../api/axios'
 import RevenueTab from '../components/RevenueTab'
 import PayoutTab from '../components/PayoutTab'
 import ProfileTab from '../components/ProfileTab'
+import { useBreakpoint } from '../hooks/useBreakpoint'
+import MobileLayout from '../components/MobileLayout'
 
 export default function TeacherDashboard() {
   const { user, logout } = useAuth()
@@ -470,7 +472,7 @@ export default function TeacherDashboard() {
 
   return (
     <div className={`min-h-screen ${bg} flex transition-colors duration-200 text-white`}>
-      <div className={`w-64 ${sidebar} border-r flex flex-col p-4 gap-1 shrink-0`}>
+      <div className={`hidden md:flex w-64 ${sidebar} border-r flex-col p-4 gap-1 shrink-0`}>
         <div className="px-2 py-3 mb-1">
          <img
   src="/logo.png"
@@ -522,7 +524,21 @@ export default function TeacherDashboard() {
         </div>
       </div>
 
-      <div className="flex-1 p-6 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto">
+        {/* Mobile topbar */}
+        <div className="md:hidden sticky top-0 z-40 flex items-center gap-3 px-4 py-3 border-b border-white/5"
+          style={{background:'rgba(8,8,16,0.95)',backdropFilter:'blur(20px)'}}>
+          <div className="flex-1">
+            <div className="font-semibold text-white text-sm capitalize">{tab}</div>
+            <div className="text-xs text-gray-500">Teacher Dashboard</div>
+          </div>
+          {msg.text && (
+            <div className={`text-xs px-3 py-1.5 rounded-xl ${msg.type==='error'?'text-red-400':'text-teal-400'}`}>
+              {msg.text}
+            </div>
+          )}
+        </div>
+        <div className="p-4 sm:p-6 pb-24 md:pb-6">
         {msg.text && (
           <div
             className={`mb-4 text-sm px-4 py-2 rounded-lg border ${
@@ -537,7 +553,7 @@ export default function TeacherDashboard() {
 
         {tab === 'overview' && (
           <div>
-            <div className="grid grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
               {[
                 ['Students', totalStudents, 'text-violet-400'],
                 ['Courses', courses.length, 'text-teal-400'],
@@ -701,7 +717,7 @@ export default function TeacherDashboard() {
         )}
 
         {tab === 'courses' && !selectedCourse && !editCourse && (
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <div className={`text-sm font-medium ${txt2} mb-3`}>
                 Your courses ({courses.length})
@@ -2104,6 +2120,7 @@ export default function TeacherDashboard() {
   </button>
 </div>
       </div>
+    </div>
     </div>
   )
 }
