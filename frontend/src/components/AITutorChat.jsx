@@ -79,7 +79,7 @@ export default function AITutorChat({ compact = false }) {
       {/* CHAT MODE */}
       {mode === 'chat' && (
         <>
-          <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-3 px-1 pb-2">
+          <div ref={scrollRef} className="flex-1 overflow-y-auto  space-y-4 px-3 py-2">
             {loadingHistory && (
               <div className="text-center text-xs py-6" style={{ color: 'var(--text3)' }}>Loading conversation...</div>
             )}
@@ -109,14 +109,41 @@ export default function AITutorChat({ compact = false }) {
             )}
           </div>
 
-          <form onSubmit={send} className="flex gap-2 pt-2 shrink-0">
-            <input value={input} onChange={e => setInput(e.target.value)}
-              className="input-base flex-1" placeholder="Ask about any topic..."
-              disabled={loading} />
-            <button type="submit" disabled={loading || !input.trim()}
-              className="btn-primary text-white px-4 rounded-2xl text-sm font-semibold disabled:opacity-40 shrink-0">
-              ➤
-            </button>
+          <form onSubmit={send} className="flex items-center gap-3 pt-4 mt-2 border-t border-white/10 shrink-0">
+            <input
+    value={input}
+    onChange={e=>setInput(e.target.value)}
+    placeholder="Ask anything..."
+    className="
+        input-base
+        flex-1
+        h-12
+        px-5
+        rounded-xl
+        text-sm
+    "
+/>
+            <button 
+              type="submit"
+              disabled={loading || !input.trim()}
+              className="
+                  btn-primary
+                  h-12
+                  w-12
+                  rounded-xl
+                  flex
+                  items-center
+                  justify-center
+                  text-lg
+                  shadow-lg
+                  hover:scale-105
+                  transition-all
+                  disabled:opacity-40
+                  disabled:hover:scale-100
+                  shrink-0
+               ">
+    🚀
+</button>
           </form>
           {messages.length > 0 && (
             <button onClick={clearChat} className="text-xs mt-2 text-center w-full" style={{ color: 'var(--text3)' }}>
