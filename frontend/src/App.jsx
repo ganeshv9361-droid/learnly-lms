@@ -48,46 +48,47 @@ function NetworkCheck({ children }) {
 function AppInner() {
   const { user, loading } = useAuth()
   const [showRegister, setShowRegister] = useState(false)
+
   return (
     <NetworkCheck>
-      {/* existing return content */}
+      {loading ? (
+        <div className="min-h-screen flex items-center justify-center" style={{ background: "#0a0a0f" }}>
+          <div className="text-center animate-fade-up">
+            <div className="w-20 h-20 mx-auto mb-4 animate-pulse-glow">
+              <img
+                src="/logo.png"
+                alt="Learnly Logo"
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <div className="text-gray-400 text-sm">Loading...</div>
+          </div>
+        </div>
+      ) : !user ? (
+        showRegister ? (
+          <Register onSwitch={() => setShowRegister(false)} />
+        ) : (
+          <Login onSwitch={() => setShowRegister(true)} />
+        )
+      ) : user.role === "student" ? (
+        <>
+          <StudentDashboard />
+          <AIChatBubble />
+        </>
+      ) : user.role === "teacher" ? (
+        <TeacherDashboard />
+      ) : user.role === "developer" ? (
+        <DeveloperDashboard />
+      ) : (
+        <div className="min-h-screen flex items-center justify-center" style={{ background: "#0a0a0f" }}>
+          <div className="text-white text-center">
+            <div className="text-4xl mb-4">⚠️</div>
+            <div className="text-lg font-semibold mb-2">Unknown role</div>
+            <div className="text-gray-400 text-sm">{user.role}</div>
+          </div>
+        </div>
+      )}
     </NetworkCheck>
-  )
-
-
- if (loading) return (
-  <div className="min-h-screen flex items-center justify-center" style={{background:'#0a0a0f'}}>
-    <div className="text-center animate-fade-up">
-      
-      <div className="w-20 h-20 mx-auto mb-4 animate-pulse-glow">
-        <img 
-          src="/logo.png"   // OR import if inside src
-          alt="Learnly Logo"
-          className="w-full h-full object-contain"
-        />
-      </div>
-
-      <div className="text-gray-400 text-sm">Loading...</div>
-    </div>
-  </div>
-)
-
-  if (!user) return showRegister
-    ? <Register onSwitch={() => setShowRegister(false)} />
-    : <Login onSwitch={() => setShowRegister(true)} />
-
-  if (user.role === 'student') return (<><StudentDashboard /><AIChatBubble /></>)
-  if (user.role === 'teacher') return <TeacherDashboard />
-  if (user.role === 'developer') return <DeveloperDashboard />
-
-  return (
-    <div className="min-h-screen flex items-center justify-center" style={{background:'#0a0a0f'}}>
-      <div className="text-white text-center">
-        <div className="text-4xl mb-4">⚠️</div>
-        <div className="text-lg font-semibold mb-2">Unknown role</div>
-        <div className="text-gray-400 text-sm">{user.role}</div>
-      </div>
-    </div>
   )
 }
 
