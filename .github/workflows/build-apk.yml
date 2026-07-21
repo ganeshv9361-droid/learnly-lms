@@ -1,282 +1,75 @@
 name: Build Learnly APK
 
 on:
-  push:
-    branches: [ main ]
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
     steps:
-      - name: Checkout code
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 22
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: 22
+          cache: npm
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Setup Java 17
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          distribution: temurin
+          java-version: 17
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
-        with:
-          packages: 'platforms;android-34 build-tools;34.0.0 platform-tools'
 
-      - name: Install frontend dependencies
+      - name: Install Dependencies
         working-directory: frontend
         run: npm install
 
-      - name: Build React app
+      - name: Build React App
         working-directory: frontend
         run: npm run build
 
-      - name: Install Capacitor
+      - name: Generate Capacitor Config
         working-directory: frontend
         run: |
-          npm install @capacitor/core@latest @capacitor/cli@latest @capacitor/android@latest
-
-      - name: Write Capacitor config
-        working-directory: frontend
-        run: |
-          cat > capacitor.config.json << 'CAPEOF'
+          cat > capacitor.config.json <<EOF
           {
-            "appId": "com.learnly.app",
-            "appName": "Learnly",
-            "webDir": "dist",
-            "server": {
-              "androidScheme": "https",
-              "cleartext": true,
-              "allowNavigation": [
-                "learnly-lms-hqch.onrender.com",
-                "*.supabase.co",
-                "*.razorpay.com",
-                "checkout.razorpay.com",
-                "generativelanguage.googleapis.com"
-              ]
-            },
-            "android": {
-              "allowMixedContent": true,
-              "backgroundColor": "#080810",
-              "minSdkVersion": 22,
-              "webContentsDebuggingEnabled": false
-            },
-            "plugins": {
-              "SplashScreen": {
-                "launchShowDuration": 2500,
-                "launchAutoHide": true,
-                "backgroundColor": "#080810",
-                "showSpinner": false,
-                "splashFullScreen": true,
-                "splashImmersive": true
-              }
-            }
+            "appId":"com.learnly.app",
+            "appName":"Learnly",
+            "webDir":"dist"
           }
-          CAPEOF
+          EOF
 
-      - name: Add Android platform
+      - name: Add Android Platform
         working-directory: frontend
-        run: npx cap add android
+        run: |
+          if [ ! -d android ]; then
+            npx cap add android
+          fi
 
       - name: Sync Capacitor
         working-directory: frontend
         run: npx cap sync android
 
-      - name: Install ImageMagick
-        run: sudo apt-get install -y imagemagick
-
-      - name: Generate Learnly logo icon
-        run: |
-          cat > /tmp/learnly.svg << 'SVGEOF'
-          <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-            <rect width="1024" height="1024" fill="#080810" rx="180"/>
-            <circle cx="512" cy="512" r="420" fill="rgba(124,58,237,0.12)" stroke="rgba(124,58,237,0.35)" stroke-width="10"/>
-            <path d="M 220 512 C 220 320, 370 230, 512 320 C 654 410, 804 320, 804 512 C 804 704, 654 794, 512 704 C 370 614, 220 704, 220 512 Z"
-              stroke="url(#grad)" stroke-width="60" fill="none" stroke-linecap="round"/>
-            <path d="M 410 435 C 455 480, 570 545, 614 590"
-              stroke="#06b6d4" stroke-width="60" fill="none" stroke-linecap="round"/>
-            <path d="M 614 435 C 570 480, 455 545, 410 590"
-              stroke="#7c3aed" stroke-width="60" fill="none" stroke-linecap="round"/>
-            <circle cx="512" cy="512" r="42" fill="#7c3aed"/>
-            <circle cx="220" cy="512" r="28" fill="#06b6d4"/>
-            <circle cx="804" cy="512" r="28" fill="#7c3aed"/>
-            <defs>
-              <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#7c3aed"/>
-                <stop offset="50%" stop-color="#06b6d4"/>
-                <stop offset="100%" stop-color="#7c3aed"/>
-              </linearGradient>
-            </defs>
-          </svg>
-          SVGEOF
-
-          ANDROID_RES=frontend/android/app/src/main/res
-
-          # App icons for all densities
-          for density in "mdpi:48" "hdpi:72" "xhdpi:96" "xxhdpi:144" "xxxhdpi:192"; do
-            dpi="${density%%:*}"
-            size="${density##*:}"
-            mkdir -p "$ANDROID_RES/mipmap-$dpi"
-            convert -background none /tmp/learnly.svg -resize ${size}x${size} \
-              "$ANDROID_RES/mipmap-$dpi/ic_launcher.png"
-            cp "$ANDROID_RES/mipmap-$dpi/ic_launcher.png" \
-               "$ANDROID_RES/mipmap-$dpi/ic_launcher_round.png"
-            echo "✓ icon $dpi ${size}x${size}"
-          done
-
-          # Splash screen icon (large, centered on dark background)
-          mkdir -p "$ANDROID_RES/drawable"
-          convert -size 1080x1920 xc:"#080810" \
-            \( /tmp/learnly.svg -background none -resize 400x400 \) \
-            -gravity center -composite \
-            "$ANDROID_RES/drawable/splash.png"
-          echo "✓ Splash screen created"
-
-      - name: Fix colors and styles
-        run: |
-          ANDROID_RES=frontend/android/app/src/main/res
-
-          # Remove duplicate ic_launcher_background file created by Capacitor
-          rm -f "$ANDROID_RES/values/ic_launcher_background.xml"
-
-          # Colors — no ic_launcher_background here since Capacitor owns it
-          cat > "$ANDROID_RES/values/colors.xml" << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <resources>
-              <color name="colorPrimary">#7c3aed</color>
-              <color name="colorPrimaryDark">#080810</color>
-              <color name="colorAccent">#06b6d4</color>
-          </resources>
-          EOF
-
-          # Strings
-          cat > "$ANDROID_RES/values/strings.xml" << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <resources>
-              <string name="app_name">Learnly</string>
-              <string name="title_activity_main">Learnly</string>
-              <string name="package_name">com.learnly.app</string>
-              <string name="custom_url_scheme">com.learnly.app</string>
-          </resources>
-          EOF
-
-          # Styles
-          cat > "$ANDROID_RES/values/styles.xml" << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <resources>
-              <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
-                  <item name="colorPrimary">@color/colorPrimary</item>
-                  <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-                  <item name="colorAccent">@color/colorAccent</item>
-                  <item name="android:windowBackground">@android:color/black</item>
-              </style>
-              <style name="AppTheme.NoActionBarLaunch" parent="AppTheme">
-                  <item name="android:background">@drawable/splash</item>
-                  <item name="android:windowFullscreen">true</item>
-                  <item name="android:windowContentOverlay">@null</item>
-                  <item name="android:windowNoTitle">true</item>
-              </style>
-          </resources>
-          EOF
-
-          echo "✓ Colors and styles fixed"
-
-          # Network security config
-          mkdir -p "$ANDROID_RES/xml"
-          cat > "$ANDROID_RES/xml/network_security_config.xml" << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <network-security-config>
-              <base-config cleartextTrafficPermitted="true">
-                  <trust-anchors>
-                      <certificates src="system"/>
-                  </trust-anchors>
-              </base-config>
-              <domain-config cleartextTrafficPermitted="false">
-                  <domain includeSubdomains="true">learnly-lms-hqch.onrender.com</domain>
-                  <domain includeSubdomains="true">supabase.co</domain>
-                  <domain includeSubdomains="true">razorpay.com</domain>
-                  <domain includeSubdomains="true">googleapis.com</domain>
-              </domain-config>
-          </network-security-config>
-          EOF
-
-          echo "✓ All resource files created"
-
-      - name: Write AndroidManifest.xml
-        run: |
-          cat > frontend/android/app/src/main/AndroidManifest.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
-              <uses-permission android:name="android.permission.INTERNET" />
-              <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-              <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-              <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-                  android:maxSdkVersion="32"/>
-              <uses-permission android:name="android.permission.CAMERA" />
-              <uses-permission android:name="android.permission.VIBRATE" />
-
-              <application
-                  android:allowBackup="true"
-                  android:icon="@mipmap/ic_launcher"
-                  android:roundIcon="@mipmap/ic_launcher_round"
-                  android:label="@string/app_name"
-                  android:supportsRtl="true"
-                  android:usesCleartextTraffic="true"
-                  android:networkSecurityConfig="@xml/network_security_config"
-                  android:theme="@style/AppTheme">
-
-                  <activity
-                      android:name=".MainActivity"
-                      android:label="@string/title_activity_main"
-                      android:theme="@style/AppTheme.NoActionBarLaunch"
-                      android:launchMode="singleTask"
-                      android:exported="true"
-                      android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density">
-                      <intent-filter>
-                          <action android:name="android.intent.action.MAIN" />
-                          <category android:name="android.intent.category.LAUNCHER" />
-                      </intent-filter>
-                  </activity>
-
-                  <provider
-                      android:name="androidx.core.content.FileProvider"
-                      android:authorities="${applicationId}.fileprovider"
-                      android:exported="false"
-                      android:grantUriPermissions="true">
-                      <meta-data
-                          android:name="android.support.FILE_PROVIDER_PATHS"
-                          android:resource="@xml/file_paths"/>
-                  </provider>
-
-              </application>
-
-          </manifest>
-          EOF
-          echo "✓ AndroidManifest.xml written"
-
-      - name: Make gradlew executable
+      - name: Make Gradle Executable
         working-directory: frontend/android
         run: chmod +x gradlew
 
       - name: Build Debug APK
         working-directory: frontend/android
-        run: ./gradlew assembleDebug --no-daemon --stacktrace
+        run: ./gradlew assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Learnly-APK
           path: frontend/android/app/build/outputs/apk/debug/app-debug.apk
-          retention-days: 30

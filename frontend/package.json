@@ -10,7 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/cli": "^7.4.3",
+    "@capacitor/core": "^7.4.3",
     "@capacitor/assets": "^3.0.5",
+
     "@tailwindcss/vite": "^4.2.4",
     "axios": "^1.15.0",
     "html2canvas": "^1.4.1",
