@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -6,7 +6,7 @@ import StudentDashboard from './pages/StudentDashboard'
 import TeacherDashboard from './pages/TeacherDashboard'
 import DeveloperDashboard from './pages/DeveloperDashboard'
 import AIChatBubble from './components/AIChatBubble'
-import { useEffect, useState } from 'react'
+
 
 function NetworkCheck({ children }) {
   const [online, setOnline] = useState(true)

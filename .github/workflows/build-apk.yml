@@ -13,81 +13,106 @@ jobs:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
 
-      - uses: actions/setup-java@v4
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
       - name: Setup Android SDK
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y wget unzip imagemagick
-          mkdir -p $HOME/android-sdk/cmdline-tools
-          cd $HOME/android-sdk/cmdline-tools
-          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
-          unzip -q commandlinetools-linux-11076708_latest.zip
-          mv cmdline-tools latest
-          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
-          echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
-          echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
-          echo "$HOME/android-sdk/platform-tools" >> $GITHUB_PATH
+        uses: android-actions/setup-android@v3
+        with:
+          packages: 'platforms;android-34 build-tools;34.0.0 platform-tools'
 
-      - name: Accept licenses and install SDK
-        run: |
-          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager \
-            "platforms;android-34" \
-            "build-tools;34.0.0" \
-            "platform-tools"
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm install
 
-      - name: Install and build frontend
+      - name: Build React app
+        working-directory: frontend
+        run: npm run build
+
+      - name: Install Capacitor
         working-directory: frontend
         run: |
-          npm install
-          npm run build
+          npm install @capacitor/core@latest @capacitor/cli@latest @capacitor/android@latest
 
-      - name: Setup Capacitor
+      - name: Write Capacitor config
         working-directory: frontend
         run: |
-          npm install @capacitor/core @capacitor/cli @capacitor/android
-          echo '{
+          cat > capacitor.config.json << 'CAPEOF'
+          {
             "appId": "com.learnly.app",
             "appName": "Learnly",
             "webDir": "dist",
             "server": {
               "androidScheme": "https",
-              "cleartext": true
+              "cleartext": true,
+              "allowNavigation": [
+                "learnly-lms-hqch.onrender.com",
+                "*.supabase.co",
+                "*.razorpay.com",
+                "checkout.razorpay.com",
+                "generativelanguage.googleapis.com"
+              ]
             },
             "android": {
               "allowMixedContent": true,
               "backgroundColor": "#080810",
-              "minSdkVersion": 22
+              "minSdkVersion": 22,
+              "webContentsDebuggingEnabled": false
+            },
+            "plugins": {
+              "SplashScreen": {
+                "launchShowDuration": 2500,
+                "launchAutoHide": true,
+                "backgroundColor": "#080810",
+                "showSpinner": false,
+                "splashFullScreen": true,
+                "splashImmersive": true
+              }
             }
-          }' > capacitor.config.json
-          npx cap add android
-          npx cap sync android
+          }
+          CAPEOF
 
-      - name: Generate app icons
+      - name: Add Android platform
+        working-directory: frontend
+        run: npx cap add android
+
+      - name: Sync Capacitor
+        working-directory: frontend
+        run: npx cap sync android
+
+      - name: Install ImageMagick
+        run: sudo apt-get install -y imagemagick
+
+      - name: Generate Learnly logo icon
         run: |
-          cat > /tmp/icon.svg << 'SVGEOF'
+          cat > /tmp/learnly.svg << 'SVGEOF'
           <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-            <rect width="1024" height="1024" fill="#080810" rx="200"/>
-            <circle cx="512" cy="512" r="460" fill="rgba(124,58,237,0.15)" stroke="rgba(124,58,237,0.4)" stroke-width="8"/>
-            <path d="M 256 512 C 256 358, 384 282, 512 358 C 640 434, 768 358, 768 512 C 768 666, 640 742, 512 666 C 384 590, 256 666, 256 512 Z"
-              stroke="url(#g1)" stroke-width="60" fill="none" stroke-linecap="round"/>
-            <path d="M 430 450 C 470 490, 550 530, 590 570" stroke="#06b6d4" stroke-width="60" fill="none" stroke-linecap="round"/>
-            <path d="M 590 450 C 550 490, 470 530, 430 570" stroke="#7c3aed" stroke-width="60" fill="none" stroke-linecap="round"/>
-            <circle cx="512" cy="512" r="40" fill="#7c3aed"/>
-            <circle cx="256" cy="512" r="28" fill="#06b6d4"/>
-            <circle cx="768" cy="512" r="28" fill="#7c3aed"/>
+            <rect width="1024" height="1024" fill="#080810" rx="180"/>
+            <circle cx="512" cy="512" r="420" fill="rgba(124,58,237,0.12)" stroke="rgba(124,58,237,0.35)" stroke-width="10"/>
+            <path d="M 220 512 C 220 320, 370 230, 512 320 C 654 410, 804 320, 804 512 C 804 704, 654 794, 512 704 C 370 614, 220 704, 220 512 Z"
+              stroke="url(#grad)" stroke-width="60" fill="none" stroke-linecap="round"/>
+            <path d="M 410 435 C 455 480, 570 545, 614 590"
+              stroke="#06b6d4" stroke-width="60" fill="none" stroke-linecap="round"/>
+            <path d="M 614 435 C 570 480, 455 545, 410 590"
+              stroke="#7c3aed" stroke-width="60" fill="none" stroke-linecap="round"/>
+            <circle cx="512" cy="512" r="42" fill="#7c3aed"/>
+            <circle cx="220" cy="512" r="28" fill="#06b6d4"/>
+            <circle cx="804" cy="512" r="28" fill="#7c3aed"/>
             <defs>
-              <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stop-color="#7c3aed"/>
                 <stop offset="50%" stop-color="#06b6d4"/>
                 <stop offset="100%" stop-color="#7c3aed"/>
@@ -95,25 +120,155 @@ jobs:
             </defs>
           </svg>
           SVGEOF
-          convert -background none /tmp/icon.svg -resize 1024x1024 /tmp/icon.png
+
           ANDROID_RES=frontend/android/app/src/main/res
-          for size in "48:mdpi" "72:hdpi" "96:xhdpi" "144:xxhdpi" "192:xxxhdpi"; do
-            px="${size%%:*}"
-            dpi="${size##*:}"
+
+          # App icons for all densities
+          for density in "mdpi:48" "hdpi:72" "xhdpi:96" "xxhdpi:144" "xxxhdpi:192"; do
+            dpi="${density%%:*}"
+            size="${density##*:}"
             mkdir -p "$ANDROID_RES/mipmap-$dpi"
-            convert /tmp/icon.png -resize ${px}x${px} "$ANDROID_RES/mipmap-$dpi/ic_launcher.png"
-            convert /tmp/icon.png -resize ${px}x${px} "$ANDROID_RES/mipmap-$dpi/ic_launcher_round.png"
+            convert -background none /tmp/learnly.svg -resize ${size}x${size} \
+              "$ANDROID_RES/mipmap-$dpi/ic_launcher.png"
+            cp "$ANDROID_RES/mipmap-$dpi/ic_launcher.png" \
+               "$ANDROID_RES/mipmap-$dpi/ic_launcher_round.png"
+            echo "✓ icon $dpi ${size}x${size}"
           done
-          echo "Icons generated successfully"
+
+          # Splash screen icon (large, centered on dark background)
+          mkdir -p "$ANDROID_RES/drawable"
+          convert -size 1080x1920 xc:"#080810" \
+            \( /tmp/learnly.svg -background none -resize 400x400 \) \
+            -gravity center -composite \
+            "$ANDROID_RES/drawable/splash.png"
+          echo "✓ Splash screen created"
+
+      - name: Write all Android resource files
+        run: |
+          ANDROID_RES=frontend/android/app/src/main/res
+
+          # Colors
+          cat > "$ANDROID_RES/values/colors.xml" << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
+              <color name="ic_launcher_background">#080810</color>
+              <color name="colorPrimary">#7c3aed</color>
+              <color name="colorPrimaryDark">#080810</color>
+              <color name="colorAccent">#06b6d4</color>
+          </resources>
+          EOF
+
+          # Strings
+          cat > "$ANDROID_RES/values/strings.xml" << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
+              <string name="app_name">Learnly</string>
+              <string name="title_activity_main">Learnly</string>
+              <string name="package_name">com.learnly.app</string>
+              <string name="custom_url_scheme">com.learnly.app</string>
+          </resources>
+          EOF
+
+          # Styles
+          cat > "$ANDROID_RES/values/styles.xml" << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
+              <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+                  <item name="colorPrimary">@color/colorPrimary</item>
+                  <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+                  <item name="colorAccent">@color/colorAccent</item>
+                  <item name="android:windowBackground">@color/ic_launcher_background</item>
+              </style>
+              <style name="AppTheme.NoActionBarLaunch" parent="AppTheme">
+                  <item name="android:background">@drawable/splash</item>
+                  <item name="android:windowFullscreen">true</item>
+                  <item name="android:windowContentOverlay">@null</item>
+                  <item name="android:windowNoTitle">true</item>
+              </style>
+          </resources>
+          EOF
+
+          # Network security config
+          mkdir -p "$ANDROID_RES/xml"
+          cat > "$ANDROID_RES/xml/network_security_config.xml" << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <network-security-config>
+              <base-config cleartextTrafficPermitted="true">
+                  <trust-anchors>
+                      <certificates src="system"/>
+                  </trust-anchors>
+              </base-config>
+              <domain-config cleartextTrafficPermitted="false">
+                  <domain includeSubdomains="true">learnly-lms-hqch.onrender.com</domain>
+                  <domain includeSubdomains="true">supabase.co</domain>
+                  <domain includeSubdomains="true">razorpay.com</domain>
+                  <domain includeSubdomains="true">googleapis.com</domain>
+              </domain-config>
+          </network-security-config>
+          EOF
+
+          echo "✓ All resource files created"
+
+      - name: Write AndroidManifest.xml
+        run: |
+          cat > frontend/android/app/src/main/AndroidManifest.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+              <uses-permission android:name="android.permission.INTERNET" />
+              <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+              <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+              <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+                  android:maxSdkVersion="32"/>
+              <uses-permission android:name="android.permission.CAMERA" />
+              <uses-permission android:name="android.permission.VIBRATE" />
+
+              <application
+                  android:allowBackup="true"
+                  android:icon="@mipmap/ic_launcher"
+                  android:roundIcon="@mipmap/ic_launcher_round"
+                  android:label="@string/app_name"
+                  android:supportsRtl="true"
+                  android:usesCleartextTraffic="true"
+                  android:networkSecurityConfig="@xml/network_security_config"
+                  android:theme="@style/AppTheme">
+
+                  <activity
+                      android:name=".MainActivity"
+                      android:label="@string/title_activity_main"
+                      android:theme="@style/AppTheme.NoActionBarLaunch"
+                      android:launchMode="singleTask"
+                      android:exported="true"
+                      android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density">
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN" />
+                          <category android:name="android.intent.category.LAUNCHER" />
+                      </intent-filter>
+                  </activity>
+
+                  <provider
+                      android:name="androidx.core.content.FileProvider"
+                      android:authorities="${applicationId}.fileprovider"
+                      android:exported="false"
+                      android:grantUriPermissions="true">
+                      <meta-data
+                          android:name="android.support.FILE_PROVIDER_PATHS"
+                          android:resource="@xml/file_paths"/>
+                  </provider>
+
+              </application>
+
+          </manifest>
+          EOF
+          echo "✓ AndroidManifest.xml written"
+
+      - name: Make gradlew executable
+        working-directory: frontend/android
+        run: chmod +x gradlew
 
       - name: Build Debug APK
         working-directory: frontend/android
-        env:
-          ANDROID_HOME: ${{ env.ANDROID_HOME }}
-          ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
-        run: |
-          chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
