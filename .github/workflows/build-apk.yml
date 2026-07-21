@@ -143,15 +143,17 @@ jobs:
             "$ANDROID_RES/drawable/splash.png"
           echo "✓ Splash screen created"
 
-      - name: Write all Android resource files
+      - name: Fix colors and styles
         run: |
           ANDROID_RES=frontend/android/app/src/main/res
 
-          # Colors
+          # Remove duplicate ic_launcher_background file created by Capacitor
+          rm -f "$ANDROID_RES/values/ic_launcher_background.xml"
+
+          # Colors — no ic_launcher_background here since Capacitor owns it
           cat > "$ANDROID_RES/values/colors.xml" << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <resources>
-              <color name="ic_launcher_background">#080810</color>
               <color name="colorPrimary">#7c3aed</color>
               <color name="colorPrimaryDark">#080810</color>
               <color name="colorAccent">#06b6d4</color>
@@ -177,7 +179,7 @@ jobs:
                   <item name="colorPrimary">@color/colorPrimary</item>
                   <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
                   <item name="colorAccent">@color/colorAccent</item>
-                  <item name="android:windowBackground">@color/ic_launcher_background</item>
+                  <item name="android:windowBackground">@android:color/black</item>
               </style>
               <style name="AppTheme.NoActionBarLaunch" parent="AppTheme">
                   <item name="android:background">@drawable/splash</item>
@@ -187,6 +189,8 @@ jobs:
               </style>
           </resources>
           EOF
+
+          echo "✓ Colors and styles fixed"
 
           # Network security config
           mkdir -p "$ANDROID_RES/xml"
