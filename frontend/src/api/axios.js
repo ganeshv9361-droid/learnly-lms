@@ -1,9 +1,7 @@
 import axios from 'axios'
 
-const BASE_URL = 'https://learnly-lms-hqch.onrender.com/api'
-
 const api = axios.create({
-  baseURL: BASE_URL,
+  baseURL: 'https://learnly-lms-hqch.onrender.com/api',
   timeout: 60000,
   headers: { 'Content-Type': 'application/json' }
 })

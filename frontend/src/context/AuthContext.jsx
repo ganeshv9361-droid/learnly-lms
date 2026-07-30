@@ -9,12 +9,12 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const token = localStorage.getItem('token')
-
     if (token) {
       api.get('/users/me')
         .then(res => setUser(res.data))
         .catch(() => {
           localStorage.removeItem('token')
+          setUser(null)
         })
         .finally(() => setLoading(false))
     } else {
@@ -24,39 +24,14 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     const params = new URLSearchParams()
-
     params.append('username', email)
     params.append('password', password)
-
-    const res = await api.post('/users/login', params)
-
-    localStorage.setItem('token', res.data.access_token)
-
-    const me = await api.get('/users/me')
-
-    setUser(me.data)
-
-    return me.data
-  }
-
-  // Optional future Firebase login support
-  const loginWithFirebase = async (
-    firebaseToken,
-    role = 'student',
-    referral_code = ''
-  ) => {
-    const res = await api.post('/users/firebase-login', {
-      firebase_token: firebaseToken,
-      role,
-      referral_code: referral_code || undefined
+    const res = await api.post('/users/login', params, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     })
-
     localStorage.setItem('token', res.data.access_token)
-
     const me = await api.get('/users/me')
-
     setUser(me.data)
-
     return me.data
   }
 
@@ -66,15 +41,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        login,
-        loginWithFirebase,
-        logout,
-        loading
-      }}
-    >
+    <AuthContext.Provider value={{ user, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   )
