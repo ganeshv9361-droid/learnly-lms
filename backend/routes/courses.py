@@ -79,14 +79,144 @@ def update_course(course_id: int, data: CourseUpdate, db: Session = Depends(get_
     return course
 
 @router.delete("/{course_id}")
-def delete_course(course_id: int, db: Session = Depends(get_db), user=Depends(get_current_user)):
+def delete_course(
+    course_id: int,
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user),
+):
     if user.role not in ["teacher", "developer"]:
         raise HTTPException(status_code=403, detail="Teachers only")
-    course = db.query(models.Course).filter(models.Course.id == course_id).first()
+
+    course = db.query(models.Course).filter(
+        models.Course.id == course_id
+    ).first()
+
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
+
     if user.role == "teacher" and course.instructor_id != user.id:
-        raise HTTPException(status_code=403, detail="You can only delete your own courses")
-    db.delete(course)
-    db.commit()
-    return {"message": "Course deleted"}
+        raise HTTPException(
+            status_code=403,
+            detail="You can only delete your own courses"
+        )
+
+    try:
+        # ----------------------------
+        # Delete Video Watch History
+        # ----------------------------
+        db.query(models.VideoWatch).filter(
+            models.VideoWatch.course_id == course_id
+        ).delete(synchronize_session=False)
+
+        # ----------------------------
+        # Delete Quiz Attempts
+        # ----------------------------
+        quizzes = db.query(models.Quiz).filter(
+            models.Quiz.course_id == course_id
+        ).all()
+
+        for quiz in quizzes:
+            db.query(models.QuizAttempt).filter(
+                models.QuizAttempt.quiz_id == quiz.id
+            ).delete(synchronize_session=False)
+
+            db.query(models.QuizQuestion).filter(
+                models.QuizQuestion.quiz_id == quiz.id
+            ).delete(synchronize_session=False)
+
+        # ----------------------------
+        # Delete Assignment Submissions
+        # ----------------------------
+        assignments = db.query(models.Assignment).filter(
+            models.Assignment.course_id == course_id
+        ).all()
+
+        for assignment in assignments:
+            db.query(models.AssignmentSubmission).filter(
+                models.AssignmentSubmission.assignment_id == assignment.id
+            ).delete(synchronize_session=False)
+
+        # ----------------------------
+        # Delete Videos
+        # ----------------------------
+        videos = db.query(models.Video).filter(
+            models.Video.course_id == course_id
+        ).all()
+
+        for video in videos:
+            db.query(models.VideoWatch).filter(
+                models.VideoWatch.video_id == video.id
+            ).delete(synchronize_session=False)
+
+        db.query(models.Video).filter(
+            models.Video.course_id == course_id
+        ).delete(synchronize_session=False)
+
+        # ----------------------------
+        # Delete Assignments
+        # ----------------------------
+        db.query(models.Assignment).filter(
+            models.Assignment.course_id == course_id
+        ).delete(synchronize_session=False)
+
+        # ----------------------------
+        # Delete Quizzes
+        # ----------------------------
+        db.query(models.Quiz).filter(
+            models.Quiz.course_id == course_id
+        ).delete(synchronize_session=False)
+
+        # ----------------------------
+        # Delete Enrollments
+        # ----------------------------
+        db.query(models.Enrollment).filter(
+            models.Enrollment.course_id == course_id
+        ).delete(synchronize_session=False)
+
+        # ----------------------------
+        # Delete Attendance
+        # ----------------------------
+        db.query(models.Attendance).filter(
+            models.Attendance.course_id == course_id
+        ).delete(synchronize_session=False)
+
+        # ----------------------------
+        # Delete Assessments
+        # ----------------------------
+        db.query(models.Assessment).filter(
+            models.Assessment.course_id == course_id
+        ).delete(synchronize_session=False)
+
+        # ----------------------------
+        # Delete Certificates
+        # ----------------------------
+        db.query(models.Certificate).filter(
+            models.Certificate.course_id == course_id
+        ).delete(synchronize_session=False)
+
+        # ----------------------------
+        # Delete Announcements
+        # ----------------------------
+        db.query(models.Announcement).filter(
+            models.Announcement.course_id == course_id
+        ).delete(synchronize_session=False)
+
+        # ----------------------------
+        # Delete Payments
+        # ----------------------------
+        db.query(models.Payment).filter(
+            models.Payment.course_id == course_id
+        ).delete(synchronize_session=False)
+
+        # ----------------------------
+        # Finally delete the Course
+        # ----------------------------
+        db.delete(course)
+
+        db.commit()
+
+        return {"message": "Course deleted successfully"}
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
