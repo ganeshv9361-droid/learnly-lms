@@ -90,7 +90,6 @@ export default function StudentDashboard() {
       try {
         const r = await api.get(`/videos/course/${c.id}`)
         const firstYT = r.data.find(v => v.youtube_url)
-        const firstUploaded = r.data.find(v => v.thumbnail_url)
         if (firstYT) {
           const match = firstYT.youtube_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/)
           if (match) {
@@ -99,11 +98,6 @@ export default function StudentDashboard() {
               [c.id]: `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg`
             }))
           }
-        } else if (firstUploaded) {
-          setCourseThumbnails(prev => ({
-            ...prev,
-            [c.id]: `https://learnly-lms-hqch.onrender.com${firstUploaded.thumbnail_url}`
-          }))
         }
       } catch(e) {}
     })
