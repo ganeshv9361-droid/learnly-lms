@@ -1045,27 +1045,62 @@ export default function TeacherDashboard() {
                     )}
 
                     {videos.map((v, i) => (
-                      <div
-                        key={v.id}
-                        className={`${card} border rounded-lg p-3 flex items-center gap-3`}
-                      >
-                        <div className={`w-6 h-6 bg-white/5 rounded text-xs flex items-center justify-center ${txt2}`}>
-                          {i + 1}
-                        </div>
-
-                        <div className="flex-1 min-w-0">
-                          <div className={`text-sm ${txt} truncate`}>{v.title}</div>
-                          <div className={`text-xs ${txt3}`}>
-                            {v.youtube_url ? 'YouTube' : 'Uploaded file'}
+                      <div key={v.id} className={`${card} border rounded-xl overflow-hidden`}>
+                        {/* Thumbnail preview */}
+                        {(v.thumbnail_url || v.youtube_url) && (
+                          <div className="relative h-24 bg-black overflow-hidden">
+                            <img
+                              src={v.youtube_url
+                                ? `https://img.youtube.com/vi/${v.youtube_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/)?.[1]}/hqdefault.jpg`
+                                : `https://learnly-lms-hqch.onrender.com${v.thumbnail_url}`
+                              }
+                              alt={v.title}
+                              className="w-full h-full object-cover opacity-80"
+                            />
+                            <div className="absolute inset-0" style={{background:'linear-gradient(to bottom,transparent,rgba(0,0,0,0.6))'}}/>
+                            <div className="absolute bottom-1 left-2 text-xs text-white font-medium truncate" style={{maxWidth:'80%'}}>{v.title}</div>
                           </div>
+                        )}
+                        <div className="p-2 flex items-center gap-2">
+                          <div className={`w-6 h-6 rounded text-xs flex items-center justify-center shrink-0 ${txt3}`}
+                            style={{background:'rgba(255,255,255,0.06)'}}>
+                            {i + 1}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            {!v.thumbnail_url && !v.youtube_url && (
+                              <div className={`text-sm ${txt} truncate`}>{v.title}</div>
+                            )}
+                            <div className={`text-xs ${txt3}`}>
+                              {v.youtube_url ? '▶ YouTube' : '📁 Uploaded'}
+                            </div>
+                          </div>
+                          {/* Thumbnail upload for non-YouTube videos */}
+                          {!v.youtube_url && (
+                            <label className="cursor-pointer shrink-0">
+                              <input type="file" accept="image/*" className="hidden"
+                                onChange={async (e) => {
+                                  const file = e.target.files[0]
+                                  if (!file) return
+                                  const fd = new FormData()
+                                  fd.append('file', file)
+                                  try {
+                                    await api.post(`/videos/upload-thumbnail/${v.id}`, fd)
+                                    loadCourseContent(selectedCourse)
+                                    flash('Thumbnail uploaded!')
+                                  } catch(err) {
+                                    flash('Failed to upload thumbnail', 'error')
+                                  }
+                                }}
+                              />
+                              <span className="text-xs px-2 py-1 rounded-lg transition"
+                                style={{background:'rgba(124,58,237,0.2)',color:'#a78bfa',border:'1px solid rgba(124,58,237,0.3)'}}>
+                                {v.thumbnail_url ? '🖼 Change' : '🖼 Add thumbnail'}
+                              </span>
+                            </label>
+                          )}
+                          <button onClick={() => deleteVideo(v.id)}
+                            className="text-xs text-red-400 hover:text-red-300 shrink-0">✕</button>
                         </div>
-
-                        <button
-                          onClick={() => deleteVideo(v.id)}
-                          className="text-xs text-red-400 hover:text-red-300 shrink-0"
-                        >
-                          ✕
-                        </button>
                       </div>
                     ))}
                   </div>
