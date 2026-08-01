@@ -82,6 +82,27 @@ export default function StudentDashboard() {
 
   useEffect(() => { loadAll() }, [])
 
+  const [courseThumbnails, setCourseThumbnails] = useState({})
+
+  useEffect(() => {
+    if (courses.length === 0) return
+    courses.forEach(async (c) => {
+      try {
+        const r = await api.get(`/videos/course/${c.id}`)
+        const firstYT = r.data.find(v => v.youtube_url)
+        if (firstYT) {
+          const match = firstYT.youtube_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/)
+          if (match) {
+            setCourseThumbnails(prev => ({
+              ...prev,
+              [c.id]: `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg`
+            }))
+          }
+        }
+      } catch(e) {}
+    })
+  }, [courses])
+
   const enroll = async (course_id) => {
     try {
       await api.post('/enrollments/', { course_id })
@@ -699,10 +720,41 @@ export default function StudentDashboard() {
                   const enrolled = enrollments.find(e=>e.course_id===c.id)
                   return (
                     <div key={c.id} className="glass rounded-2xl overflow-hidden border border-white/5 card-hover">
-                      <div className="h-1.5" style={{background:enrolled?'linear-gradient(90deg,#7c3aed,#06b6d4)':c.is_paid?'linear-gradient(90deg,#f59e0b,#d97706)':'linear-gradient(90deg,#374151,#1f2937)'}}/>
+                      {/* Thumbnail */}
+                      {courseThumbnails[c.id] ? (
+                        <div className="relative overflow-hidden" style={{height:'140px'}}>
+                          <img
+                            src={courseThumbnails[c.id]}
+                            alt={c.title}
+                            className="w-full h-full object-cover"
+                            style={{filter:'brightness(0.85)'}}
+                            onError={e => e.target.style.display='none'}
+                          />
+                          <div className="absolute inset-0" style={{background:'linear-gradient(to bottom, transparent 40%, rgba(8,8,16,0.9))'}}/>
+                          <div className="absolute top-2 right-2">
+                            {c.is_paid
+                              ? <span className="paid-badge text-white text-xs px-2 py-1 rounded-full font-semibold">₹{c.price}</span>
+                              : <span className="text-xs px-2 py-1 rounded-full font-semibold badge-free">FREE</span>
+                            }
+                          </div>
+                          <div className="absolute bottom-2 left-3 flex items-center gap-1.5">
+                            <div className="w-6 h-6 rounded-full flex items-center justify-center"
+                              style={{background:'rgba(255,0,0,0.9)'}}>
+                              <span style={{fontSize:8,color:'white'}}>▶</span>
+                            </div>
+                            <span className="text-xs text-white font-medium" style={{textShadow:'0 1px 3px rgba(0,0,0,0.8)'}}>Watch</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="h-1.5" style={{background:enrolled?'linear-gradient(90deg,#7c3aed,#06b6d4)':c.is_paid?'linear-gradient(90deg,#f59e0b,#d97706)':'linear-gradient(90deg,#374151,#1f2937)'}}/>
+                      )}
                       <div className="p-4">
                         <div className="flex items-start justify-between gap-2 mb-2">
                           <div className="text-xl">{c.is_paid?'💎':'🎓'}</div>
+                          {!courseThumbnails[c.id] && (c.is_paid
+                            ? <span className="paid-badge text-white text-xs px-2 py-1 rounded-full font-semibold">₹{c.price}</span>
+                            : <span className="text-xs px-2 py-1 rounded-full font-semibold badge-free">FREE</span>
+                          )}
                           {c.is_paid
                             ? <span className="paid-badge text-white text-xs px-2 py-1 rounded-full font-semibold shrink-0">₹{c.price}</span>
                             : <span className="text-xs px-2 py-1 rounded-full font-semibold shrink-0" style={{background:'rgba(52,211,153,0.15)',color:'#34d399'}}>FREE</span>

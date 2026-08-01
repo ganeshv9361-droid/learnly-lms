@@ -26,6 +26,7 @@ export default function TeacherDashboard() {
   const [announcements, setAnnouncements] = useState([])
   const [uploading, setUploading] = useState(false)
   const fileRef = useRef()
+  const [courseThumbnails, setCourseThumbnails] = useState({})
 
   const [newCourse, setNewCourse] = useState({
     title: '',
@@ -121,6 +122,25 @@ export default function TeacherDashboard() {
   useEffect(() => {
     loadAll()
   }, [])
+
+  useEffect(() => {
+    if (courses.length === 0) return
+    courses.forEach(async (c) => {
+      try {
+        const r = await api.get(`/videos/course/${c.id}`)
+        const firstYT = r.data.find(v => v.youtube_url)
+        if (firstYT) {
+          const match = firstYT.youtube_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/)
+          if (match) {
+            setCourseThumbnails(prev => ({
+              ...prev,
+              [c.id]: `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg`
+            }))
+          }
+        }
+      } catch(e) {}
+    })
+  }, [courses])
 
   const loadCourseContent = async (course) => {
     setSelectedCourse(course)
@@ -1895,6 +1915,7 @@ export default function TeacherDashboard() {
                         {c.title}
                       </option>
                     ))}
+                    
                   </select>
                 </div>
 
