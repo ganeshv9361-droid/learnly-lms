@@ -123,6 +123,7 @@ class Video(Base):
     title = Column(String, nullable=False)
     youtube_url = Column(String, nullable=True)
     file_path = Column(String, nullable=True)
+    thumbnail_url = Column(String, nullable=True)
     order = Column(Integer, default=0)
     created_at = Column(DateTime(timezone=True), default=now)
     course = relationship("Course", back_populates="videos")
