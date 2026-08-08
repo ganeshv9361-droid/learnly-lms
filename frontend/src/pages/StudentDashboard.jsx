@@ -715,14 +715,14 @@ export default function StudentDashboard() {
                   <div className="text-gray-400 text-sm">No courses yet</div>
                 </div>
               )}
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                 {courses.map((c) => {
                   const enrolled = enrollments.find(e=>e.course_id===c.id)
                   return (
                     <div key={c.id} className="glass rounded-2xl overflow-hidden border border-white/5 card-hover">
                       {/* Thumbnail */}
                       {courseThumbnails[c.id] ? (
-                        <div className="relative overflow-hidden" style={{height:'140px'}}>
+                        <div className="relative overflow-hidden" style={{height:'100px'}}>
                           <img
                             src={courseThumbnails[c.id]}
                             alt={c.title}
@@ -748,9 +748,9 @@ export default function StudentDashboard() {
                       ) : (
                         <div className="h-1.5" style={{background:enrolled?'linear-gradient(90deg,#7c3aed,#06b6d4)':c.is_paid?'linear-gradient(90deg,#f59e0b,#d97706)':'linear-gradient(90deg,#374151,#1f2937)'}}/>
                       )}
-                      <div className="p-4">
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <div className="text-xl">{c.is_paid?'💎':'🎓'}</div>
+                      <div className="p-3">
+                        <div className="flex items-start justify-between gap-1 mb-1">
+                          <div className="text-base">{c.is_paid?'💎':'🎓'}</div>
                           {!courseThumbnails[c.id] && (c.is_paid
                             ? <span className="paid-badge text-white text-xs px-2 py-1 rounded-full font-semibold">₹{c.price}</span>
                             : <span className="text-xs px-2 py-1 rounded-full font-semibold badge-free">FREE</span>
@@ -760,32 +760,29 @@ export default function StudentDashboard() {
                             : <span className="text-xs px-2 py-1 rounded-full font-semibold shrink-0" style={{background:'rgba(52,211,153,0.15)',color:'#34d399'}}>FREE</span>
                           }
                         </div>
-                        <div className="font-semibold text-white mb-1 text-sm">{c.title}</div>
-                        <div className="text-xs text-gray-400 mb-1">by {c.instructor}</div>
-                        <div className="text-xs text-gray-500 mb-3 line-clamp-2">{c.description}</div>
-                        <div className="text-xs text-gray-500 mb-3">📦 {c.total_modules} modules</div>
+                        <div className="font-semibold text-white mb-0.5 text-xs leading-tight line-clamp-2">{c.title}</div>
+                        <div className="text-xs text-gray-400 mb-0.5 truncate">by {c.instructor}</div>
+                        <div className="text-xs text-gray-500 mb-2">📦 {c.total_modules} modules</div>
                         {enrolled ? (
-                          <div className="space-y-2">
-                            <div className="flex justify-between text-xs text-gray-400">
-                              <span>Progress</span><span>{enrolled.progress}%</span>
+                          <div className="space-y-1.5">
+                            <div className="h-1 rounded-full" style={{background:'rgba(255,255,255,0.1)'}}>
+                              <div className="h-1 rounded-full progress-bar" style={{width:enrolled.progress+'%',background:'linear-gradient(90deg,#7c3aed,#06b6d4)'}}/>
                             </div>
-                            <div className="h-1.5 rounded-full" style={{background:'rgba(255,255,255,0.1)'}}>
-                              <div className="h-1.5 rounded-full progress-bar" style={{width:enrolled.progress+'%',background:'linear-gradient(90deg,#7c3aed,#06b6d4)'}}/>
-                            </div>
-                            <button onClick={()=>openCourse(enrolled)} className="w-full btn-primary text-white py-2.5 rounded-xl text-sm font-medium">
+                            <button onClick={()=>openCourse(enrolled)} className="w-full btn-primary text-white py-2 rounded-xl text-xs font-medium">
                               ▶ Continue
                             </button>
                           </div>
                         ) : c.is_paid ? (
-                          <button onClick={()=>setPayingCourse(c)} className="w-full text-white py-2.5 rounded-xl text-sm font-semibold"
-                            style={{background:'linear-gradient(135deg,#f59e0b,#d97706)',boxShadow:'0 4px 15px rgba(245,158,11,0.3)'}}>
-                            Buy Now · ₹{c.price}
+                          <button onClick={()=>setPayingCourse(c)} className="w-full text-white py-2 rounded-xl text-xs font-semibold"
+                            style={{background:'linear-gradient(135deg,#f59e0b,#d97706)'}}>
+                            Buy · ₹{c.price}
                           </button>
                         ) : (
-                          <button onClick={()=>enroll(c.id)} className="w-full btn-primary text-white py-2.5 rounded-xl text-sm font-medium">
-                            Enroll Free →
+                          <button onClick={()=>enroll(c.id)} className="w-full btn-primary text-white py-2 rounded-xl text-xs font-medium">
+                            Enroll Free
                           </button>
                         )}
+                        
                       </div>
                     </div>
                   )
