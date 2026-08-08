@@ -708,81 +708,84 @@ export default function StudentDashboard() {
 
           {tab==='courses' && (
             <div className="animate-fade-up">
-              <div className="text-base font-semibold text-white mb-4">Browse Courses</div>
+              <div className="text-base font-semibold text-white mb-3">Browse Courses</div>
               {courses.length===0 && (
                 <div className="glass rounded-2xl p-10 text-center">
                   <div className="text-4xl mb-3">📚</div>
                   <div className="text-gray-400 text-sm">No courses yet</div>
                 </div>
               )}
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              <div className="course-grid">
                 {courses.map((c) => {
                   const enrolled = enrollments.find(e=>e.course_id===c.id)
                   return (
-                    <div key={c.id} className="glass rounded-2xl overflow-hidden border border-white/5 card-hover">
+                    <div key={c.id}
+                      className="card-base card-hover cursor-pointer"
+                      style={{borderRadius:'14px',overflow:'hidden',background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.07)'}}>
+
                       {/* Thumbnail */}
-                      {courseThumbnails[c.id] ? (
-                        <div className="relative overflow-hidden" style={{height:'100px'}}>
-                          <img
-                            src={courseThumbnails[c.id]}
-                            alt={c.title}
-                            className="w-full h-full object-cover"
-                            style={{filter:'brightness(0.85)'}}
-                            onError={e => e.target.style.display='none'}
-                          />
-                          <div className="absolute inset-0" style={{background:'linear-gradient(to bottom, transparent 40%, rgba(8,8,16,0.9))'}}/>
-                          <div className="absolute top-2 right-2">
-                            {c.is_paid
-                              ? <span className="paid-badge text-white text-xs px-2 py-1 rounded-full font-semibold">₹{c.price}</span>
-                              : <span className="text-xs px-2 py-1 rounded-full font-semibold badge-free">FREE</span>
-                            }
+                      <div style={{position:'relative',height:'110px',background:'#1a1a2e',overflow:'hidden'}}>
+                        {courseThumbnails[c.id] ? (
+                          <img src={courseThumbnails[c.id]} alt={c.title}
+                            style={{width:'100%',height:'100%',objectFit:'cover',filter:'brightness(0.85)'}}
+                            onError={e => { e.target.style.display='none' }}/>
+                        ) : (
+                          <div style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center',background:'linear-gradient(135deg,rgba(124,58,237,0.3),rgba(6,182,212,0.2))'}}>
+                            <span style={{fontSize:32}}>{c.is_paid?'💎':'🎓'}</span>
                           </div>
-                          <div className="absolute bottom-2 left-3 flex items-center gap-1.5">
-                            <div className="w-6 h-6 rounded-full flex items-center justify-center"
-                              style={{background:'rgba(255,0,0,0.9)'}}>
-                              <span style={{fontSize:8,color:'white'}}>▶</span>
-                            </div>
-                            <span className="text-xs text-white font-medium" style={{textShadow:'0 1px 3px rgba(0,0,0,0.8)'}}>Watch</span>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="h-1.5" style={{background:enrolled?'linear-gradient(90deg,#7c3aed,#06b6d4)':c.is_paid?'linear-gradient(90deg,#f59e0b,#d97706)':'linear-gradient(90deg,#374151,#1f2937)'}}/>
-                      )}
-                      <div className="p-3">
-                        <div className="flex items-start justify-between gap-1 mb-1">
-                          <div className="text-base">{c.is_paid?'💎':'🎓'}</div>
-                          {!courseThumbnails[c.id] && (c.is_paid
-                            ? <span className="paid-badge text-white text-xs px-2 py-1 rounded-full font-semibold">₹{c.price}</span>
-                            : <span className="text-xs px-2 py-1 rounded-full font-semibold badge-free">FREE</span>
-                          )}
+                        )}
+                        {/* Gradient overlay */}
+                        <div style={{position:'absolute',inset:0,background:'linear-gradient(to bottom,transparent 50%,rgba(0,0,0,0.7))'}}/>
+                        {/* Badge */}
+                        <div style={{position:'absolute',top:6,right:6}}>
                           {c.is_paid
-                            ? <span className="paid-badge text-white text-xs px-2 py-1 rounded-full font-semibold shrink-0">₹{c.price}</span>
-                            : <span className="text-xs px-2 py-1 rounded-full font-semibold shrink-0" style={{background:'rgba(52,211,153,0.15)',color:'#34d399'}}>FREE</span>
+                            ? <span style={{background:'linear-gradient(135deg,#f59e0b,#d97706)',color:'white',fontSize:10,padding:'2px 7px',borderRadius:20,fontWeight:600}}>₹{c.price}</span>
+                            : <span style={{background:'rgba(52,211,153,0.2)',border:'1px solid rgba(52,211,153,0.4)',color:'#34d399',fontSize:10,padding:'2px 7px',borderRadius:20,fontWeight:600}}>FREE</span>
                           }
                         </div>
-                        <div className="font-semibold text-white mb-0.5 text-xs leading-tight line-clamp-2">{c.title}</div>
-                        <div className="text-xs text-gray-400 mb-0.5 truncate">by {c.instructor}</div>
-                        <div className="text-xs text-gray-500 mb-2">📦 {c.total_modules} modules</div>
-                        {enrolled ? (
-                          <div className="space-y-1.5">
-                            <div className="h-1 rounded-full" style={{background:'rgba(255,255,255,0.1)'}}>
-                              <div className="h-1 rounded-full progress-bar" style={{width:enrolled.progress+'%',background:'linear-gradient(90deg,#7c3aed,#06b6d4)'}}/>
+                        {/* Play button for YouTube */}
+                        {courseThumbnails[c.id] && (
+                          <div style={{position:'absolute',bottom:6,left:6,display:'flex',alignItems:'center',gap:4}}>
+                            <div style={{width:18,height:18,borderRadius:'50%',background:'rgba(255,0,0,0.85)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                              <span style={{fontSize:7,color:'white',marginLeft:1}}>▶</span>
                             </div>
-                            <button onClick={()=>openCourse(enrolled)} className="w-full btn-primary text-white py-2 rounded-xl text-xs font-medium">
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Info */}
+                      <div style={{padding:'10px 10px 8px'}}>
+                        <div style={{fontWeight:600,color:'white',fontSize:12,lineHeight:'1.3',marginBottom:3,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>
+                          {c.title}
+                        </div>
+                        <div style={{fontSize:10,color:'#9ca3af',marginBottom:2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+                          {c.instructor}
+                        </div>
+                        <div style={{fontSize:10,color:'#6b7280',marginBottom:8}}>
+                          📦 {c.total_modules} modules
+                        </div>
+
+                        {enrolled ? (
+                          <div>
+                            <div style={{height:3,borderRadius:10,background:'rgba(255,255,255,0.1)',marginBottom:6,overflow:'hidden'}}>
+                              <div style={{height:'100%',borderRadius:10,background:'linear-gradient(90deg,#7c3aed,#06b6d4)',width:enrolled.progress+'%'}}/>
+                            </div>
+                            <button onClick={()=>openCourse(enrolled)}
+                              style={{width:'100%',background:'linear-gradient(135deg,#7c3aed,#6d28d9)',color:'white',border:'none',borderRadius:10,padding:'7px 0',fontSize:11,fontWeight:600,cursor:'pointer'}}>
                               ▶ Continue
                             </button>
                           </div>
                         ) : c.is_paid ? (
-                          <button onClick={()=>setPayingCourse(c)} className="w-full text-white py-2 rounded-xl text-xs font-semibold"
-                            style={{background:'linear-gradient(135deg,#f59e0b,#d97706)'}}>
+                          <button onClick={()=>setPayingCourse(c)}
+                            style={{width:'100%',background:'linear-gradient(135deg,#f59e0b,#d97706)',color:'white',border:'none',borderRadius:10,padding:'7px 0',fontSize:11,fontWeight:600,cursor:'pointer'}}>
                             Buy · ₹{c.price}
                           </button>
                         ) : (
-                          <button onClick={()=>enroll(c.id)} className="w-full btn-primary text-white py-2 rounded-xl text-xs font-medium">
+                          <button onClick={()=>enroll(c.id)}
+                            style={{width:'100%',background:'linear-gradient(135deg,#7c3aed,#6d28d9)',color:'white',border:'none',borderRadius:10,padding:'7px 0',fontSize:11,fontWeight:600,cursor:'pointer'}}>
                             Enroll Free
                           </button>
                         )}
-                        
                       </div>
                     </div>
                   )
