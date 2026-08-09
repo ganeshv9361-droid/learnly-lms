@@ -103,20 +103,7 @@ export default function StudentDashboard() {
     })
   }, [courses])
 
-  useEffect(() => {
-    const handleBack = () => {
-      if (playingCourse) {
-        setPlayingCourse(null)
-        loadAll()
-      } else if (tab !== 'courses') {
-        setTab('courses')
-      }
-      window.history.pushState(null, '', window.location.href)
-    }
-    window.history.pushState(null, '', window.location.href)
-    window.addEventListener('popstate', handleBack)
-    return () => window.removeEventListener('popstate', handleBack)
-  }, [playingCourse, tab])
+  
 
   const enroll = async (course_id) => {
     try {
