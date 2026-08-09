@@ -85,6 +85,21 @@ export default function StudentDashboard() {
   const [courseThumbnails, setCourseThumbnails] = useState({})
 
   useEffect(() => {
+    const handleBack = () => {
+      if (playingCourse) {
+        setPlayingCourse(null)
+        loadAll()
+      } else if (tab !== 'courses') {
+        setTab('courses')
+      }
+      window.history.pushState(null, '', window.location.href)
+    }
+    window.history.pushState(null, '', window.location.href)
+    window.addEventListener('popstate', handleBack)
+    return () => window.removeEventListener('popstate', handleBack)
+  }, [playingCourse, tab])
+
+  useEffect(() => {
     if (courses.length === 0) return
     courses.forEach(async (c) => {
       try {
