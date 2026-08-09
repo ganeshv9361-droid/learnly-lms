@@ -20,7 +20,7 @@ export default function AIChatBubble() {
             className="fixed z-[200] flex flex-col"
             style={{
               right: '16px',
-              bottom: 'calc(60px + env(safe-area-inset-bottom, 0px) + 60px)',
+              bottom: '140px',
               width: 'min(420px, calc(100vw - 32px))',
               height: 'min(580px, calc(100vh - 120px))',
               background: '#0d0d1a',
@@ -61,20 +61,27 @@ export default function AIChatBubble() {
       )}
 
       {/* Floating button — bottom left, above mobile nav */}
-      <button
-        onClick={() => setOpen(o => !o)}
-        className="fixed z-[150] btn-primary flex items-center gap-2 text-white font-medium text-sm"
-        style={{
-          right: '16px',
-          bottom: 'calc(60px + env(safe-area-inset-bottom, 0px) + 12px)',
-          padding: '10px 16px',
-          borderRadius: '50px',
-          boxShadow: '0 8px 30px rgba(124,58,237,0.5)',
-          transition: 'all 0.3s ease'
-        }}>
-        <span style={{fontSize:20}}>🤖</span>
-        <span className="hidden sm:inline">Ask AI</span>
-      </button>
+      
     </>
   )
-}
+}<button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          position:'fixed',
+          right:'16px',
+          bottom:'80px',
+          zIndex:150,
+          width:'48px',
+          height:'48px',
+          borderRadius:'50%',
+          background:'linear-gradient(135deg,#7c3aed,#6d28d9)',
+          boxShadow:'0 4px 20px rgba(124,58,237,0.5)',
+          border:'none',
+          cursor:'pointer',
+          display:'flex',
+          alignItems:'center',
+          justifyContent:'center',
+          fontSize:'22px'
+        }}>
+        🤖
+      </button>

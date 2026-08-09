@@ -103,6 +103,21 @@ export default function StudentDashboard() {
     })
   }, [courses])
 
+  useEffect(() => {
+    const handleBack = () => {
+      if (playingCourse) {
+        setPlayingCourse(null)
+        loadAll()
+      } else if (tab !== 'courses') {
+        setTab('courses')
+      }
+      window.history.pushState(null, '', window.location.href)
+    }
+    window.history.pushState(null, '', window.location.href)
+    window.addEventListener('popstate', handleBack)
+    return () => window.removeEventListener('popstate', handleBack)
+  }, [playingCourse, tab])
+
   const enroll = async (course_id) => {
     try {
       await api.post('/enrollments/', { course_id })
@@ -687,19 +702,19 @@ export default function StudentDashboard() {
         )}
 
         <div className="p-4">
-          <div className="grid grid-cols-4 gap-2 mb-4">
+          <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'8px',marginBottom:'16px'}}>
             {[
               {label:'Enrolled',value:enrollments.length,suffix:'',icon:'📚',color:'#8b5cf6'},
               {label:'Attendance',value:attendance?.rate||0,suffix:'%',icon:'🕐',color:'#34d399'},
               {label:'Quizzes',value:attempts.length,suffix:'',icon:'🧪',color:'#fbbf24'},
               {label:'Certs',value:certificates.length,suffix:'',icon:'🏅',color:'#60a5fa'},
             ].map((s,i) => (
-              <div key={s.label} className={`stat-card rounded-xl p-3 animate-fade-up delay-${(i+1)*100} text-center`}>
-                <div className="text-lg mb-1">{s.icon}</div>
-                <div className="text-xl font-bold" style={{color:s.color}}>
+              <div key={s.label} style={{background:'linear-gradient(135deg,rgba(124,58,237,0.1),rgba(6,182,212,0.05))',border:'1px solid rgba(124,58,237,0.2)',borderRadius:'14px',padding:'10px 6px',textAlign:'center'}}>
+                <div style={{fontSize:18,marginBottom:4}}>{s.icon}</div>
+                <div style={{fontSize:18,fontWeight:700,color:s.color}}>
                   <AnimatedCounter value={s.value} suffix={s.suffix}/>
                 </div>
-                <div className="text-xs text-gray-500 uppercase tracking-wider mt-1 truncate">{s.label}</div>
+                <div style={{fontSize:9,color:'#6b7280',textTransform:'uppercase',letterSpacing:'0.5px',marginTop:3}}>{s.label}</div>
               </div>
             ))}
           </div>
