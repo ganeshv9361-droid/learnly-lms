@@ -6,7 +6,6 @@ import StudentDashboard from './pages/StudentDashboard'
 import TeacherDashboard from './pages/TeacherDashboard'
 import DeveloperDashboard from './pages/DeveloperDashboard'
 import AIChatBubble from './components/AIChatBubble'
-import { useEffect } from 'react'
 
 function NetworkCheck({ children }) {
   const [online, setOnline] = useState(true)
