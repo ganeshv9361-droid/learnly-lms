@@ -687,21 +687,19 @@ export default function StudentDashboard() {
         )}
 
         <div className="p-4">
-          <div className="grid grid-cols-2 gap-3 mb-5 sm:grid-cols-4">
+          <div className="grid grid-cols-4 gap-2 mb-4">
             {[
               {label:'Enrolled',value:enrollments.length,suffix:'',icon:'📚',color:'#8b5cf6'},
               {label:'Attendance',value:attendance?.rate||0,suffix:'%',icon:'🕐',color:'#34d399'},
               {label:'Quizzes',value:attempts.length,suffix:'',icon:'🧪',color:'#fbbf24'},
               {label:'Certs',value:certificates.length,suffix:'',icon:'🏅',color:'#60a5fa'},
             ].map((s,i) => (
-              <div key={s.label} className={`stat-card rounded-2xl p-4 animate-fade-up delay-${(i+1)*100}`}>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="text-xs text-gray-500 uppercase tracking-wider truncate">{s.label}</div>
-                  <div className="text-lg shrink-0">{s.icon}</div>
-                </div>
-                <div className="text-2xl font-bold" style={{color:s.color}}>
+              <div key={s.label} className={`stat-card rounded-xl p-3 animate-fade-up delay-${(i+1)*100} text-center`}>
+                <div className="text-lg mb-1">{s.icon}</div>
+                <div className="text-xl font-bold" style={{color:s.color}}>
                   <AnimatedCounter value={s.value} suffix={s.suffix}/>
                 </div>
+                <div className="text-xs text-gray-500 uppercase tracking-wider mt-1 truncate">{s.label}</div>
               </div>
             ))}
           </div>
