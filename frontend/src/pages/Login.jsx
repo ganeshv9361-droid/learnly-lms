@@ -183,16 +183,6 @@ export default function Login({ onSwitch }) {
                 : 'Sign in →'}
             </button>
 
-            <button type="submit" disabled={loading}
-              className="btn-primary w-full text-white py-3 rounded-2xl font-semibold text-sm disabled:opacity-50 mt-2">
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/>
-                  Signing in...
-                </span>
-              ) : 'Sign in →'}
-            </button>
-
             {/* Divider */}
             <div style={{display:'flex',alignItems:'center',gap:12,margin:'8px 0'}}>
               <div style={{flex:1,height:1,background:'rgba(255,255,255,0.08)'}}/>
