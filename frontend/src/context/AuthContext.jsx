@@ -35,13 +35,24 @@ export function AuthProvider({ children }) {
     return me.data
   }
 
+  const loginWithFirebase = async (firebaseToken, role = 'student') => {
+    const res = await api.post('/users/firebase-login', {
+      firebase_token: firebaseToken,
+      role
+    })
+    localStorage.setItem('token', res.data.access_token)
+    const me = await api.get('/users/me')
+    setUser(me.data)
+    return me.data
+  }
+
   const logout = () => {
     localStorage.removeItem('token')
     setUser(null)
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, loginWithFirebase, logout, loading }}>
       {children}
     </AuthContext.Provider>
   )
