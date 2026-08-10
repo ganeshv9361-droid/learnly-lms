@@ -62,6 +62,9 @@ export default function StudentDashboard() {
   const [quizResult, setQuizResult] = useState(null)
   const [payingCourse, setPayingCourse] = useState(null)
   const [teacherContact, setTeacherContact] = useState(null)
+  const [search, setSearch] = useState('')
+  const [activeCategory, setActiveCategory] = useState('All')
+  const categories = ['All','Technology','Programming','Business','Design','Science','Language','Music','Health','General','Other']
 
   const flash = (text, type='success') => {
     setMsg({ text, type })
@@ -723,89 +726,160 @@ export default function StudentDashboard() {
 
           {tab==='courses' && (
             <div className="animate-fade-up">
-              <div className="text-base font-semibold text-white mb-3">Browse Courses</div>
-              {courses.length===0 && (
-                <div className="glass rounded-2xl p-10 text-center">
-                  <div className="text-4xl mb-3">📚</div>
-                  <div className="text-gray-400 text-sm">No courses yet</div>
+              {/* Search bar */}
+              <div className="relative mb-3">
+                <div style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:'#6b7280',fontSize:16}}>🔍</div>
+                <input
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  placeholder="Search courses..."
+                  style={{
+                    width:'100%',
+                    background:'rgba(255,255,255,0.05)',
+                    border:'1px solid rgba(255,255,255,0.1)',
+                    borderRadius:14,
+                    padding:'10px 14px 10px 40px',
+                    color:'white',
+                    fontSize:14,
+                    outline:'none',
+                    boxSizing:'border-box'
+                  }}
+                  onFocus={e => e.target.style.border='1px solid rgba(124,58,237,0.6)'}
+                  onBlur={e => e.target.style.border='1px solid rgba(255,255,255,0.1)'}
+                />
+                {search && (
+                  <button onClick={() => setSearch('')}
+                    style={{position:'absolute',right:12,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',color:'#6b7280',cursor:'pointer',fontSize:16}}>
+                    ✕
+                  </button>
+                )}
+              </div>
+
+              {/* Category filter */}
+              <div style={{display:'flex',gap:8,overflowX:'auto',paddingBottom:8,marginBottom:12,scrollbarWidth:'none'}}>
+                {categories.map(cat => (
+                  <button key={cat} onClick={() => setActiveCategory(cat)}
+                    style={{
+                      flexShrink:0,
+                      padding:'6px 14px',
+                      borderRadius:20,
+                      fontSize:12,
+                      fontWeight:500,
+                      border:'none',
+                      cursor:'pointer',
+                      transition:'all 0.2s',
+                      background: activeCategory===cat ? 'linear-gradient(135deg,#7c3aed,#6d28d9)' : 'rgba(255,255,255,0.06)',
+                      color: activeCategory===cat ? 'white' : '#9ca3af',
+                      boxShadow: activeCategory===cat ? '0 4px 15px rgba(124,58,237,0.3)' : 'none'
+                    }}>
+                    {cat}
+                  </button>
+                ))}
+              </div>
+
+              {/* Results count */}
+              {(search || activeCategory !== 'All') && (
+                <div style={{fontSize:12,color:'#6b7280',marginBottom:10}}>
+                  {courses.filter(c => {
+                    const matchSearch = !search || c.title.toLowerCase().includes(search.toLowerCase()) || c.instructor?.toLowerCase().includes(search.toLowerCase()) || c.description?.toLowerCase().includes(search.toLowerCase())
+                    const matchCat = activeCategory === 'All' || c.category === activeCategory
+                    return matchSearch && matchCat
+                  }).length} courses found
                 </div>
               )}
+
+              {/* Course grid */}
               <div className="course-grid">
-                {courses.map((c) => {
-                  const enrolled = enrollments.find(e=>e.course_id===c.id)
-                  return (
-                    <div key={c.id}
-                      className="card-base card-hover cursor-pointer"
-                      style={{borderRadius:'14px',overflow:'hidden',background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.07)'}}>
-
-                      {/* Thumbnail */}
-                      <div style={{position:'relative',height:'110px',background:'#1a1a2e',overflow:'hidden'}}>
-                        {courseThumbnails[c.id] ? (
-                          <img src={courseThumbnails[c.id]} alt={c.title}
-                            style={{width:'100%',height:'100%',objectFit:'cover',filter:'brightness(0.85)'}}
-                            onError={e => { e.target.style.display='none' }}/>
-                        ) : (
-                          <div style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center',background:'linear-gradient(135deg,rgba(124,58,237,0.3),rgba(6,182,212,0.2))'}}>
-                            <span style={{fontSize:32}}>{c.is_paid?'💎':'🎓'}</span>
-                          </div>
-                        )}
-                        {/* Gradient overlay */}
-                        <div style={{position:'absolute',inset:0,background:'linear-gradient(to bottom,transparent 50%,rgba(0,0,0,0.7))'}}/>
-                        {/* Badge */}
-                        <div style={{position:'absolute',top:6,right:6}}>
-                          {c.is_paid
-                            ? <span style={{background:'linear-gradient(135deg,#f59e0b,#d97706)',color:'white',fontSize:10,padding:'2px 7px',borderRadius:20,fontWeight:600}}>₹{c.price}</span>
-                            : <span style={{background:'rgba(52,211,153,0.2)',border:'1px solid rgba(52,211,153,0.4)',color:'#34d399',fontSize:10,padding:'2px 7px',borderRadius:20,fontWeight:600}}>FREE</span>
-                          }
-                        </div>
-                        {/* Play button for YouTube */}
-                        {courseThumbnails[c.id] && (
-                          <div style={{position:'absolute',bottom:6,left:6,display:'flex',alignItems:'center',gap:4}}>
-                            <div style={{width:18,height:18,borderRadius:'50%',background:'rgba(255,0,0,0.85)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                              <span style={{fontSize:7,color:'white',marginLeft:1}}>▶</span>
+                {courses
+                  .filter(c => {
+                    const matchSearch = !search ||
+                      c.title.toLowerCase().includes(search.toLowerCase()) ||
+                      c.instructor?.toLowerCase().includes(search.toLowerCase()) ||
+                      c.description?.toLowerCase().includes(search.toLowerCase())
+                    const matchCat = activeCategory === 'All' || c.category === activeCategory
+                    return matchSearch && matchCat
+                  })
+                  .map((c) => {
+                    const enrolled = enrollments.find(e=>e.course_id===c.id)
+                    return (
+                      <div key={c.id}
+                        className="card-base card-hover cursor-pointer"
+                        style={{borderRadius:'14px',overflow:'hidden',background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.07)'}}>
+                        <div style={{position:'relative',height:'110px',background:'#1a1a2e',overflow:'hidden'}}>
+                          {courseThumbnails[c.id] ? (
+                            <img src={courseThumbnails[c.id]} alt={c.title}
+                              style={{width:'100%',height:'100%',objectFit:'cover',filter:'brightness(0.85)'}}
+                              onError={e => { e.target.style.display='none' }}/>
+                          ) : (
+                            <div style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center',background:'linear-gradient(135deg,rgba(124,58,237,0.3),rgba(6,182,212,0.2))'}}>
+                              <span style={{fontSize:32}}>{c.is_paid?'💎':'🎓'}</span>
                             </div>
+                          )}
+                          <div style={{position:'absolute',inset:0,background:'linear-gradient(to bottom,transparent 50%,rgba(0,0,0,0.7))'}}/>
+                          <div style={{position:'absolute',top:6,right:6}}>
+                            {c.is_paid
+                              ? <span style={{background:'linear-gradient(135deg,#f59e0b,#d97706)',color:'white',fontSize:9,padding:'2px 7px',borderRadius:20,fontWeight:600}}>₹{c.price}</span>
+                              : <span style={{background:'rgba(52,211,153,0.2)',border:'1px solid rgba(52,211,153,0.4)',color:'#34d399',fontSize:9,padding:'2px 7px',borderRadius:20,fontWeight:600}}>FREE</span>
+                            }
                           </div>
-                        )}
-                      </div>
-
-                      {/* Info */}
-                      <div style={{padding:'10px 10px 8px'}}>
-                        <div style={{fontWeight:600,color:'white',fontSize:12,lineHeight:'1.3',marginBottom:3,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>
-                          {c.title}
-                        </div>
-                        <div style={{fontSize:10,color:'#9ca3af',marginBottom:2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
-                          {c.instructor}
-                        </div>
-                        <div style={{fontSize:10,color:'#6b7280',marginBottom:8}}>
-                          📦 {c.total_modules} modules
-                        </div>
-
-                        {enrolled ? (
-                          <div>
-                            <div style={{height:3,borderRadius:10,background:'rgba(255,255,255,0.1)',marginBottom:6,overflow:'hidden'}}>
-                              <div style={{height:'100%',borderRadius:10,background:'linear-gradient(90deg,#7c3aed,#06b6d4)',width:enrolled.progress+'%'}}/>
+                          {c.category && c.category !== 'General' && (
+                            <div style={{position:'absolute',top:6,left:6}}>
+                              <span style={{background:'rgba(0,0,0,0.6)',color:'#a78bfa',fontSize:9,padding:'2px 7px',borderRadius:20}}>
+                                {c.category}
+                              </span>
                             </div>
-                            <button onClick={()=>openCourse(enrolled)}
-                              style={{width:'100%',background:'linear-gradient(135deg,#7c3aed,#6d28d9)',color:'white',border:'none',borderRadius:10,padding:'7px 0',fontSize:11,fontWeight:600,cursor:'pointer'}}>
-                              ▶ Continue
+                          )}
+                        </div>
+                        <div style={{padding:'10px 10px 8px'}}>
+                          <div style={{fontWeight:600,color:'white',fontSize:12,lineHeight:'1.3',marginBottom:3,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>
+                            {c.title}
+                          </div>
+                          <div style={{fontSize:10,color:'#9ca3af',marginBottom:2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+                            {c.instructor}
+                          </div>
+                          <div style={{fontSize:10,color:'#6b7280',marginBottom:8}}>📦 {c.total_modules} modules</div>
+                          {enrolled ? (
+                            <div>
+                              <div style={{height:3,borderRadius:10,background:'rgba(255,255,255,0.1)',marginBottom:6,overflow:'hidden'}}>
+                                <div style={{height:'100%',borderRadius:10,background:'linear-gradient(90deg,#7c3aed,#06b6d4)',width:enrolled.progress+'%'}}/>
+                              </div>
+                              <button onClick={()=>openCourse(enrolled)}
+                                style={{width:'100%',background:'linear-gradient(135deg,#7c3aed,#6d28d9)',color:'white',border:'none',borderRadius:10,padding:'7px 0',fontSize:11,fontWeight:600,cursor:'pointer'}}>
+                                ▶ Continue
+                              </button>
+                            </div>
+                          ) : c.is_paid ? (
+                            <button onClick={()=>setPayingCourse(c)}
+                              style={{width:'100%',background:'linear-gradient(135deg,#f59e0b,#d97706)',color:'white',border:'none',borderRadius:10,padding:'7px 0',fontSize:11,fontWeight:600,cursor:'pointer'}}>
+                              Buy · ₹{c.price}
                             </button>
-                          </div>
-                        ) : c.is_paid ? (
-                          <button onClick={()=>setPayingCourse(c)}
-                            style={{width:'100%',background:'linear-gradient(135deg,#f59e0b,#d97706)',color:'white',border:'none',borderRadius:10,padding:'7px 0',fontSize:11,fontWeight:600,cursor:'pointer'}}>
-                            Buy · ₹{c.price}
-                          </button>
-                        ) : (
-                          <button onClick={()=>enroll(c.id)}
-                            style={{width:'100%',background:'linear-gradient(135deg,#7c3aed,#6d28d9)',color:'white',border:'none',borderRadius:10,padding:'7px 0',fontSize:11,fontWeight:600,cursor:'pointer'}}>
-                            Enroll Free
-                          </button>
-                        )}
+                          ) : (
+                            <button onClick={()=>enroll(c.id)}
+                              style={{width:'100%',background:'linear-gradient(135deg,#7c3aed,#6d28d9)',color:'white',border:'none',borderRadius:10,padding:'7px 0',fontSize:11,fontWeight:600,cursor:'pointer'}}>
+                              Enroll Free
+                            </button>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )
-                })}
+                    )
+                  })}
               </div>
+
+              {/* No results */}
+              {courses.filter(c => {
+                const matchSearch = !search || c.title.toLowerCase().includes(search.toLowerCase()) || c.instructor?.toLowerCase().includes(search.toLowerCase())
+                const matchCat = activeCategory === 'All' || c.category === activeCategory
+                return matchSearch && matchCat
+              }).length === 0 && (
+                <div style={{textAlign:'center',padding:'40px 0'}}>
+                  <div style={{fontSize:40,marginBottom:12}}>🔍</div>
+                  <div style={{color:'#6b7280',fontSize:14}}>No courses found for "{search}"</div>
+                  <button onClick={() => { setSearch(''); setActiveCategory('All') }}
+                    style={{marginTop:12,background:'rgba(124,58,237,0.2)',color:'#a78bfa',border:'1px solid rgba(124,58,237,0.3)',borderRadius:10,padding:'8px 20px',fontSize:12,cursor:'pointer'}}>
+                    Clear filters
+                  </button>
+                </div>
+              )}
             </div>
           )}
 

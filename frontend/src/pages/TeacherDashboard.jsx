@@ -35,6 +35,7 @@ export default function TeacherDashboard() {
     total_modules: '',
     is_paid: false,
     price: '',
+    category: 'General'
   })
 
   const [editCourse, setEditCourse] = useState(null)
@@ -883,6 +884,33 @@ export default function TeacherDashboard() {
                       placeholder="Price ₹"
                     />
                   )}
+                </div>
+
+                <div>
+                  <label className={lbl}>Category</label>
+                  <select
+                    value={newCourse.category}
+                    onChange={e => setNewCourse({...newCourse, category: e.target.value})}
+                    className={inp}>
+                    {['General','Technology','Programming','Business','Design','Science','Language','Music','Health','Engineering','Other'].map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                  <button type="button"
+                    onClick={async () => {
+                      try {
+                        const r = await api.post('/courses/detect-category', {
+                          title: newCourse.title,
+                          description: newCourse.description
+                        })
+                        setNewCourse(f => ({...f, category: r.data.category}))
+                        flash(`Auto-detected: ${r.data.category}`)
+                      } catch(e) {}
+                    }}
+                    className="text-xs mt-1 w-full py-1.5 rounded-lg transition"
+                    style={{background:'rgba(6,182,212,0.1)',color:'#06b6d4',border:'1px solid rgba(6,182,212,0.2)'}}>
+                    ✨ Auto-detect category
+                  </button>
                 </div>
 
                 <button type="submit" className={`${btn} w-full`}>
