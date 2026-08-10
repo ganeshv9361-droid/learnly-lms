@@ -71,6 +71,7 @@ class Course(Base):
     quizzes = relationship("Quiz", back_populates="course")
     announcements = relationship("Announcement", back_populates="course")
     payments = relationship("Payment", back_populates="course")
+    category = Column(String, nullable=True, default="General")
 
 class Enrollment(Base):
     __tablename__ = "enrollments"

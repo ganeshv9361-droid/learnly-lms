@@ -15,6 +15,7 @@ class CourseIn(BaseModel):
     total_modules: Optional[int] = 0
     is_paid: Optional[bool] = False
     price: Optional[float] = 0.0
+    category: Optional[str] = "General"
 
 class CourseUpdate(BaseModel):
     title: Optional[str] = None
@@ -23,6 +24,7 @@ class CourseUpdate(BaseModel):
     total_modules: Optional[int] = None
     is_paid: Optional[bool] = None
     price: Optional[float] = None
+    category: Optional[str] = None
 
 @router.get("/")
 def list_courses(db: Session = Depends(get_db), user=Depends(get_current_user)):
@@ -49,7 +51,8 @@ def create_course(data: CourseIn, db: Session = Depends(get_db), user=Depends(ge
         instructor_id=user.id,
         total_modules=data.total_modules,
         is_paid=data.is_paid,
-        price=data.price
+        price=data.price,
+        category=data.category or "General"
     )
     db.add(course)
     db.commit()
@@ -220,3 +223,39 @@ def delete_course(
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/categories/list")
+def list_categories(_=Depends(get_current_user)):
+    return [
+        "General", "Technology", "Programming",
+        "Business", "Design", "Marketing",
+        "Science", "Mathematics", "Language",
+        "Health", "Arts", "Music",
+        "Personal Development", "Engineering", "Other"
+    ]
+
+def auto_detect_category(title: str, description: str) -> str:
+    text = (title + " " + description).lower()
+    if any(w in text for w in ["python","javascript","code","programming","software","web","app","react","java","c++","html","css","api"]):
+        return "Programming"
+    if any(w in text for w in ["ai","machine learning","data","neural","deep learning","ml","artificial"]):
+        return "Technology"
+    if any(w in text for w in ["business","marketing","finance","accounting","management","entrepreneur"]):
+        return "Business"
+    if any(w in text for w in ["design","ui","ux","graphic","photoshop","figma","illustrator","art"]):
+        return "Design"
+    if any(w in text for w in ["math","calculus","algebra","statistics","physics","chemistry","biology","science"]):
+        return "Science"
+    if any(w in text for w in ["english","tamil","hindi","french","language","grammar","speak"]):
+        return "Language"
+    if any(w in text for w in ["music","guitar","piano","singing","audio","sound"]):
+        return "Music"
+    if any(w in text for w in ["health","yoga","fitness","nutrition","medical","doctor"]):
+        return "Health"
+    return "General"
+
+@router.post("/detect-category")
+def detect_category(data: dict, _=Depends(get_current_user)):
+    title = data.get("title", "")
+    description = data.get("description", "")
+    return {"category": auto_detect_category(title, description)}
