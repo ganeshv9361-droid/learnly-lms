@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.gzip import GZipMiddleware
 from database import engine
 import models, os
 from dotenv import load_dotenv
@@ -46,6 +47,7 @@ app.include_router(video_watch.router,     prefix="/api/watch",           tags=[
 app.include_router(developer.router,       prefix="/api/developer",       tags=["developer"])
 app.include_router(teacher_profile.router, prefix="/api/teacher-profile", tags=["teacher-profile"])
 app.include_router(ai_tutor.router,        prefix="/api/ai-tutor",        tags=["ai-tutor"])
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 @app.get("/")
 def root():

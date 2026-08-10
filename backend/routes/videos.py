@@ -41,11 +41,18 @@ async def upload_video(
     db: Session = Depends(get_db),
     _=Depends(get_current_user)
 ):
-    ext = os.path.splitext(file.filename)[1] or ".mp4"
+    allowed = ['.mp4', '.avi', '.mov', '.mkv', '.webm', '.m4v']
+    ext = os.path.splitext(file.filename)[1].lower()
+    if ext not in allowed:
+        raise HTTPException(status_code=400, detail=f"File type {ext} not allowed. Use mp4, avi, mov, mkv, webm")
     filename = f"{uuid.uuid4()}{ext}"
     filepath = os.path.join(UPLOAD_DIR, filename)
-    with open(filepath, "wb") as f:
-        shutil.copyfileobj(file.file, f)
+    try:
+        with open(filepath, "wb") as f:
+            while chunk := await file.read(1024 * 1024):
+                f.write(chunk)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
     video = models.Video(
         course_id=course_id,
         title=title,
