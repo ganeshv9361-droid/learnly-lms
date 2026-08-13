@@ -24,6 +24,18 @@ def create(data: AnnouncementIn, db: Session = Depends(get_db), user=Depends(get
     )
     db.add(a)
     db.commit()
+    from routes.notifications import create_notification
+    enrollments = db.query(models.Enrollment).filter(
+        models.Enrollment.course_id == data.course_id
+    ).all()
+    course = db.query(models.Course).filter(models.Course.id == data.course_id).first()
+    for e in enrollments:
+        create_notification(
+            db, e.user_id,
+            f"📢 {data.title}",
+            f"{course.title if course else 'Course'}: {data.body[:100]}",
+            "announcement"
+        )
     db.refresh(a)
     return a
 

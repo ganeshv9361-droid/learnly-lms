@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useBreakpoint } from '../hooks/useBreakpoint'
 import Logo from './Logo'
+import NotificationBell from './NotificationBell'
 
 export default function MobileLayout({
   sidebar,
@@ -117,6 +118,8 @@ export default function MobileLayout({
               </div>
             )}
           </div>
+          <NotificationBell />
+          {msgBar && <div className="shrink-0 hidden sm:block">{msgBar}</div>}
 
           {msgBar && <div className="shrink-0 hidden sm:block">{msgBar}</div>}
         </header>

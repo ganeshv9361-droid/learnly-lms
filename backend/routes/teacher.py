@@ -87,6 +87,14 @@ def check_and_issue_certificate(db: Session, user_id: int, course_id: int):
             verified=True
         )
         db.add(cert)
+        from routes.notifications import create_notification
+        course_obj = db.query(models.Course).filter(models.Course.id == course_id).first()
+        create_notification(
+            db, user_id,
+            "🏅 Certificate Earned!",
+            f"Congratulations! You completed {course_obj.title if course_obj else 'a course'} and earned your certificate!",
+            "certificate"
+        )
         enrollment = db.query(models.Enrollment).filter_by(
             user_id=user_id, course_id=course_id
         ).first()

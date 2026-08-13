@@ -4,32 +4,87 @@ from database import get_db
 from auth import get_current_user
 from pydantic import BaseModel
 import models
+from routes.notifications import create_notification
+
 
 router = APIRouter()
+
 
 class EnrollIn(BaseModel):
     course_id: int
 
+
 class ProgressIn(BaseModel):
     progress: float
 
+
 @router.post("/")
-def enroll(data: EnrollIn, db: Session = Depends(get_db), user=Depends(get_current_user)):
-    exists = db.query(models.Enrollment).filter_by(user_id=user.id, course_id=data.course_id).first()
+def enroll(
+    data: EnrollIn,
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
+):
+    # Check if the user is already enrolled
+    exists = db.query(models.Enrollment).filter_by(
+        user_id=user.id,
+        course_id=data.course_id
+    ).first()
+
     if exists:
-        raise HTTPException(status_code=400, detail="Already enrolled")
-    e = models.Enrollment(user_id=user.id, course_id=data.course_id)
+        raise HTTPException(
+            status_code=400,
+            detail="Already enrolled"
+        )
+
+    # Find the course
+    course = db.query(models.Course).filter(
+        models.Course.id == data.course_id
+    ).first()
+
+    if not course:
+        raise HTTPException(
+            status_code=404,
+            detail="Course not found"
+        )
+
+    # Create enrollment
+    e = models.Enrollment(
+        user_id=user.id,
+        course_id=data.course_id
+    )
+
     db.add(e)
     db.commit()
     db.refresh(e)
+
+    # Create enrollment notification
+    create_notification(
+        db,
+        user.id,
+        "🎓 Enrolled Successfully!",
+        f"You have been enrolled in {course.title}. Start learning now!",
+        "enrollment"
+    )
+
     return e
 
+
 @router.get("/my")
-def my_enrollments(db: Session = Depends(get_db), user=Depends(get_current_user)):
-    rows = db.query(models.Enrollment).filter(models.Enrollment.user_id == user.id).all()
+def my_enrollments(
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
+):
+    rows = db.query(models.Enrollment).filter(
+        models.Enrollment.user_id == user.id
+    ).all()
+
     result = []
+
     for r in rows:
-        course = db.query(models.Course).filter(models.Course.id == r.course_id).first()
+        course = db.query(models.Course).filter(
+            models.Course.id == r.course_id
+        ).first()
+
         result.append({
             "enrollment_id": r.id,
             "course_id": r.course_id,
@@ -39,13 +94,35 @@ def my_enrollments(db: Session = Depends(get_db), user=Depends(get_current_user)
             "progress": r.progress,
             "enrolled_at": r.enrolled_at
         })
+
     return result
 
+
 @router.patch("/{enrollment_id}/progress")
-def update_progress(enrollment_id: int, data: ProgressIn, db: Session = Depends(get_db), user=Depends(get_current_user)):
-    e = db.query(models.Enrollment).filter_by(id=enrollment_id, user_id=user.id).first()
+def update_progress(
+    enrollment_id: int,
+    data: ProgressIn,
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
+):
+    # Find the enrollment belonging to the current user
+    e = db.query(models.Enrollment).filter_by(
+        id=enrollment_id,
+        user_id=user.id
+    ).first()
+
     if not e:
-        raise HTTPException(status_code=404, detail="Enrollment not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Enrollment not found"
+        )
+
+    # Update progress
     e.progress = data.progress
+
     db.commit()
-    return {"progress": e.progress}
+    db.refresh(e)
+
+    return {
+        "progress": e.progress
+    }
