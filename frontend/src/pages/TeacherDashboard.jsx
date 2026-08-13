@@ -338,35 +338,33 @@ export default function TeacherDashboard() {
 
   const uploadVideo = async (e) => {
     e.preventDefault()
-
-    if (!uploadForm.file) {
-      flash('Please select a file', 'error')
-      return
-    }
-
+    if (!uploadForm.file) { flash('Please select a file', 'error'); return }
     setUploading(true)
-
-    const fd = new FormData()
-    fd.append('course_id', String(uploadForm.course_id))
-    fd.append('title', uploadForm.title)
-    fd.append('order', String(videos.length))
-    fd.append('file', uploadForm.file)
-
     try {
-      await api.post('/videos/upload', fd)
-      setUploadForm((f) => ({ ...f, title: '', file: null }))
-
+      const fd = new FormData()
+      fd.append('course_id', String(uploadForm.course_id))
+      fd.append('title', uploadForm.title)
+      fd.append('order', String(videos.length))
+      fd.append('file', uploadForm.file)
+      await api.post('/videos/upload', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 120000,
+        onUploadProgress: (progressEvent) => {
+          const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+          console.log(`Upload progress: ${percent}%`)
+        }
+      })
+      setUploadForm(f => ({...f, title:'', file:null}))
       if (fileRef.current) fileRef.current.value = ''
-
       loadCourseContent(selectedCourse)
       flash('Video uploaded!')
-    } catch (e) {
-      flash(e.response?.data?.detail || 'Upload failed', 'error')
+    } catch(e) {
+      console.error('Upload error:', e)
+      flash(e.response?.data?.detail || 'Upload failed — file may be too large. Use YouTube instead for large videos.', 'error')
     }
-
     setUploading(false)
   }
-
+  
   const deleteVideo = async (id) => {
     await api.delete(`/videos/${id}`)
     loadCourseContent(selectedCourse)
