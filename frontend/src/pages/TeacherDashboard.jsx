@@ -25,6 +25,7 @@ export default function TeacherDashboard() {
   const [quizResults, setQuizResults] = useState([])
   const [announcements, setAnnouncements] = useState([])
   const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
   const fileRef = useRef()
   const [courseThumbnails, setCourseThumbnails] = useState({})
 
@@ -341,26 +342,59 @@ export default function TeacherDashboard() {
     if (!uploadForm.file) { flash('Please select a file', 'error'); return }
     setUploading(true)
     try {
+      // Upload directly to Cloudinary from browser
       const fd = new FormData()
-      fd.append('course_id', String(uploadForm.course_id))
-      fd.append('title', uploadForm.title)
-      fd.append('order', String(videos.length))
       fd.append('file', uploadForm.file)
-      await api.post('/videos/upload', fd, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        timeout: 120000,
-        onUploadProgress: (progressEvent) => {
-          const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-          console.log(`Upload progress: ${percent}%`)
-        }
+      fd.append('upload_preset', 'learnly_videos')
+      fd.append('cloud_name', 'dnf3yhfz0')
+      fd.append('resource_type', 'video')
+
+      const cloudRes = await fetch(
+        'https://api.cloudinary.com/v1_1/dnf3yhfz0/video/upload',
+        { method: 'POST', body: fd }
+      )
+      // Upload with progress tracking using XMLHttpRequest
+      const cloudData = await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest()
+        xhr.upload.addEventListener('progress', (e) => {
+          if (e.lengthComputable) {
+            setUploadProgress(Math.round((e.loaded / e.total) * 100))
+          }
+        })
+        xhr.addEventListener('load', () => {
+          try {
+            resolve(JSON.parse(xhr.responseText))
+          } catch {
+            reject(new Error('Invalid response'))
+          }
+        })
+        xhr.addEventListener('error', () => reject(new Error('Network error')))
+        xhr.open('POST', 'https://api.cloudinary.com/v1_1/dnf3yhfz0/video/upload')
+        xhr.send(fd)
       })
+      setUploadProgress(0)
+
+      // Save URL to our backend
+      const thumbnail = cloudData.secure_url
+        .replace('/upload/', '/upload/so_0,w_640,h_360,c_fill/')
+        .replace(/\.[^.]+$/, '.jpg')
+
+      await api.post('/videos/youtube', {
+        course_id: parseInt(uploadForm.course_id),
+        title: uploadForm.title,
+        youtube_url: null,
+        order: videos.length,
+        file_path: cloudData.secure_url,
+        thumbnail_url: thumbnail
+      })
+
       setUploadForm(f => ({...f, title:'', file:null}))
       if (fileRef.current) fileRef.current.value = ''
       loadCourseContent(selectedCourse)
-      flash('Video uploaded!')
+      flash('Video uploaded successfully! ✅')
     } catch(e) {
-      console.error('Upload error:', e)
-      flash(e.response?.data?.detail || 'Upload failed — file may be too large. Use YouTube instead for large videos.', 'error')
+      console.error(e)
+      flash(e.message || 'Upload failed. Check your internet connection.', 'error')
     }
     setUploading(false)
   }
@@ -1158,12 +1192,16 @@ export default function TeacherDashboard() {
                         className={inp}
                       />
 
-                      <button
-                        type="submit"
-                        disabled={uploading}
-                        className={`${btn} w-full disabled:opacity-50`}
-                      >
-                        {uploading ? 'Uploading...' : 'Upload Video'}
+                      {uploading && uploadProgress > 0 && (
+                        <div style={{marginBottom:8}}>
+                          <div style={{height:4,background:'rgba(255,255,255,0.1)',borderRadius:10,overflow:'hidden'}}>
+                            <div style={{height:'100%',background:'linear-gradient(90deg,#7c3aed,#06b6d4)',width:`${uploadProgress}%`,transition:'width 0.3s'}}/>
+                          </div>
+                          <div style={{fontSize:11,color:'#a78bfa',marginTop:4,textAlign:'center'}}>{uploadProgress}% uploaded</div>
+                        </div>
+                      )}
+                      <button type="submit" disabled={uploading} className={`${btn} w-full disabled:opacity-50`}>
+                        {uploading ? `Uploading ${uploadProgress}%...` : 'Upload Video'}
                       </button>
                     </form>
                   </div>

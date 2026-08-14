@@ -17,7 +17,9 @@ router = APIRouter()
 class YoutubeIn(BaseModel):
     course_id: int
     title: str
-    youtube_url: str
+    youtube_url: Optional[str] = None
+    file_path: Optional[str] = None
+    thumbnail_url: Optional[str] = None
     order: Optional[int] = 0
 
 @router.post("/youtube")
@@ -26,7 +28,8 @@ def add_youtube(data: YoutubeIn, db: Session = Depends(get_db), _=Depends(get_cu
         course_id=data.course_id,
         title=data.title,
         youtube_url=data.youtube_url,
-        file_path=None,
+        file_path=data.file_path,
+        thumbnail_url=data.thumbnail_url,
         order=data.order
     )
     db.add(video)
