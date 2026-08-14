@@ -353,26 +353,11 @@ export default function TeacherDashboard() {
         'https://api.cloudinary.com/v1_1/dnf3yhfz0/video/upload',
         { method: 'POST', body: fd }
       )
-      // Upload with progress tracking using XMLHttpRequest
-      const cloudData = await new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest()
-        xhr.upload.addEventListener('progress', (e) => {
-          if (e.lengthComputable) {
-            setUploadProgress(Math.round((e.loaded / e.total) * 100))
-          }
-        })
-        xhr.addEventListener('load', () => {
-          try {
-            resolve(JSON.parse(xhr.responseText))
-          } catch {
-            reject(new Error('Invalid response'))
-          }
-        })
-        xhr.addEventListener('error', () => reject(new Error('Network error')))
-        xhr.open('POST', 'https://api.cloudinary.com/v1_1/dnf3yhfz0/video/upload')
-        xhr.send(fd)
-      })
-      setUploadProgress(0)
+      const cloudData = await cloudRes.json()
+
+      if (!cloudData.secure_url) {
+        throw new Error(cloudData.error?.message || 'Cloudinary upload failed')
+      }
 
       // Save URL to our backend
       const thumbnail = cloudData.secure_url
