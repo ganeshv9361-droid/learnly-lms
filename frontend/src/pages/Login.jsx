@@ -31,6 +31,20 @@ export default function Login({ onSwitch }) {
     setLoading(false)
   }
 
+  const [serverStatus, setServerStatus] = useState('checking')
+
+  useEffect(() => {
+    const check = async () => {
+      try {
+        await fetch('https://learnly-lms-hqch.onrender.com/')
+        setServerStatus('online')
+      } catch {
+        setServerStatus('waking')
+      }
+    }
+    check()
+  }, [])
+
   const handleGoogle = async () => {
     setLoading(true)
     setError('')
@@ -106,6 +120,20 @@ export default function Login({ onSwitch }) {
               <span>{error}</span>
             </div>
           )}
+
+          {serverStatus === 'waking' && (
+          <div className="animate-fade-up delay-50 mb-3 px-4 py-3 rounded-2xl flex items-center gap-3 text-sm"
+            style={{background:'rgba(245,158,11,0.1)',border:'1px solid rgba(245,158,11,0.2)',color:'#fbbf24'}}>
+            <span className="animate-spin">⏳</span>
+            <span>Server is starting up — takes ~30 seconds on first load</span>
+          </div>
+        )}
+        {serverStatus === 'online' && (
+          <div className="animate-fade-up delay-50 mb-3 px-4 py-2 rounded-2xl flex items-center gap-2 text-xs"
+            style={{background:'rgba(52,211,153,0.1)',border:'1px solid rgba(52,211,153,0.2)',color:'#34d399'}}>
+            <span>●</span> Server is online
+          </div>
+        )}
 
           <form
             onSubmit={handleEmailLogin}
