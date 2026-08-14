@@ -107,20 +107,6 @@ export default function Login({ onSwitch }) {
             boxShadow: '0 8px 40px rgba(0,0,0,0.35)'
           }}
         >
-          {serverStatus === 'waking' && (
-          <div className="animate-fade-up delay-50 mb-3 px-4 py-3 rounded-2xl flex items-center gap-3 text-sm"
-            style={{background:'rgba(245,158,11,0.1)',border:'1px solid rgba(245,158,11,0.2)',color:'#fbbf24'}}>
-            <span className="animate-spin">⏳</span>
-            <span>Server is starting up — takes ~30 seconds on first load</span>
-          </div>
-        )}
-        {serverStatus === 'online' && (
-          <div className="animate-fade-up delay-50 mb-3 px-4 py-2 rounded-2xl flex items-center gap-2 text-xs"
-            style={{background:'rgba(52,211,153,0.1)',border:'1px solid rgba(52,211,153,0.2)',color:'#34d399'}}>
-            <span>●</span> Server is online
-          </div>
-        )}
-        
           {error && (
             <div
               className="animate-scale-in mb-4 px-4 py-3 rounded-2xl flex items-center gap-2 text-xs"
