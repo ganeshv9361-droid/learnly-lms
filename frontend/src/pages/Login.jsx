@@ -107,20 +107,6 @@ export default function Login({ onSwitch }) {
             boxShadow: '0 8px 40px rgba(0,0,0,0.35)'
           }}
         >
-          {error && (
-            <div
-              className="animate-scale-in mb-4 px-4 py-3 rounded-2xl flex items-center gap-2 text-xs"
-              style={{
-                background: 'rgba(239,68,68,0.1)',
-                border: '1px solid rgba(239,68,68,0.2)',
-                color: '#fca5a5'
-              }}
-            >
-              <span>⚠️</span>
-              <span>{error}</span>
-            </div>
-          )}
-
           {serverStatus === 'waking' && (
           <div className="animate-fade-up delay-50 mb-3 px-4 py-3 rounded-2xl flex items-center gap-3 text-sm"
             style={{background:'rgba(245,158,11,0.1)',border:'1px solid rgba(245,158,11,0.2)',color:'#fbbf24'}}>
@@ -134,6 +120,20 @@ export default function Login({ onSwitch }) {
             <span>●</span> Server is online
           </div>
         )}
+        
+          {error && (
+            <div
+              className="animate-scale-in mb-4 px-4 py-3 rounded-2xl flex items-center gap-2 text-xs"
+              style={{
+                background: 'rgba(239,68,68,0.1)',
+                border: '1px solid rgba(239,68,68,0.2)',
+                color: '#fca5a5'
+              }}
+            >
+              <span>⚠️</span>
+              <span>{error}</span>
+            </div>
+          )}
 
           <form
             onSubmit={handleEmailLogin}
