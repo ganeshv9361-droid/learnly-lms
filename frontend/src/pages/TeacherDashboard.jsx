@@ -341,25 +341,34 @@ export default function TeacherDashboard() {
     e.preventDefault()
     if (!uploadForm.file) { flash('Please select a file', 'error'); return }
     setUploading(true)
+    setUploadProgress(0)
     try {
-      // Upload directly to Cloudinary from browser
       const fd = new FormData()
       fd.append('file', uploadForm.file)
       fd.append('upload_preset', 'learnly_videos')
-      fd.append('cloud_name', 'dnf3yhfz0')
       fd.append('resource_type', 'video')
 
-      const cloudRes = await fetch(
-        'https://api.cloudinary.com/v1_1/dnf3yhfz0/video/upload',
-        { method: 'POST', body: fd }
-      )
-      const cloudData = await cloudRes.json()
+      const cloudData = await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest()
+        xhr.upload.addEventListener('progress', (ev) => {
+          if (ev.lengthComputable) {
+            setUploadProgress(Math.round((ev.loaded / ev.total) * 90))
+          }
+        })
+        xhr.addEventListener('load', () => {
+          try { resolve(JSON.parse(xhr.responseText)) }
+          catch { reject(new Error('Invalid response from Cloudinary')) }
+        })
+        xhr.addEventListener('error', () => reject(new Error('Network error during upload')))
+        xhr.open('POST', 'https://api.cloudinary.com/v1_1/dnf3yhfz0/video/upload')
+        xhr.send(fd)
+      })
 
-      if (!cloudData.secure_url) {
-        throw new Error(cloudData.error?.message || 'Cloudinary upload failed')
-      }
+      if (cloudData.error) throw new Error(cloudData.error.message)
+      if (!cloudData.secure_url) throw new Error('Upload failed — no URL returned')
 
-      // Save URL to our backend
+      setUploadProgress(95)
+
       const thumbnail = cloudData.secure_url
         .replace('/upload/', '/upload/so_0,w_640,h_360,c_fill/')
         .replace(/\.[^.]+$/, '.jpg')
@@ -368,20 +377,21 @@ export default function TeacherDashboard() {
         course_id: parseInt(uploadForm.course_id),
         title: uploadForm.title,
         youtube_url: null,
-        order: videos.length,
         file_path: cloudData.secure_url,
-        thumbnail_url: thumbnail
+        thumbnail_url: thumbnail,
+        order: videos.length
       })
 
+      setUploadProgress(100)
       setUploadForm(f => ({...f, title:'', file:null}))
       if (fileRef.current) fileRef.current.value = ''
       loadCourseContent(selectedCourse)
-      flash('Video uploaded successfully! ✅')
-    } catch(e) {
-      console.error(e)
-      flash(e.message || 'Upload failed. Check your internet connection.', 'error')
+      flash('Video uploaded successfully!')
+    } catch(err) {
+      flash(err.message || 'Upload failed', 'error')
     }
     setUploading(false)
+    setUploadProgress(0)
   }
   
   const deleteVideo = async (id) => {

@@ -18,20 +18,12 @@ api.interceptors.request.use(config => {
 
 api.interceptors.response.use(
   response => response,
-  async error => {
+  error => {
     if (!error.response) {
-      error.message = 'Server is waking up... Please wait 30 seconds and try again'
+      error.message = 'Server waking up, please wait 30 seconds and retry'
     }
     return Promise.reject(error)
   }
 )
-
-// Keep server alive — ping every 10 minutes
-const keepAlive = () => {
-  fetch('https://learnly-lms-hqch.onrender.com/')
-    .catch(() => {})
-}
-setInterval(keepAlive, 10 * 60 * 1000)
-keepAlive()
 
 export default api
