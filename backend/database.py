@@ -18,6 +18,19 @@ engine = create_engine(DATABASE_URL, connect_args=connect_args, pool_pre_ping=Tr
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
+from sqlalchemy import text
+
+def add_missing_columns():
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE videos ADD COLUMN IF NOT EXISTS thumbnail_url VARCHAR"))
+            conn.execute(text("ALTER TABLE courses ADD COLUMN IF NOT EXISTS category VARCHAR DEFAULT 'General'"))
+            conn.commit()
+    except Exception as e:
+        print(f"Column migration note: {e}")
+
+add_missing_columns()
+
 def get_db():
     db = SessionLocal()
     try:

@@ -24,18 +24,26 @@ class YoutubeIn(BaseModel):
 
 @router.post("/youtube")
 def add_youtube(data: YoutubeIn, db: Session = Depends(get_db), _=Depends(get_current_user)):
-    video = models.Video(
-        course_id=data.course_id,
-        title=data.title,
-        youtube_url=data.youtube_url if data.youtube_url else None,
-        file_path=data.file_path if data.file_path else None,
-        thumbnail_url=data.thumbnail_url if data.thumbnail_url else None,
-        order=data.order
-    )
-    db.add(video)
-    db.commit()
-    db.refresh(video)
-    return video
+    try:
+        video = models.Video(
+            course_id=data.course_id,
+            title=data.title,
+            youtube_url=data.youtube_url if data.youtube_url else None,
+            file_path=data.file_path if data.file_path else None,
+            order=data.order
+        )
+        # Only set thumbnail if column exists
+        try:
+            video.thumbnail_url = data.thumbnail_url
+        except Exception:
+            pass
+        db.add(video)
+        db.commit()
+        db.refresh(video)
+        return video
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/upload")
 async def upload_video(
