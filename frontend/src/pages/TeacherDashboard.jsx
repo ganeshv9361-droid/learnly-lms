@@ -63,12 +63,10 @@ export default function TeacherDashboard() {
   const [ytForm, setYtForm] = useState({
     title: '',
     youtube_url: '',
-    course_id: '',
   })
   const [uploadForm, setUploadForm] = useState({
     title: '',
     file: null,
-    course_id: '',
   })
   const [announceForm, setAnnounceForm] = useState({
     course_id: '',
@@ -321,9 +319,14 @@ export default function TeacherDashboard() {
 
   const addYoutube = async (e) => {
     e.preventDefault()
+
+    if (!selectedCourse?.id) {
+    flash('Please select a course first', 'error')
+    return
+    }
     try {
       await api.post('/videos/youtube', {
-        course_id: parseInt(ytForm.course_id),
+        course_id: selectedCourse.id,
         title: ytForm.title,
         youtube_url: ytForm.youtube_url,
         order: videos.length,
@@ -337,7 +340,7 @@ export default function TeacherDashboard() {
     }
   }
 
-  const uploadVideo = async (e) => {
+    const uploadVideo = async (e) => {
     e.preventDefault()
     if (!uploadForm.file) { flash('Please select a file', 'error'); return }
     setUploading(true)
@@ -374,7 +377,7 @@ export default function TeacherDashboard() {
         .replace(/\.[^.]+$/, '.jpg')
 
       await api.post('/videos/youtube', {
-        course_id: parseInt(uploadForm.course_id),
+        course_id: selectedCourse.id,
         title: uploadForm.title,
         youtube_url: null,
         file_path: cloudData.secure_url,
