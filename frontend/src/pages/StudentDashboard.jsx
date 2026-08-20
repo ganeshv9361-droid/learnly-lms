@@ -52,6 +52,8 @@ export default function StudentDashboard() {
   const [playingCourse, setPlayingCourse] = useState(null)
   const [videos, setVideos] = useState([])
   const [activeVideo, setActiveVideo] = useState(null)
+  const videoRef = useRef(null)
+  const [videoSpeed, setVideoSpeed] = useState(1)
   const [assignments, setAssignments] = useState([])
   const [submitForm, setSubmitForm] = useState({ assignment_id:'', note:'', file:null })
   const fileRef = useRef()
@@ -356,36 +358,78 @@ export default function StudentDashboard() {
                     style={{ aspectRatio: '16/9' }}
                   >
                     {activeVideo.youtube_url ? (
-                      <iframe
-                        key={activeVideo.id}
-                        width="100%"
-                        height="100%"
-                        src={`https://www.youtube.com/embed/${getYoutubeId(activeVideo.youtube_url)}?autoplay=1`}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        className="w-full h-full"
-                        onLoad={() =>
-                          setTimeout(() => markVideoWatched(activeVideo), 30000)
-                        }
-                      />
-                    ) : (
-                      <video
-                        key={activeVideo.id}
-                        controls
-                        autoPlay
-                        playsInline
-                        preload="auto"
-                        className="w-full h-full bg-black"
-                        src={getVideoSrc(activeVideo.file_path)}
-                        onEnded={() => markVideoWatched(activeVideo)}
-                        onError={(e) => {
-                          console.log('Video play error:', e.currentTarget.error)
-                          console.log('Video URL:', getVideoSrc(activeVideo.file_path))
-                        }}
-                      >
-                        Your browser does not support the video tag.
-                      </video>
-                    )}
+  <iframe
+    key={activeVideo.id}
+    width="100%"
+    height="100%"
+    src={`https://www.youtube.com/embed/${getYoutubeId(activeVideo.youtube_url)}?autoplay=1`}
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowFullScreen
+    className="w-full h-full"
+    onLoad={() =>
+      setTimeout(() => markVideoWatched(activeVideo), 30000)
+    }
+  />
+) : (
+  <div className="relative w-full h-full">
+    <video
+      key={activeVideo.id}
+      ref={videoRef}
+      controls
+      autoPlay
+      playsInline
+      preload="auto"
+      className="w-full h-full bg-black"
+      src={
+        activeVideo.file_path?.startsWith('http')
+          ? activeVideo.file_path
+          : `https://learnly-lms-hqch.onrender.com${activeVideo.file_path}`
+      }
+      onEnded={() => markVideoWatched(activeVideo)}
+      onError={(e) => {
+        console.log('Video play error:', e.currentTarget.error)
+        console.log(
+          'Video URL:',
+          activeVideo.file_path?.startsWith('http')
+            ? activeVideo.file_path
+            : `https://learnly-lms-hqch.onrender.com${activeVideo.file_path}`
+        )
+      }}
+    >
+      Your browser does not support the video tag.
+    </video>
+
+    {/* Speed control */}
+    <div className="absolute bottom-14 right-3 flex gap-1">
+      {[0.75, 1, 1.25, 1.5, 2].map(speed => (
+        <button
+          key={speed}
+          onClick={() => {
+            if (videoRef.current) {
+              videoRef.current.playbackRate = speed
+              setVideoSpeed(speed)
+            }
+          }}
+          style={{
+            padding: '3px 8px',
+            borderRadius: 6,
+            fontSize: 11,
+            fontWeight: 600,
+            border: 'none',
+            cursor: 'pointer',
+            background:
+              videoSpeed === speed
+                ? '#7c3aed'
+                : 'rgba(0,0,0,0.7)',
+            color: 'white'
+          }}
+        >
+          {speed}x
+        </button>
+      ))}
+    </div>
+  </div>
+)}
                   </div>
 
                   <div className="glass rounded-xl p-3 border border-white/5">
