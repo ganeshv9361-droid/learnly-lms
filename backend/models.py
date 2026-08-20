@@ -261,3 +261,31 @@ class CourseRating(Base):
     rating = Column(Integer, nullable=False)
     review = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), default=now)
+
+class CourseRating(Base):
+    __tablename__ = "course_ratings"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    course_id = Column(Integer, ForeignKey("courses.id"))
+    rating = Column(Integer, nullable=False)
+    review = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), default=now)
+
+class Discussion(Base):
+    __tablename__ = "discussions"
+    id = Column(Integer, primary_key=True, index=True)
+    course_id = Column(Integer, ForeignKey("courses.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
+    parent_id = Column(Integer, ForeignKey("discussions.id"), nullable=True)
+    message = Column(Text, nullable=False)
+    created_at = Column(DateTime(timezone=True), default=now)
+
+class StudyStreak(Base):
+    __tablename__ = "study_streaks"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True)
+    current_streak = Column(Integer, default=0)
+    longest_streak = Column(Integer, default=0)
+    last_study_date = Column(DateTime(timezone=True), nullable=True)
+    total_days = Column(Integer, default=0)
+    updated_at = Column(DateTime(timezone=True), default=now)

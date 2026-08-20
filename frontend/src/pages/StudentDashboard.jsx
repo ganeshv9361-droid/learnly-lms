@@ -67,6 +67,14 @@ export default function StudentDashboard() {
   const [search, setSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState('All')
   const categories = ['All','Technology','Programming','Business','Design','Science','Language','Music','Health','General','Other']
+  const videoRef = useRef()
+  const [streak, setStreak] = useState({current_streak:0, longest_streak:0, total_days:0})
+  const [discussions, setDiscussions] = useState([])
+  const [discussionMsg, setDiscussionMsg] = useState('')
+  const [replyTo, setReplyTo] = useState(null)
+  const [ratings, setRatings] = useState({average:0, total:0, ratings:[]})
+  const [myRating, setMyRating] = useState({rating:0, review:''})
+  const [showRatingForm, setShowRatingForm] = useState(false)
 
   const flash = (text, type='success') => {
     setMsg({ text, type })
@@ -83,6 +91,7 @@ export default function StudentDashboard() {
     api.get('/referrals/my-code').then(r => setReferral(r.data))
     api.get('/announcements/my').then(r => setAnnouncements(r.data))
     api.get('/payments/my-orders').then(r => setOrders(r.data))
+    api.get('/streaks/my').then(r => setStreak(r.data)).catch(()=>{})
   }
 
   useEffect(() => { loadAll() }, [])
@@ -155,6 +164,23 @@ export default function StudentDashboard() {
 
     if (vids.data.length > 0) setActiveVideo(vids.data[0])
   }
+
+  const [vids, asgn, qzs, contact, disc, rat, myRat] = await Promise.all([
+      api.get(`/videos/course/${enrollment.course_id}`),
+      api.get(`/assignments/course/${enrollment.course_id}`),
+      api.get(`/quizzes/course/${enrollment.course_id}`),
+      api.get(`/teacher-profile/course/${enrollment.course_id}/teacher-contact`).catch(() => ({data:null})),
+      api.get(`/discussions/course/${enrollment.course_id}`),
+      api.get(`/ratings/course/${enrollment.course_id}`),
+      api.get(`/ratings/my/${enrollment.course_id}`)
+    ])
+    setVideos(vids.data)
+    setAssignments(asgn.data)
+    setQuizzes(qzs.data)
+    setTeacherContact(contact.data)
+    setDiscussions(disc.data)
+    setRatings(rat.data)
+    setMyRating(myRat.data)
 
   const markVideoWatched = async (video) => {
     try {
@@ -322,7 +348,8 @@ export default function StudentDashboard() {
         </div>
 
         <div className="flex gap-2 flex-wrap w-full sm:w-auto">
-          {[['videos','🎬'],['assignments','📝'],['quizzes','🧪'],['contact','📞']].map(([t,icon]) => (
+          {[['videos','🎬'],['assignments','📝'],['quizzes','🧪'],['contact','📞'],['discuss','💬 Forum'],
+            ['review','⭐ Rate']].map(([t,icon]) => (
             <button
               key={t}
               onClick={() => { setCourseTab(t); setActiveQuiz(null); setQuizResult(null) }}
@@ -650,6 +677,143 @@ export default function StudentDashboard() {
           </div>
         )}
 
+                {courseTab==='discuss' && (
+          <div className="flex-1 flex flex-col gap-3 overflow-y-auto p-1">
+            <form onSubmit={async (e) => {
+              e.preventDefault()
+              if (!discussionMsg.trim()) return
+              try {
+                await api.post('/discussions/', {
+                  course_id: playingCourse.course_id,
+                  message: discussionMsg,
+                  parent_id: replyTo
+                })
+                setDiscussionMsg('')
+                setReplyTo(null)
+                const r = await api.get(`/discussions/course/${playingCourse.course_id}`)
+                setDiscussions(r.data)
+              } catch(e) { flash('Failed to post', 'error') }
+            }} className="flex gap-2">
+              <input value={discussionMsg} onChange={e => setDiscussionMsg(e.target.value)}
+                className="input-base flex-1"
+                placeholder={replyTo ? 'Write a reply...' : 'Ask a question or share thoughts...'}/>
+              {replyTo && (
+                <button type="button" onClick={() => setReplyTo(null)}
+                  className="text-xs text-gray-400 px-2">✕</button>
+              )}
+              <button type="submit" className="btn-primary text-white px-4 rounded-xl text-sm">Post</button>
+            </form>
+            {discussions.length === 0 && (
+              <div className="text-center py-8 text-gray-500">
+                <div className="text-3xl mb-2">💬</div>
+                <div className="text-sm">No discussions yet. Start the conversation!</div>
+              </div>
+            )}
+            {discussions.map(d => (
+              <div key={d.id} className="glass rounded-xl p-4 border border-white/5">
+                <div className="flex items-start gap-3 mb-2">
+                  <div className="w-8 h-8 rounded-full btn-primary flex items-center justify-center text-xs font-bold text-white shrink-0">
+                    {d.user_name?.[0]?.toUpperCase()}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-white">{d.user_name}</span>
+                      {d.user_role === 'teacher' && (
+                        <span className="text-xs px-2 py-0.5 rounded-full" style={{background:'rgba(13,148,136,0.2)',color:'#2dd4bf'}}>Teacher</span>
+                      )}
+                    </div>
+                    <div className="text-sm text-gray-300 mt-1">{d.message}</div>
+                    <button onClick={() => setReplyTo(d.id)}
+                      className="text-xs text-violet-400 mt-1 hover:underline">Reply</button>
+                  </div>
+                </div>
+                {d.replies?.map(r => (
+                  <div key={r.id} className="ml-10 mt-2 p-3 rounded-xl" style={{background:'rgba(255,255,255,0.03)'}}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-semibold text-white">{r.user_name}</span>
+                      {r.user_role === 'teacher' && (
+                        <span className="text-xs px-1.5 py-0.5 rounded-full" style={{background:'rgba(13,148,136,0.2)',color:'#2dd4bf'}}>Teacher</span>
+                      )}
+                    </div>
+                    <div className="text-xs text-gray-300">{r.message}</div>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {courseTab==='review' && (
+          <div className="flex-1 overflow-y-auto max-w-lg">
+            <div className="glass rounded-2xl p-5 border border-white/5 mb-4">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="text-4xl font-bold text-white">{ratings.average || '—'}</div>
+                <div>
+                  <div className="flex gap-1">
+                    {[1,2,3,4,5].map(s => (
+                      <span key={s} style={{fontSize:20,color:s<=Math.round(ratings.average)?'#fbbf24':'#374151'}}>★</span>
+                    ))}
+                  </div>
+                  <div className="text-xs text-gray-400">{ratings.total} ratings</div>
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <div className="text-sm font-semibold text-white mb-2">
+                  {myRating.rating > 0 ? 'Your rating' : 'Rate this course'}
+                </div>
+                <div className="flex gap-2 mb-2">
+                  {[1,2,3,4,5].map(s => (
+                    <button key={s}
+                      onClick={() => setMyRating(r => ({...r, rating:s}))}
+                      style={{fontSize:28,color:s<=myRating.rating?'#fbbf24':'#374151',background:'none',border:'none',cursor:'pointer'}}>
+                      ★
+                    </button>
+                  ))}
+                </div>
+                <textarea value={myRating.review}
+                  onChange={e => setMyRating(r => ({...r, review:e.target.value}))}
+                  className="input-base h-20 resize-none mb-2"
+                  placeholder="Write a review (optional)..."/>
+                <button onClick={async () => {
+                  try {
+                    await api.post('/ratings/', {
+                      course_id: playingCourse.course_id,
+                      rating: myRating.rating,
+                      review: myRating.review
+                    })
+                    const r = await api.get(`/ratings/course/${playingCourse.course_id}`)
+                    setRatings(r.data)
+                    flash('Rating submitted! ⭐')
+                  } catch(e) { flash(e.response?.data?.detail||'Error','error') }
+                }} disabled={myRating.rating===0}
+                  className="btn-primary text-white w-full py-2.5 rounded-xl text-sm disabled:opacity-40">
+                  {myRating.rating > 0 ? 'Submit Rating' : 'Select stars first'}
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {ratings.ratings?.map(r => (
+                <div key={r.id} className="glass rounded-xl p-4 border border-white/5">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-7 h-7 rounded-full btn-primary flex items-center justify-center text-xs font-bold text-white shrink-0">
+                      {r.user_name?.[0]?.toUpperCase()}
+                    </div>
+                    <span className="text-sm font-medium text-white">{r.user_name}</span>
+                    <div className="flex ml-auto">
+                      {[1,2,3,4,5].map(s => (
+                        <span key={s} style={{fontSize:12,color:s<=r.rating?'#fbbf24':'#374151'}}>★</span>
+                      ))}
+                    </div>
+                  </div>
+                  {r.review && <div className="text-xs text-gray-300 mt-1">{r.review}</div>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {courseTab==='contact' && (
           <div className="flex-1 max-w-lg">
             {teacherContact ? (
@@ -751,12 +915,13 @@ export default function StudentDashboard() {
         )}
 
         <div className="p-4">
-          <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'8px',marginBottom:'16px'}}>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(5,1fr)',gap:'8px',marginBottom:'16px'}}>
             {[
               {label:'Enrolled',value:enrollments.length,suffix:'',icon:'📚',color:'#8b5cf6'},
               {label:'Attendance',value:attendance?.rate||0,suffix:'%',icon:'🕐',color:'#34d399'},
               {label:'Quizzes',value:attempts.length,suffix:'',icon:'🧪',color:'#fbbf24'},
               {label:'Certs',value:certificates.length,suffix:'',icon:'🏅',color:'#60a5fa'},
+              {label:'Streak',value:streak.current_streak,suffix:'🔥',icon:'',color:'#f97316'},
             ].map((s,i) => (
               <div key={s.label} style={{background:'linear-gradient(135deg,rgba(124,58,237,0.1),rgba(6,182,212,0.05))',border:'1px solid rgba(124,58,237,0.2)',borderRadius:'14px',padding:'10px 6px',textAlign:'center'}}>
                 <div style={{fontSize:18,marginBottom:4}}>{s.icon}</div>
