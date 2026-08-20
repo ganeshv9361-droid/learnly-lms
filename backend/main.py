@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from routes import users, courses, enrollments, attendance, assessments
 from routes import certificates, videos, assignments, quizzes
 from routes import referrals, teacher, announcements, payments
-from routes import video_watch, developer, teacher_profile, ai_tutor, notifications
+from routes import video_watch, developer, teacher_profile, ai_tutor, notifications, ratings
 
 load_dotenv()
 models.Base.metadata.create_all(bind=engine)
@@ -47,6 +47,7 @@ app.include_router(developer.router,       prefix="/api/developer",       tags=[
 app.include_router(teacher_profile.router, prefix="/api/teacher-profile", tags=["teacher-profile"])
 app.include_router(ai_tutor.router,        prefix="/api/ai-tutor",        tags=["ai-tutor"])
 app.include_router(notifications.router, prefix="/api/notifications", tags=["notifications"])
+app.include_router(ratings.router, prefix="/api/ratings", tags=["ratings"])
 @app.get("/")
 def root():
     return {"message": "Learnly API running"}
