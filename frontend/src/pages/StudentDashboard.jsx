@@ -67,7 +67,6 @@ export default function StudentDashboard() {
   const [search, setSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState('All')
   const categories = ['All','Technology','Programming','Business','Design','Science','Language','Music','Health','General','Other']
-  const videoRef = useRef()
   const [streak, setStreak] = useState({current_streak:0, longest_streak:0, total_days:0})
   const [discussions, setDiscussions] = useState([])
   const [discussionMsg, setDiscussionMsg] = useState('')
@@ -143,6 +142,7 @@ export default function StudentDashboard() {
   }
 
   const openCourse = async (enrollment) => {
+  try {
     setPlayingCourse(enrollment)
     setActiveVideo(null)
     setQuizResult(null)
@@ -150,11 +150,38 @@ export default function StudentDashboard() {
     setCourseTab('videos')
     setTeacherContact(null)
 
-    const [vids, asgn, qzs, contact] = await Promise.all([
+    const [
+      vids,
+      asgn,
+      qzs,
+      contact,
+      disc,
+      rat,
+      myRat
+    ] = await Promise.all([
       api.get(`/videos/course/${enrollment.course_id}`),
+
       api.get(`/assignments/course/${enrollment.course_id}`),
+
       api.get(`/quizzes/course/${enrollment.course_id}`),
-      api.get(`/teacher-profile/course/${enrollment.course_id}/teacher-contact`).catch(() => ({data:null}))
+
+      api
+        .get(
+          `/teacher-profile/course/${enrollment.course_id}/teacher-contact`
+        )
+        .catch(() => ({ data: null })),
+
+      api
+        .get(`/discussions/course/${enrollment.course_id}`)
+        .catch(() => ({ data: [] })),
+
+      api
+        .get(`/ratings/course/${enrollment.course_id}`)
+        .catch(() => ({ data: [] })),
+
+      api
+        .get(`/ratings/my/${enrollment.course_id}`)
+        .catch(() => ({ data: null }))
     ])
 
     setVideos(vids.data)
@@ -162,25 +189,22 @@ export default function StudentDashboard() {
     setQuizzes(qzs.data)
     setTeacherContact(contact.data)
 
-    if (vids.data.length > 0) setActiveVideo(vids.data[0])
-  }
-
-  const [vids, asgn, qzs, contact, disc, rat, myRat] = await Promise.all([
-      api.get(`/videos/course/${enrollment.course_id}`),
-      api.get(`/assignments/course/${enrollment.course_id}`),
-      api.get(`/quizzes/course/${enrollment.course_id}`),
-      api.get(`/teacher-profile/course/${enrollment.course_id}/teacher-contact`).catch(() => ({data:null})),
-      api.get(`/discussions/course/${enrollment.course_id}`),
-      api.get(`/ratings/course/${enrollment.course_id}`),
-      api.get(`/ratings/my/${enrollment.course_id}`)
-    ])
-    setVideos(vids.data)
-    setAssignments(asgn.data)
-    setQuizzes(qzs.data)
-    setTeacherContact(contact.data)
     setDiscussions(disc.data)
     setRatings(rat.data)
     setMyRating(myRat.data)
+
+    if (vids.data && vids.data.length > 0) {
+      setActiveVideo(vids.data[0])
+    }
+
+  } catch (e) {
+    console.error('Error opening course:', e)
+    flash(
+      e.response?.data?.detail || 'Failed to load course',
+      'error'
+    )
+  }
+}
 
   const markVideoWatched = async (video) => {
     try {
