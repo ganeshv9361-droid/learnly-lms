@@ -262,15 +262,6 @@ class CourseRating(Base):
     review = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), default=now)
 
-class CourseRating(Base):
-    __tablename__ = "course_ratings"
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    course_id = Column(Integer, ForeignKey("courses.id"))
-    rating = Column(Integer, nullable=False)
-    review = Column(Text, nullable=True)
-    created_at = Column(DateTime(timezone=True), default=now)
-
 class Discussion(Base):
     __tablename__ = "discussions"
     id = Column(Integer, primary_key=True, index=True)
