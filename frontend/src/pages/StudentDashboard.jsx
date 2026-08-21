@@ -150,6 +150,10 @@ export default function StudentDashboard() {
     setCourseTab('videos')
     setTeacherContact(null)
 
+    // Record today's study activity
+    api.post('/streaks/study').catch(() => {})
+
+
     const [
       vids,
       asgn,
@@ -182,6 +186,7 @@ export default function StudentDashboard() {
       api
         .get(`/ratings/my/${enrollment.course_id}`)
         .catch(() => ({ data: null }))
+        
     ])
 
     setVideos(vids.data)
