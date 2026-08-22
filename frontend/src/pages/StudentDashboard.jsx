@@ -773,11 +773,36 @@ export default function StudentDashboard() {
   </button>
 
   <button
-    onClick={() => console.log("DELETE BUTTON CLICKED", d.id)}
-    className="text-xs text-red-400 mt-1 hover:underline"
-  >
-    Delete TEST
-  </button>
+  onClick={async () => {
+    console.log("Deleting discussion:", d.id);
+
+    try {
+      const response = await api.delete(`/discussions/${d.id}`);
+
+      console.log("DELETE RESPONSE:", response);
+
+      // Remove it immediately from the screen
+      setDiscussions((prev) =>
+        prev.filter((item) => item.id !== d.id)
+      );
+
+      flash("Discussion deleted successfully", "success");
+
+    } catch (error) {
+      console.error("DELETE ERROR:", error);
+      console.error("STATUS:", error.response?.status);
+      console.error("DATA:", error.response?.data);
+
+      flash(
+        error.response?.data?.detail || "Delete failed",
+        "error"
+      );
+    }
+  }}
+  className="text-xs text-red-400 mt-1 hover:underline"
+>
+  Delete
+</button>
 </div>
                   </div>
                 </div>
