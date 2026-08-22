@@ -765,18 +765,49 @@ export default function StudentDashboard() {
                     </div>
                     <div className="text-sm text-gray-300 mt-1">{d.message}</div>
                     <div className="flex gap-3">
-                      <button onClick={() => setReplyTo(d.id)}
-                        className="text-xs text-violet-400 mt-1 hover:underline">Reply</button>
-                      {(d.user_id === user?.id || user?.role === 'teacher' || user?.role === 'developer') && (
-                        <button onClick={async () => {
-                          try {
-                            await api.delete(`/discussions/${d.id}`)
-                            const r = await api.get(`/discussions/course/${playingCourse.course_id}`)
-                            setDiscussions(r.data)
-                          } catch(e) { flash('Delete failed', 'error') }
-                        }} className="text-xs text-red-400 mt-1 hover:underline">Delete</button>
-                      )}
-                    </div>
+  <button
+    onClick={() => setReplyTo(d.id)}
+    className="text-xs text-violet-400 mt-1 hover:underline"
+  >
+    Reply
+  </button>
+
+  {(d.user_id === user?.id ||
+    user?.role === "teacher" ||
+    user?.role === "developer") && (
+    <button
+      onClick={async () => {
+        try {
+          console.log("Deleting discussion:", d.id);
+
+          await api.delete(`/discussions/${d.id}`);
+
+          console.log("Delete successful");
+
+          const r = await api.get(
+            `/discussions/course/${playingCourse.course_id}`
+          );
+
+          setDiscussions(r.data);
+
+          flash("Discussion deleted", "success");
+        } catch (e) {
+          console.error("DELETE DISCUSSION ERROR:", e);
+          console.error("Response:", e.response?.data);
+          console.error("Status:", e.response?.status);
+
+          flash(
+            e.response?.data?.detail || "Delete failed",
+            "error"
+          );
+        }
+      }}
+      className="text-xs text-red-400 mt-1 hover:underline"
+    >
+      Delete
+    </button>
+  )}
+</div>
                   </div>
                 </div>
                 {d.replies?.map(r => (
