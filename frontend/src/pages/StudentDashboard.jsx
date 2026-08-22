@@ -765,16 +765,16 @@ export default function StudentDashboard() {
                     </div>
                     <div className="text-sm text-gray-300 mt-1">{d.message}</div>
                     <div className="flex gap-3">
-  <button
-    onClick={() => setReplyTo(d.id)}
-    className="text-xs text-violet-400 mt-1 hover:underline"
-  >
-    Reply
+                      <button 
+                        onClick={() => setReplyTo(d.id)}
+                        className="text-xs text-violet-400 mt-1 hover:underline">
+                              Reply
   </button>
 
-  {(d.user_id === user?.id ||
-    user?.role === "teacher" ||
-    user?.role === "developer") && (
+  {(
+  String(d.user_id) === String(user?.id) ||
+  user?.role === 'teacher' ||
+  user?.role === 'developer') && (
     <button
       onClick={async () => {
         try {
