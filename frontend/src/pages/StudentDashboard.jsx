@@ -91,6 +91,18 @@ export default function StudentDashboard() {
     api.get('/announcements/my').then(r => setAnnouncements(r.data))
     api.get('/payments/my-orders').then(r => setOrders(r.data))
     api.get('/streaks/my').then(r => setStreak(r.data)).catch(()=>{})
+    api.get('/courses/all').then(async r => {
+      const coursesData = r.data
+      const withRatings = await Promise.all(
+        coursesData.map(async c => {
+          try {
+            const rat = await api.get(`/ratings/course/${c.id}`)
+            return {...c, avg_rating: rat.data.average, total_ratings: rat.data.total}
+          } catch { return {...c, avg_rating: 0, total_ratings: 0} }
+        })
+      )
+      setCourses(withRatings)
+    }).catch(() => api.get('/courses/').then(r => setCourses(r.data)))
   }
 
   useEffect(() => { loadAll() }, [])
@@ -752,8 +764,19 @@ export default function StudentDashboard() {
                       )}
                     </div>
                     <div className="text-sm text-gray-300 mt-1">{d.message}</div>
-                    <button onClick={() => setReplyTo(d.id)}
-                      className="text-xs text-violet-400 mt-1 hover:underline">Reply</button>
+                    <div className="flex gap-3">
+                      <button onClick={() => setReplyTo(d.id)}
+                        className="text-xs text-violet-400 mt-1 hover:underline">Reply</button>
+                      {(d.user_id === user?.id || user?.role === 'teacher' || user?.role === 'developer') && (
+                        <button onClick={async () => {
+                          try {
+                            await api.delete(`/discussions/${d.id}`)
+                            const r = await api.get(`/discussions/course/${playingCourse.course_id}`)
+                            setDiscussions(r.data)
+                          } catch(e) { flash('Delete failed', 'error') }
+                        }} className="text-xs text-red-400 mt-1 hover:underline">Delete</button>
+                      )}
+                    </div>
                   </div>
                 </div>
                 {d.replies?.map(r => (
@@ -1074,6 +1097,17 @@ export default function StudentDashboard() {
                           </div>
                           <div style={{fontSize:10,color:'#9ca3af',marginBottom:2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
                             {c.instructor}
+                          </div>
+                                                    {/* Rating stars */}
+                          <div className="flex items-center gap-1 mb-2">
+                            {[1,2,3,4,5].map(s => (
+                              <span key={s} style={{fontSize:10, color: s <= Math.round(c.avg_rating||0) ? '#fbbf24' : '#374151'}}>★</span>
+                            ))}
+                            {c.avg_rating > 0 && (
+                              <span style={{fontSize:10, color:'#9ca3af', marginLeft:2}}>
+                                {c.avg_rating} ({c.total_ratings})
+                              </span>
+                            )}
                           </div>
                           <div style={{fontSize:10,color:'#6b7280',marginBottom:8}}>📦 {c.total_modules} modules</div>
                           {enrolled ? (

@@ -84,18 +84,30 @@ def delete_user(user_id: int, db: Session = Depends(get_db), user=Depends(dev_on
     target = db.query(models.User).filter(models.User.id == user_id).first()
     if not target:
         raise HTTPException(status_code=404, detail="User not found")
-    db.query(models.Enrollment).filter(models.Enrollment.user_id == user_id).delete()
-    db.query(models.Attendance).filter(models.Attendance.user_id == user_id).delete()
-    db.query(models.Assessment).filter(models.Assessment.user_id == user_id).delete()
-    db.query(models.Certificate).filter(models.Certificate.user_id == user_id).delete()
-    db.query(models.AssignmentSubmission).filter(models.AssignmentSubmission.user_id == user_id).delete()
-    db.query(models.QuizAttempt).filter(models.QuizAttempt.user_id == user_id).delete()
-    db.query(models.Payment).filter(models.Payment.user_id == user_id).delete()
-    db.query(models.VideoWatch).filter(models.VideoWatch.user_id == user_id).delete()
-    db.query(models.TeacherProfile).filter(models.TeacherProfile.user_id == user_id).delete()
-    db.delete(target)
-    db.commit()
-    return {"message": f"User {target.name} deleted"}
+    try:
+        from sqlalchemy import text
+        tables = [
+            "video_watches", "quiz_attempts", "assignment_submissions",
+            "enrollments", "attendance", "assessments", "certificates",
+            "payments", "referrals", "ai_tutor_messages", "notifications",
+            "study_streaks", "course_ratings", "discussions"
+        ]
+        for table in tables:
+            try:
+                db.execute(text(f"DELETE FROM {table} WHERE user_id = :uid"), {"uid": user_id})
+            except Exception:
+                pass
+        try:
+            db.execute(text("DELETE FROM teacher_profiles WHERE user_id = :uid"), {"uid": user_id})
+        except Exception:
+            pass
+        db.commit()
+        db.delete(target)
+        db.commit()
+        return {"message": f"User {target.name} deleted successfully"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.patch("/users/{user_id}/role")
 def change_role(user_id: int, role: str, db: Session = Depends(get_db), _=Depends(dev_only)):
