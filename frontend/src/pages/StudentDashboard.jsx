@@ -765,48 +765,19 @@ export default function StudentDashboard() {
                     </div>
                     <div className="text-sm text-gray-300 mt-1">{d.message}</div>
                     <div className="flex gap-3">
-                      <button 
-                        onClick={() => setReplyTo(d.id)}
-                        className="text-xs text-violet-400 mt-1 hover:underline">
-                              Reply
+  <button
+    onClick={() => setReplyTo(d.id)}
+    className="text-xs text-violet-400 mt-1 hover:underline"
+  >
+    Reply
   </button>
 
-  {(
-  String(d.user_id) === String(user?.id) ||
-  user?.role === 'teacher' ||
-  user?.role === 'developer') && (
-    <button
-      onClick={async () => {
-        try {
-          console.log("Deleting discussion:", d.id);
-
-          await api.delete(`/discussions/${d.id}`);
-
-          console.log("Delete successful");
-
-          const r = await api.get(
-            `/discussions/course/${playingCourse.course_id}`
-          );
-
-          setDiscussions(r.data);
-
-          flash("Discussion deleted", "success");
-        } catch (e) {
-          console.error("DELETE DISCUSSION ERROR:", e);
-          console.error("Response:", e.response?.data);
-          console.error("Status:", e.response?.status);
-
-          flash(
-            e.response?.data?.detail || "Delete failed",
-            "error"
-          );
-        }
-      }}
-      className="text-xs text-red-400 mt-1 hover:underline"
-    >
-      Delete
-    </button>
-  )}
+  <button
+    onClick={() => console.log("DELETE BUTTON CLICKED", d.id)}
+    className="text-xs text-red-400 mt-1 hover:underline"
+  >
+    Delete TEST
+  </button>
 </div>
                   </div>
                 </div>
