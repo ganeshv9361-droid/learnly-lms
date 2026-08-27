@@ -4,6 +4,10 @@ import api from '../api/axios'
 export default function PaymentModal({ course, onClose, onSuccess }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [coupon, setCoupon] = useState('')
+  const [couponData, setCouponData] = useState(null)
+  const [couponError, setCouponError] = useState('')
+  const [finalPrice, setFinalPrice] = useState(course.price)
 
   const handlePay = async () => {
     setLoading(true)
@@ -108,6 +112,22 @@ export default function PaymentModal({ course, onClose, onSuccess }) {
     }
   }
 
+    const validateCoupon = async () => {
+    setCouponError('')
+    try {
+      const r = await api.post('/coupons/validate', {
+        code: coupon,
+        course_id: course.id
+      })
+      setCouponData(r.data)
+      setFinalPrice(r.data.final_price)
+    } catch(e) {
+      setCouponError(e.response?.data?.detail || 'Invalid coupon')
+      setCouponData(null)
+      setFinalPrice(course.price)
+    }
+  }
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -170,6 +190,25 @@ export default function PaymentModal({ course, onClose, onSuccess }) {
             {error}
           </div>
         )}
+                {/* Coupon code */}
+        <div className="mb-4">
+          <div className="flex gap-2">
+            <input value={coupon} onChange={e => setCoupon(e.target.value.toUpperCase())}
+              className="input-base flex-1 text-sm" placeholder="Coupon code (optional)"/>
+            <button onClick={validateCoupon} type="button"
+              style={{background:'rgba(124,58,237,0.2)',color:'#a78bfa',border:'1px solid rgba(124,58,237,0.3)',padding:'8px 14px',borderRadius:12,fontSize:13,cursor:'pointer',whiteSpace:'nowrap'}}>
+              Apply
+            </button>
+          </div>
+          {couponError && <div className="text-xs text-red-400 mt-1">{couponError}</div>}
+          {couponData && (
+            <div className="text-xs text-green-400 mt-1">
+              ✓ {couponData.discount_percent}% off — You save ₹{couponData.discount_amount}
+            </div>
+          )}
+        </div>
+
+        <div className="flex gap-2 mb-4 text-xs text-gray-500 justify-center"></div>
 
         <button
           onClick={handlePay}

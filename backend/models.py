@@ -280,3 +280,36 @@ class StudyStreak(Base):
     last_study_date = Column(DateTime(timezone=True), nullable=True)
     total_days = Column(Integer, default=0)
     updated_at = Column(DateTime(timezone=True), default=now)
+
+class StudentNote(Base):
+    __tablename__ = "student_notes"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    course_id = Column(Integer, ForeignKey("courses.id"))
+    video_id = Column(Integer, ForeignKey("videos.id"), nullable=True)
+    content = Column(Text, nullable=False)
+    timestamp = Column(Float, nullable=True)
+    created_at = Column(DateTime(timezone=True), default=now)
+
+class CouponCode(Base):
+    __tablename__ = "coupon_codes"
+    id = Column(Integer, primary_key=True, index=True)
+    code = Column(String, unique=True, nullable=False)
+    course_id = Column(Integer, ForeignKey("courses.id"), nullable=True)
+    discount_percent = Column(Float, nullable=False)
+    max_uses = Column(Integer, default=100)
+    used_count = Column(Integer, default=0)
+    created_by = Column(Integer, ForeignKey("users.id"))
+    expires_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=now)
+
+class LiveClass(Base):
+    __tablename__ = "live_classes"
+    id = Column(Integer, primary_key=True, index=True)
+    course_id = Column(Integer, ForeignKey("courses.id"))
+    title = Column(String, nullable=False)
+    meet_link = Column(String, nullable=False)
+    scheduled_at = Column(DateTime(timezone=True), nullable=False)
+    duration_mins = Column(Integer, default=60)
+    created_by = Column(Integer, ForeignKey("users.id"))
+    created_at = Column(DateTime(timezone=True), default=now)

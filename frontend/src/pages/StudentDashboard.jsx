@@ -6,6 +6,8 @@ import PaymentModal from '../components/PaymentModal'
 import MobileLayout from '../components/MobileLayout'
 import AITutorChat from '../components/AITutorChat'
 import Logo from '../components/Logo'
+import LeaderboardTab from '../components/LeaderboardTab'
+import NotesPanel from '../components/NotesPanel'
 
 function getYoutubeId(url) {
   const match = url?.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/)
@@ -26,6 +28,7 @@ const navItems = [
   ['ai-tutor','🤖','AI Tutor'],
   ['courses','📚','Courses'],
   ['my-courses','📖','My Courses'],
+  ['leaderboard','🏆','Leaderboard'],
   ['announcements','📢','Announcements'],
   ['assignments','📝','Assignments'],
   ['quizzes','🧪','Quizzes'],
@@ -34,6 +37,37 @@ const navItems = [
   ['orders','💳','Orders'],
   ['referral','🔗','Refer Friends'],
 ]
+
+function UpcomingClasses() {
+  const [classes, setClasses] = useState([])
+  useEffect(() => {
+    api.get('/live-classes/upcoming').then(r => setClasses(r.data)).catch(()=>{})
+  }, [])
+  if (classes.length === 0) return null
+  return (
+    <div className="mb-4">
+      <div className="text-sm font-semibold text-white mb-2">📹 Upcoming Live Classes</div>
+      <div className="space-y-2">
+        {classes.map(c => (
+          <div key={c.id} className="glass rounded-xl p-3 border border-violet-500/20 flex items-center gap-3">
+            <div className="text-2xl">📹</div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium text-white truncate">{c.title}</div>
+              <div className="text-xs text-gray-400 truncate">{c.course}</div>
+              <div className="text-xs text-violet-400">
+                {new Date(c.scheduled_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})} · {c.duration_mins} mins
+              </div>
+            </div>
+            <a href={c.meet_link} target="_blank" rel="noreferrer"
+              className="btn-primary text-white text-xs px-3 py-2 rounded-xl shrink-0">
+              Join
+            </a>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
 
 export default function StudentDashboard() {
   const { user, logout } = useAuth()
@@ -274,39 +308,48 @@ export default function StudentDashboard() {
     } catch(e) { flash(e.response?.data?.detail||'Error','error') }
   }
 
-  const downloadCert = (cert) => {
+    const downloadCert = (cert) => {
+    const verifyUrl = `https://learnly-lms-hqch.onrender.com/api/verify-cert/${cert.id}`
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(verifyUrl)}`
     const html = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500&display=swap');
   *{margin:0;padding:0;box-sizing:border-box;}
   body{font-family:'Inter',sans-serif;background:linear-gradient(135deg,#0a0a0f,#0f0a1f);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px;}
-  .cert{background:linear-gradient(135deg,#13131f,#1a1030);border:1px solid rgba(124,58,237,0.3);border-radius:24px;padding:60px 80px;text-align:center;max-width:780px;width:100%;position:relative;overflow:hidden;}
+  .cert{background:linear-gradient(135deg,#13131f,#1a1030);border:1px solid rgba(124,58,237,0.3);border-radius:24px;padding:60px 80px;text-align:center;max-width:780px;width:100%;position:relative;}
   .cert::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#7c3aed,#06b6d4,#7c3aed);}
   .logo{font-family:'Playfair Display',serif;font-size:28px;color:#a78bfa;margin-bottom:8px;letter-spacing:2px;}
-  .tagline{font-size:11px;color:#6b7280;letter-spacing:4px;text-transform:uppercase;margin-bottom:50px;}
-  .badge{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#06b6d4);display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 30px;}
   .name{font-family:'Playfair Display',serif;font-size:48px;color:#fff;margin-bottom:20px;border-bottom:1px solid rgba(124,58,237,0.3);padding-bottom:20px;}
   .course{font-size:26px;color:#a78bfa;font-weight:600;margin-bottom:40px;}
-  .date{font-size:13px;color:#6b7280;margin-top:30px;}
+  .qr-section{margin-top:30px;display:flex;align-items:center;justify-content:center;gap:16px;}
+  .qr-text{font-size:11px;color:#6b7280;text-align:left;}
   .verified{display:inline-flex;align-items:center;gap:8px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:#34d399;padding:8px 20px;border-radius:50px;font-size:12px;margin-top:20px;}
 </style>
 </head>
 <body>
 <div class="cert">
   <div class="logo">✦ Learnly</div>
-  <div class="tagline">Certificate of Completion</div>
-  <div class="badge">🏅</div>
+  <div style="font-size:11px;color:#6b7280;letter-spacing:4px;text-transform:uppercase;margin-bottom:50px;">Certificate of Completion</div>
+  <div style="font-size:48px;margin:20px 0">🏅</div>
   <div style="font-size:12px;color:#9ca3af;letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;">This certifies that</div>
   <div class="name">${user.name}</div>
   <div style="font-size:12px;color:#9ca3af;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;">has successfully completed</div>
   <div class="course">${cert.course}</div>
-  <div class="date">Issued on ${new Date(cert.issued_at).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}</div>
+  <div style="font-size:13px;color:#6b7280;">Issued on ${new Date(cert.issued_at).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}</div>
   <div class="verified">✓ Verified by Learnly</div>
+  <div class="qr-section">
+    <img src="${qrUrl}" width="80" height="80" alt="QR Code"/>
+    <div class="qr-text">
+      <div style="font-weight:600;color:#a78bfa;margin-bottom:4px;">Verify Certificate</div>
+      <div>Scan QR code or visit:</div>
+      <div style="color:#7c3aed;font-size:10px;">${verifyUrl}</div>
+      <div style="margin-top:4px;">Certificate ID: #${cert.id}</div>
+    </div>
+  </div>
 </div>
 </body></html>`
-
-    const blob = new Blob([html], { type:'text/html' })
+    const blob = new Blob([html], {type:'text/html'})
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -557,6 +600,14 @@ export default function StudentDashboard() {
                       }
                     >
                       {activeVideo?.id === v.id ? '▶' : i + 1}
+                    </div>
+
+                    <div className="glass rounded-2xl p-3 border border-white/5 flex-1 min-h-0" style={{maxHeight:'300px'}}>
+                      <NotesPanel
+                        courseId={playingCourse?.course_id}
+                        videoId={activeVideo?.id}
+                        currentTime={videoRef.current?.currentTime}
+                      />
                     </div>
 
                     <div className="flex-1 min-w-0">
@@ -1185,6 +1236,10 @@ export default function StudentDashboard() {
           {tab==='my-courses' && (
             <div className="animate-fade-up space-y-3">
               <div className="text-base font-semibold text-white mb-4">My Courses</div>
+               {/* Upcoming live classes */}
+              <UpcomingClasses />
+
+              {/* existing course list */}
               {enrollments.length===0 && (
                 <div className="glass rounded-2xl p-10 text-center">
                   <div className="text-4xl mb-3">📖</div>
@@ -1781,6 +1836,12 @@ FOUNDER, LEARNLY
                   </div>
                 </div>
               </div>
+            </div>
+          )}
+
+          {tab==='leaderboard' && (
+            <div className="animate-fade-up">
+              <LeaderboardTab />
             </div>
           )}
 

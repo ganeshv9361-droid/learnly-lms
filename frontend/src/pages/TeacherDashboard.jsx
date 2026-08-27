@@ -28,6 +28,10 @@ export default function TeacherDashboard() {
   const [uploadProgress, setUploadProgress] = useState(0)
   const fileRef = useRef()
   const [courseThumbnails, setCourseThumbnails] = useState({})
+  const [coupons, setCoupons] = useState([])
+  const [couponForm, setCouponForm] = useState({course_id:'', discount_percent:'', max_uses:100, expires_days:30})
+  const [liveClasses, setLiveClasses] = useState([])
+  const [liveForm, setLiveForm] = useState({course_id:'', title:'', meet_link:'', scheduled_at:'', duration_mins:60})
 
   const [newCourse, setNewCourse] = useState({
     title: '',
@@ -117,6 +121,8 @@ export default function TeacherDashboard() {
   const loadAll = () => {
     api.get('/teacher/students').then((r) => setStudents(r.data)).catch(() => {})
     api.get('/courses/').then((r) => setCourses(r.data)).catch(() => {})
+    api.get('/coupons/my').then(r => setCoupons(r.data)).catch(()=>{})
+    api.get('/live-classes/upcoming').then(r => setLiveClasses(r.data)).catch(()=>{})
   }
 
   useEffect(() => {
@@ -519,6 +525,8 @@ export default function TeacherDashboard() {
     ['revenue', '💰', 'Revenue'],
     ['payout', '💳', 'Payout'],
     ['profile', '👤', 'My Profile'],
+    ['live','📹','Live Classes'],
+    ['coupons','🎟','Coupons'],
   ]
 
   return (
@@ -2129,6 +2137,131 @@ export default function TeacherDashboard() {
             divider={divider}
           />
         )}
+                {tab==='coupons' && (
+          <div className="animate-fade-up grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className={`${card} border rounded-2xl p-5`}>
+              <div className={`text-sm font-semibold ${txt} mb-4`}>Create Coupon Code</div>
+              <div className="space-y-3">
+                <div>
+                  <label className={lbl}>Course (leave empty for all courses)</label>
+                  <select value={couponForm.course_id} onChange={e=>setCouponForm({...couponForm,course_id:e.target.value})} className={inp}>
+                    <option value="">All courses</option>
+                    {courses.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className={lbl}>Discount %</label>
+                  <input type="number" min="1" max="100" value={couponForm.discount_percent}
+                    onChange={e=>setCouponForm({...couponForm,discount_percent:e.target.value})}
+                    className={inp} placeholder="e.g. 20"/>
+                </div>
+                <div>
+                  <label className={lbl}>Max uses</label>
+                  <input type="number" value={couponForm.max_uses}
+                    onChange={e=>setCouponForm({...couponForm,max_uses:e.target.value})}
+                    className={inp}/>
+                </div>
+                <div>
+                  <label className={lbl}>Expires in (days)</label>
+                  <input type="number" value={couponForm.expires_days}
+                    onChange={e=>setCouponForm({...couponForm,expires_days:e.target.value})}
+                    className={inp}/>
+                </div>
+                <button onClick={async () => {
+                  try {
+                    await api.post('/coupons/create', {
+                      course_id: couponForm.course_id ? parseInt(couponForm.course_id) : null,
+                      discount_percent: parseFloat(couponForm.discount_percent),
+                      max_uses: parseInt(couponForm.max_uses),
+                      expires_days: parseInt(couponForm.expires_days)
+                    })
+                    const r = await api.get('/coupons/my')
+                    setCoupons(r.data)
+                    flash('Coupon created!')
+                  } catch(e) { flash(e.response?.data?.detail||'Error','error') }
+                }} className={`${btn} w-full`}>Generate Coupon Code</button>
+              </div>
+            </div>
+            <div>
+              <div className={`text-sm font-semibold ${txt2} mb-3`}>Your Coupons ({coupons.length})</div>
+              <div className="space-y-2">
+                {coupons.length === 0 && <div className={`text-sm ${txt3}`}>No coupons yet</div>}
+                {coupons.map(c => (
+                  <div key={c.id} className={`${card} border rounded-xl p-4`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="text-lg font-bold tracking-widest" style={{color:'#a78bfa'}}>{c.code}</div>
+                      <button onClick={async () => {
+                        await api.delete(`/coupons/${c.id}`)
+                        setCoupons(coupons.filter(x => x.id !== c.id))
+                        flash('Coupon deleted')
+                      }} className="text-red-400 text-xs hover:text-red-300">Delete</button>
+                    </div>
+                    <div className={`text-xs ${txt2}`}>{c.course} · {c.discount_percent}% off</div>
+                    <div className={`text-xs ${txt3}`}>{c.used_count}/{c.max_uses} used · Expires {new Date(c.expires_at).toLocaleDateString()}</div>
+                    <button onClick={() => navigator.clipboard.writeText(c.code).then(() => flash('Code copied!'))}
+                      className="text-xs mt-2 text-teal-400 hover:underline">📋 Copy code</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {tab==='live' && (
+          <div className="animate-fade-up grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className={`${card} border rounded-2xl p-5`}>
+              <div className={`text-sm font-semibold ${txt} mb-4`}>Schedule Live Class</div>
+              <div className="space-y-3">
+                <div>
+                  <label className={lbl}>Course</label>
+                  <select value={liveForm.course_id} onChange={e=>setLiveForm({...liveForm,course_id:e.target.value})} className={inp}>
+                    <option value="">Select course</option>
+                    {courses.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className={lbl}>Class title</label>
+                  <input value={liveForm.title} onChange={e=>setLiveForm({...liveForm,title:e.target.value})}
+                    className={inp} placeholder="e.g. Doubt clearing session"/>
+                </div>
+                <div>
+                  <label className={lbl}>Google Meet / Zoom link</label>
+                  <input value={liveForm.meet_link} onChange={e=>setLiveForm({...liveForm,meet_link:e.target.value})}
+                    className={inp} placeholder="https://meet.google.com/..."/>
+                </div>
+                <div>
+                  <label className={lbl}>Date and time</label>
+                  <input type="datetime-local" value={liveForm.scheduled_at}
+                    onChange={e=>setLiveForm({...liveForm,scheduled_at:e.target.value})}
+                    className={inp}/>
+                </div>
+                <div>
+                  <label className={lbl}>Duration (minutes)</label>
+                  <input type="number" value={liveForm.duration_mins}
+                    onChange={e=>setLiveForm({...liveForm,duration_mins:e.target.value})}
+                    className={inp}/>
+                </div>
+                <button onClick={async () => {
+                  try {
+                    await api.post('/live-classes/', {
+                      course_id: parseInt(liveForm.course_id),
+                      title: liveForm.title,
+                      meet_link: liveForm.meet_link,
+                      scheduled_at: new Date(liveForm.scheduled_at).toISOString(),
+                      duration_mins: parseInt(liveForm.duration_mins)
+                    })
+                    setLiveForm({course_id:'',title:'',meet_link:'',scheduled_at:'',duration_mins:60})
+                    flash('Live class scheduled! Students notified 📹')
+                  } catch(e) { flash(e.response?.data?.detail||'Error','error') }
+                }} className={`${btn} w-full`}>Schedule Live Class</button>
+              </div>
+            </div>
+            <div>
+              <div className={`text-sm font-semibold ${txt2} mb-3`}>Upcoming classes</div>
+              <div className={`text-sm ${txt3}`}>Students will see the Join button automatically and get notified</div>
+            </div>
+          </div>
+        )}
 
         {tab === 'profile' && (
           <ProfileTab
@@ -2178,6 +2311,8 @@ export default function TeacherDashboard() {
     ['students', '👥', 'Students'],
     ['courses', '📚', 'Courses'],
     ['attendance', '🕐', 'Attendance'],
+    ['live','📹','Live Classes'],
+    ['coupons','🎟','Coupons'],
   ].map(([key, icon, label]) => (
     <button
       key={key}
