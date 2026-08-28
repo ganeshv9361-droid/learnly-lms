@@ -1806,11 +1806,11 @@ FOUNDER, LEARNLY
           }, 500)
         }
 
-        const shareCertificate = async () => {
-  const uniqueCode = `LRNL-${new Date(c.issued_at).getFullYear()}-${c.id}`
+        const shareCertificate = async (certificate) => {
+  const uniqueCode = `LRNL-${new Date(certificate.issued_at).getFullYear()}-${certificate.id}`
 
   const shareText =
-    `🎓 I successfully completed "${c.course}" on Learnly.\n\n` +
+    `🎓 I successfully completed "${certificate.course}" on Learnly.\n\n` +
     `Certificate Code: ${uniqueCode}\n` +
     `Verified by Learnly.`
 
@@ -1821,7 +1821,6 @@ FOUNDER, LEARNLY
     `https://www.linkedin.com/feed/`
 
   if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-
     navigator.clipboard.writeText(shareText)
 
     window.location.href = linkedInAppUrl
@@ -1833,9 +1832,7 @@ FOUNDER, LEARNLY
     alert(
       'Certificate text copied.\nPaste it into your LinkedIn post.'
     )
-
   } else {
-
     window.open(linkedInWebUrl, '_blank')
 
     navigator.clipboard.writeText(shareText)
@@ -1919,7 +1916,7 @@ FOUNDER, LEARNLY
               </button>
 
               <button
-                onClick={shareCertificate}
+                onClick={() => shareCertificate(c)}
                 className="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-700 text-white text-sm font-medium"
               >
                 Share / LinkedIn
