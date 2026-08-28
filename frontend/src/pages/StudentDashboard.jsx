@@ -51,17 +51,17 @@ function UpcomingClasses() {
     <div className="mb-4">
       <div className="text-sm font-semibold text-white mb-2">📹 Upcoming Live Classes</div>
       <div className="space-y-2">
-        {classes.map(c => (
-          <div key={c.id} className="glass rounded-xl p-3 border border-violet-500/20 flex items-center gap-3">
+                {classes.map(lc => (
+          <div key={lc.id} className="glass rounded-xl p-3 border border-violet-500/20 flex items-center gap-3">
             <div className="text-2xl">📹</div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-white truncate">{c.title}</div>
-              <div className="text-xs text-gray-400 truncate">{c.course}</div>
+              <div className="text-sm font-medium text-white truncate">{lc.title}</div>
+              <div className="text-xs text-gray-400 truncate">{lc.course}</div>
               <div className="text-xs text-violet-400">
-                {new Date(c.scheduled_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})} · {c.duration_mins} mins
+                {new Date(lc.scheduled_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})} · {lc.duration_mins} mins
               </div>
             </div>
-            <a href={c.meet_link} target="_blank" rel="noreferrer"
+            <a href={lc.meet_link} target="_blank" rel="noreferrer"
               className="btn-primary text-white text-xs px-3 py-2 rounded-xl shrink-0">
               Join
             </a>
@@ -1409,16 +1409,16 @@ export default function StudentDashboard() {
                 </div>
               )}
               <div className="course-grid">
-                {wishlist.map(w => {
-                  const enrolled = enrollments.find(e => e.course_id === w.course_id)
+                                {wishlist.map(w => {
+                  const isEnrolled = enrollments.find(en => en.course_id === w.course_id)
                   return (
                     <div key={w.id} className="card-base card-hover cursor-pointer"
                       style={{borderRadius:14,overflow:'hidden'}}>
                       <div style={{padding:'12px'}}>
                         <div style={{fontWeight:600,color:'white',fontSize:13,marginBottom:4,lineHeight:'1.3'}}>{w.title}</div>
                         <div style={{fontSize:11,color:'#9ca3af',marginBottom:8}}>by {w.instructor}</div>
-                        {enrolled ? (
-                          <button onClick={() => openCourse(enrolled)}
+                        {isEnrolled ? (
+                          <button onClick={() => openCourse(isEnrolled)}
                             className="btn-primary text-white w-full py-2 rounded-xl text-xs font-medium">
                             ▶ Continue
                           </button>
