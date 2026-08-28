@@ -342,6 +342,58 @@ export default function StudentDashboard() {
     } catch(e) { flash(e.response?.data?.detail||'Error','error') }
   }
 
+  const downloadCert = (cert) => {
+  const verifyUrl = `https://learnly-lms-hqch.onrender.com/api/verify-cert/${cert.id}`
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(verifyUrl)}`
+  const html = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Inter',sans-serif;background:linear-gradient(135deg,#0a0a0f,#0f0a1f);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px;}
+  .cert{background:linear-gradient(135deg,#13131f,#1a1030);border:1px solid rgba(124,58,237,0.3);border-radius:24px;padding:60px 80px;text-align:center;max-width:780px;width:100%;position:relative;}
+  .cert::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#7c3aed,#06b6d4,#7c3aed);}
+  .logo{font-family:'Playfair Display',serif;font-size:28px;color:#a78bfa;margin-bottom:8px;letter-spacing:2px;}
+  .name{font-family:'Playfair Display',serif;font-size:48px;color:#fff;margin-bottom:20px;border-bottom:1px solid rgba(124,58,237,0.3);padding-bottom:20px;}
+  .course{font-size:26px;color:#a78bfa;font-weight:600;margin-bottom:40px;}
+  .qr-section{margin-top:30px;display:flex;align-items:center;justify-content:center;gap:16px;}
+  .qr-text{font-size:11px;color:#6b7280;text-align:left;}
+  .verified{display:inline-flex;align-items:center;gap:8px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:#34d399;padding:8px 20px;border-radius:50px;font-size:12px;margin-top:20px;}
+</style>
+</head>
+<body>
+<div class="cert">
+  <div class="logo">✦ Learnly</div>
+  <div style="font-size:11px;color:#6b7280;letter-spacing:4px;text-transform:uppercase;margin-bottom:50px;">Certificate of Completion</div>
+  <div style="font-size:48px;margin:20px 0">🏅</div>
+  <div style="font-size:12px;color:#9ca3af;letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;">This certifies that</div>
+  <div class="name">${user.name}</div>
+  <div style="font-size:12px;color:#9ca3af;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;">has successfully completed</div>
+  <div class="course">${cert.course}</div>
+  <div style="font-size:13px;color:#6b7280;">Issued on ${new Date(cert.issued_at).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}</div>
+  <div class="verified">✓ Verified by Learnly</div>
+  <div class="qr-section">
+    <img src="${qrUrl}" width="80" height="80" alt="QR Code"/>
+    <div class="qr-text">
+      <div style="font-weight:600;color:#a78bfa;margin-bottom:4px;">Verify Certificate</div>
+      <div>Scan QR code or visit:</div>
+      <div style="color:#7c3aed;font-size:10px;">${verifyUrl}</div>
+      <div style="margin-top:4px;">Certificate ID: #${cert.id}</div>
+    </div>
+  </div>
+</div>
+</body></html>`
+
+    const blob = new Blob([html], {type:'text/html'})
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${cert.course.replace(/\s+/g,'-')}-certificate.html`
+    a.click()
+    URL.revokeObjectURL(url)
+    
+  }
+
   const copyReferral = () => {
     navigator.clipboard.writeText(referral?.referral_link||'')
     flash('Referral link copied! 🔗')
@@ -1346,6 +1398,53 @@ export default function StudentDashboard() {
             </div>
           )}
 
+          {tab==='wishlist' && (
+            <div className="animate-fade-up">
+              <div className="text-base font-semibold text-white mb-4">❤️ My Wishlist</div>
+              {wishlist.length === 0 && (
+                <div className="glass rounded-2xl p-10 text-center">
+                  <div className="text-5xl mb-3">❤️</div>
+                  <div className="text-gray-400 text-sm">No saved courses yet</div>
+                  <div className="text-gray-600 text-xs mt-1">Tap 🤍 on any course to save it</div>
+                </div>
+              )}
+              <div className="course-grid">
+                {wishlist.map(w => {
+                  const enrolled = enrollments.find(e => e.course_id === w.course_id)
+                  return (
+                    <div key={w.id} className="card-base card-hover cursor-pointer"
+                      style={{borderRadius:14,overflow:'hidden'}}>
+                      <div style={{padding:'12px'}}>
+                        <div style={{fontWeight:600,color:'white',fontSize:13,marginBottom:4,lineHeight:'1.3'}}>{w.title}</div>
+                        <div style={{fontSize:11,color:'#9ca3af',marginBottom:8}}>by {w.instructor}</div>
+                        {enrolled ? (
+                          <button onClick={() => openCourse(enrolled)}
+                            className="btn-primary text-white w-full py-2 rounded-xl text-xs font-medium">
+                            ▶ Continue
+                          </button>
+                        ) : w.is_paid ? (
+                          <button onClick={() => setPayingCourse(w)}
+                            style={{width:'100%',background:'linear-gradient(135deg,#f59e0b,#d97706)',color:'white',border:'none',borderRadius:10,padding:'8px 0',fontSize:11,fontWeight:600,cursor:'pointer'}}>
+                            Buy · ₹{w.price}
+                          </button>
+                        ) : (
+                          <button onClick={() => enroll(w.course_id)}
+                            className="btn-primary text-white w-full py-2 rounded-xl text-xs font-medium">
+                            Enroll Free
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {tab==='profile' && (
+            <StudentProfile user={user} />
+          )}
+
           {tab==='attendance' && (
             <div className="animate-fade-up">
               <div className="text-base font-semibold text-white mb-4">Attendance</div>
@@ -1380,12 +1479,7 @@ export default function StudentDashboard() {
 {tab === 'certificates' && (
   <div>
     <div className="text-sm font-medium text-gray-400 mb-3">My certificates</div>
-
-    {certificates.length === 0 && (
-      <div className="text-gray-500 text-sm">No certificates yet.</div>
-    )}
-
-                        <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5 text-xs text-green-400">
                         <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"/>Verified
                       </div>
@@ -1404,6 +1498,9 @@ export default function StudentDashboard() {
                       </div>
                     </div>
 
+    {certificates.length === 0 && (
+      <div className="text-gray-500 text-sm">No certificates yet.</div>
+    )}
 
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {certificates.map(c => {
@@ -1412,6 +1509,7 @@ export default function StudentDashboard() {
           month: 'long',
           year: 'numeric'
         })
+
         const certUrl = `${window.location.origin}/certificate/${c.id}`
 
         const downloadPDF = () => {
@@ -1851,53 +1949,6 @@ FOUNDER, LEARNLY
     </div>
   </div>
 )}
-
-          {tab==='wishlist' && (
-            <div className="animate-fade-up">
-              <div className="text-base font-semibold text-white mb-4">❤️ My Wishlist</div>
-              {wishlist.length === 0 && (
-                <div className="glass rounded-2xl p-10 text-center">
-                  <div className="text-5xl mb-3">❤️</div>
-                  <div className="text-gray-400 text-sm">No saved courses yet</div>
-                  <div className="text-gray-600 text-xs mt-1">Tap 🤍 on any course to save it</div>
-                </div>
-              )}
-              <div className="course-grid">
-                {wishlist.map(w => {
-                  const enrolled = enrollments.find(e => e.course_id === w.course_id)
-                  return (
-                    <div key={w.id} className="card-base card-hover cursor-pointer"
-                      style={{borderRadius:14,overflow:'hidden'}}>
-                      <div style={{padding:'12px'}}>
-                        <div style={{fontWeight:600,color:'white',fontSize:13,marginBottom:4,lineHeight:'1.3'}}>{w.title}</div>
-                        <div style={{fontSize:11,color:'#9ca3af',marginBottom:8}}>by {w.instructor}</div>
-                        {enrolled ? (
-                          <button onClick={() => openCourse(enrolled)}
-                            className="btn-primary text-white w-full py-2 rounded-xl text-xs font-medium">
-                            ▶ Continue
-                          </button>
-                        ) : w.is_paid ? (
-                          <button onClick={() => setPayingCourse(w)}
-                            style={{width:'100%',background:'linear-gradient(135deg,#f59e0b,#d97706)',color:'white',border:'none',borderRadius:10,padding:'8px 0',fontSize:11,fontWeight:600,cursor:'pointer'}}>
-                            Buy · ₹{w.price}
-                          </button>
-                        ) : (
-                          <button onClick={() => enroll(w.course_id)}
-                            className="btn-primary text-white w-full py-2 rounded-xl text-xs font-medium">
-                            Enroll Free
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-
-          {tab==='profile' && (
-            <StudentProfile user={user} />
-          )}
 
           {tab==='orders' && (
             <div className="animate-fade-up">
