@@ -1479,7 +1479,15 @@ export default function StudentDashboard() {
 {tab === 'certificates' && (
   <div>
     <div className="text-sm font-medium text-gray-400 mb-3">My certificates</div>
-    <div className="flex items-center justify-between">
+  
+    {certificates.length === 0 && (
+      <div className="text-gray-500 text-sm">No certificates yet.</div>
+    )}
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {certificates.map(c => {
+        const issueDate = new Date(c.issued_at).toLocaleDateString('en-IN',
+          <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5 text-xs text-green-400">
                         <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"/>Verified
                       </div>
@@ -1496,15 +1504,8 @@ export default function StudentDashboard() {
                           ⬇ Download
                         </button>
                       </div>
-                    </div>
-
-    {certificates.length === 0 && (
-      <div className="text-gray-500 text-sm">No certificates yet.</div>
-    )}
-
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {certificates.map(c => {
-        const issueDate = new Date(c.issued_at).toLocaleDateString('en-IN', {
+                      </div> 
+        ,{
           day: 'numeric',
           month: 'long',
           year: 'numeric'
