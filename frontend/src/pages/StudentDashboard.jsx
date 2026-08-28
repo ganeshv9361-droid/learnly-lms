@@ -1486,35 +1486,16 @@ export default function StudentDashboard() {
 
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {certificates.map(c => {
-        const issueDate = new Date(c.issued_at).toLocaleDateString('en-IN',
-          <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5 text-xs text-green-400">
-                        <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"/>Verified
-                      </div>
-                      <div className="flex gap-2">
-                        <button onClick={() => {
-                          const text = `I just completed "${c.course}" on Learnly! 🎓🏅`
-                          const url = `https://wa.me/?text=${encodeURIComponent(text)}`
-                          window.open(url, '_blank')
-                        }} style={{fontSize:11,color:'#34d399',background:'rgba(52,211,153,0.1)',border:'1px solid rgba(52,211,153,0.2)',padding:'4px 8px',borderRadius:8,cursor:'pointer'}}>
-                          Share 📤
-                        </button>
-                        <button onClick={()=>downloadCert(c)}
-                          style={{fontSize:11,color:'#a78bfa',background:'rgba(124,58,237,0.1)',border:'1px solid rgba(124,58,237,0.2)',padding:'4px 8px',borderRadius:8,cursor:'pointer'}}>
-                          ⬇ Download
-                        </button>
-                      </div>
-                      </div> 
-        ,{
+        const issueDate = new Date(c.issued_at).toLocaleDateString('en-IN', {
           day: 'numeric',
           month: 'long',
           year: 'numeric'
-        })
+})
 
         const certUrl = `${window.location.origin}/certificate/${c.id}`
 
         const downloadPDF = () => {
-         const uniqueCode = `LRNL-${new Date(c.issued_at).getFullYear()}-${c.id}-${Math.random().toString(36).substring(2,8).toUpperCase()}`
+          const uniqueCode = `LRNL-${new Date(c.issued_at).getFullYear()}-${c.id}-${Math.random().toString(36).substring(2,8).toUpperCase()}`
 
 const certificateHTML = `
 <html>
