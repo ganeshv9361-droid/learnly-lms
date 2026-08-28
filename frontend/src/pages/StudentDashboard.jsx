@@ -1799,10 +1799,7 @@ body {
     )}
   </div>
 )}
-
-         
-
-{previewVideo && previewCourse && (
+          {previewVideo && previewCourse && (
     <div className="fixed inset-0 z-[300] flex items-center justify-center p-4"
       style={{background:'rgba(0,0,0,0.9)',backdropFilter:'blur(10px)'}}
       onClick={() => { setPreviewVideo(null); setPreviewCourse(null) }}>
@@ -1845,8 +1842,6 @@ body {
       </div>
     </div>
   )}
-
-
           {tab==='orders' && (
             <div className="animate-fade-up">
               <div className="text-base font-semibold text-white mb-4">Order History</div>
