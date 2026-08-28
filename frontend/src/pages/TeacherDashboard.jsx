@@ -7,6 +7,7 @@ import PayoutTab from '../components/PayoutTab'
 import ProfileTab from '../components/ProfileTab'
 import { useBreakpoint } from '../hooks/useBreakpoint'
 import MobileLayout from '../components/MobileLayout'
+import CourseAnalytics from '../components/CourseAnalytics'
 
 export default function TeacherDashboard() {
   const { user, logout } = useAuth()
@@ -32,7 +33,7 @@ export default function TeacherDashboard() {
   const [couponForm, setCouponForm] = useState({course_id:'', discount_percent:'', max_uses:100, expires_days:30})
   const [liveClasses, setLiveClasses] = useState([])
   const [liveForm, setLiveForm] = useState({course_id:'', title:'', meet_link:'', scheduled_at:'', duration_mins:60})
-
+  const [analyticsCourse, setAnalyticsCourse] = useState(null)
   const [newCourse, setNewCourse] = useState({
     title: '',
     description: '',
@@ -527,6 +528,7 @@ export default function TeacherDashboard() {
     ['profile', '👤', 'My Profile'],
     ['live','📹','Live Classes'],
     ['coupons','🎟','Coupons'],
+    ['analytics','📊','Analytics'],
   ]
 
   return (
@@ -607,6 +609,34 @@ export default function TeacherDashboard() {
             }`}
           >
             {msg.text}
+          </div>
+        )}
+
+        {tab==='analytics' && (
+          <div className="animate-fade-up">
+            {!analyticsCourse ? (
+              <div>
+                <div className={`text-sm font-semibold ${txt} mb-4`}>Select a course to view analytics</div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {courses.map(c => (
+                    <div key={c.id} className={`${card} border rounded-xl p-4 cursor-pointer hover:border-violet-500/40 transition`}
+                      onClick={() => setAnalyticsCourse(c)}>
+                      <div className={`font-medium ${txt} mb-1`}>{c.title}</div>
+                      <div className={`text-xs ${txt3}`}>{c.total_modules} modules · {c.is_paid ? `₹${c.price}` : 'Free'}</div>
+                      <div className="text-xs text-violet-400 mt-2">View analytics →</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div>
+                <button onClick={() => setAnalyticsCourse(null)}
+                  className={`text-sm ${txt2} mb-4 flex items-center gap-2`}>
+                  ← Back to courses
+                </button>
+                <CourseAnalytics courseId={analyticsCourse.id} courseName={analyticsCourse.title}/>
+              </div>
+            )}
           </div>
         )}
 
@@ -2311,8 +2341,6 @@ export default function TeacherDashboard() {
     ['students', '👥', 'Students'],
     ['courses', '📚', 'Courses'],
     ['attendance', '🕐', 'Attendance'],
-    ['live','📹','Live Classes'],
-    ['coupons','🎟','Coupons'],
   ].map(([key, icon, label]) => (
     <button
       key={key}

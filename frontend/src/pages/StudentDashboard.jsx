@@ -8,6 +8,7 @@ import AITutorChat from '../components/AITutorChat'
 import Logo from '../components/Logo'
 import LeaderboardTab from '../components/LeaderboardTab'
 import NotesPanel from '../components/NotesPanel'
+import StudentProfile from '../components/StudentProfile'
 
 function getYoutubeId(url) {
   const match = url?.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/)
@@ -28,6 +29,7 @@ const navItems = [
   ['ai-tutor','🤖','AI Tutor'],
   ['courses','📚','Courses'],
   ['my-courses','📖','My Courses'],
+  ['wishlist','❤️','Wishlist'],
   ['leaderboard','🏆','Leaderboard'],
   ['announcements','📢','Announcements'],
   ['assignments','📝','Assignments'],
@@ -35,7 +37,8 @@ const navItems = [
   ['attendance','🕐','Attendance'],
   ['certificates','🏅','Certificates'],
   ['orders','💳','Orders'],
-  ['referral','🔗','Refer Friends'],
+  ['referral','🔗','Refer'],
+  ['profile','👤','Profile'],
 ]
 
 function UpcomingClasses() {
@@ -108,6 +111,10 @@ export default function StudentDashboard() {
   const [ratings, setRatings] = useState({average:0, total:0, ratings:[]})
   const [myRating, setMyRating] = useState({rating:0, review:''})
   const [showRatingForm, setShowRatingForm] = useState(false)
+  const [wishlist, setWishlist] = useState([])
+  const [wishlisted, setWishlisted] = useState({})
+  const [previewVideo, setPreviewVideo] = useState(null)
+  const [previewCourse, setPreviewCourse] = useState(null)
 
   const flash = (text, type='success') => {
     setMsg({ text, type })
@@ -125,6 +132,12 @@ export default function StudentDashboard() {
     api.get('/announcements/my').then(r => setAnnouncements(r.data))
     api.get('/payments/my-orders').then(r => setOrders(r.data))
     api.get('/streaks/my').then(r => setStreak(r.data)).catch(()=>{})
+    api.get('/wishlist/my').then(r => {
+      setWishlist(r.data)
+      const map = {}
+      r.data.forEach(w => { map[w.course_id] = true })
+      setWishlisted(map)
+    }).catch(()=>{})
     api.get('/courses/all').then(async r => {
       const coursesData = r.data
       const withRatings = await Promise.all(
@@ -177,7 +190,28 @@ export default function StudentDashboard() {
     })
   }, [courses])
 
+  const toggleWishlist = async (courseId, e) => {
+    e.stopPropagation()
+    try {
+      const r = await api.post('/wishlist/add', { course_id: courseId })
+      setWishlisted(w => ({...w, [courseId]: r.data.wishlisted}))
+      if (r.data.wishlisted) {
+        flash('Added to wishlist ❤️')
+      } else {
+        flash('Removed from wishlist')
+        setWishlist(w => w.filter(x => x.course_id !== courseId))
+      }
+    } catch(e) {}
+  }
   
+  const openPreview = async (course, e) => {
+    e.stopPropagation()
+    try {
+      const r = await api.get(`/videos/preview/${course.id}`)
+      setPreviewVideo(r.data)
+      setPreviewCourse(course)
+    } catch(e) { flash('No preview available', 'error') }
+  }
 
   const enroll = async (course_id) => {
     try {
@@ -308,10 +342,10 @@ export default function StudentDashboard() {
     } catch(e) { flash(e.response?.data?.detail||'Error','error') }
   }
 
-    const downloadCert = (cert) => {
-    const verifyUrl = `https://learnly-lms-hqch.onrender.com/api/verify-cert/${cert.id}`
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(verifyUrl)}`
-    const html = `<!DOCTYPE html>
+  const downloadCert = (cert) => {
+  const verifyUrl = `https://learnly-lms-hqch.onrender.com/api/verify-cert/${cert.id}`
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(verifyUrl)}`
+  const html = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500&display=swap');
@@ -349,6 +383,7 @@ export default function StudentDashboard() {
   </div>
 </div>
 </body></html>`
+
     const blob = new Blob([html], {type:'text/html'})
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -356,6 +391,7 @@ export default function StudentDashboard() {
     a.download = `${cert.course.replace(/\s+/g,'-')}-certificate.html`
     a.click()
     URL.revokeObjectURL(url)
+    
   }
 
   const copyReferral = () => {
@@ -1215,6 +1251,20 @@ export default function StudentDashboard() {
                   })}
               </div>
 
+                {/* Wishlist + Preview buttons */}
+              <div style={{position:'absolute',top:6,left:6,display:'flex',gap:4}}>
+                          <button
+                            onClick={(e) => toggleWishlist(c.id, e)}
+                            style={{width:28,height:28,borderRadius:'50%',background:'rgba(0,0,0,0.6)',border:'none',cursor:'pointer',fontSize:14,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                            {wishlisted[c.id] ? '❤️' : '🤍'}
+                          </button>
+                          <button
+                            onClick={(e) => openPreview(c, e)}
+                            style={{height:28,padding:'0 8px',borderRadius:14,background:'rgba(0,0,0,0.6)',border:'none',cursor:'pointer',fontSize:10,color:'white',display:'flex',alignItems:'center',gap:3}}>
+                            ▶ Preview
+                          </button>
+              </div>
+
               {/* No results */}
               {courses.filter(c => {
                 const matchSearch = !search || c.title.toLowerCase().includes(search.toLowerCase()) || c.instructor?.toLowerCase().includes(search.toLowerCase())
@@ -1387,6 +1437,26 @@ export default function StudentDashboard() {
       <div className="text-gray-500 text-sm">No certificates yet.</div>
     )}
 
+                        <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5 text-xs text-green-400">
+                        <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"/>Verified
+                      </div>
+                      <div className="flex gap-2">
+                        <button onClick={() => {
+                          const text = `I just completed "${c.course}" on Learnly! 🎓🏅`
+                          const url = `https://wa.me/?text=${encodeURIComponent(text)}`
+                          window.open(url, '_blank')
+                        }} style={{fontSize:11,color:'#34d399',background:'rgba(52,211,153,0.1)',border:'1px solid rgba(52,211,153,0.2)',padding:'4px 8px',borderRadius:8,cursor:'pointer'}}>
+                          Share 📤
+                        </button>
+                        <button onClick={()=>downloadCert(c)}
+                          style={{fontSize:11,color:'#a78bfa',background:'rgba(124,58,237,0.1)',border:'1px solid rgba(124,58,237,0.2)',padding:'4px 8px',borderRadius:8,cursor:'pointer'}}>
+                          ⬇ Download
+                        </button>
+                      </div>
+                    </div>
+
+
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {certificates.map(c => {
         const issueDate = new Date(c.issued_at).toLocaleDateString('en-IN', {
@@ -1394,7 +1464,6 @@ export default function StudentDashboard() {
           month: 'long',
           year: 'numeric'
         })
-
         const certUrl = `${window.location.origin}/certificate/${c.id}`
 
         const downloadPDF = () => {
@@ -1749,6 +1818,50 @@ FOUNDER, LEARNLY
   }
 }
 
+{previewVideo && previewCourse && (
+    <div className="fixed inset-0 z-[300] flex items-center justify-center p-4"
+      style={{background:'rgba(0,0,0,0.9)',backdropFilter:'blur(10px)'}}
+      onClick={() => { setPreviewVideo(null); setPreviewCourse(null) }}>
+      <div className="w-full max-w-2xl" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <div className="text-white font-semibold">{previewCourse.title}</div>
+            <div className="text-xs text-green-400">🎬 Free Preview</div>
+          </div>
+          <button onClick={() => { setPreviewVideo(null); setPreviewCourse(null) }}
+            style={{background:'rgba(255,255,255,0.1)',border:'none',color:'white',width:32,height:32,borderRadius:'50%',cursor:'pointer',fontSize:16}}>
+            ✕
+          </button>
+        </div>
+        <div style={{borderRadius:16,overflow:'hidden',aspectRatio:'16/9',background:'#000'}}>
+          {previewVideo.youtube_url ? (
+            <iframe width="100%" height="100%"
+              src={`https://www.youtube.com/embed/${previewVideo.youtube_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/)?.[1]}?autoplay=1`}
+              allow="autoplay; fullscreen" allowFullScreen style={{border:'none'}}/>
+          ) : (
+            <video controls autoPlay className="w-full h-full"
+              src={previewVideo.file_path?.startsWith('http') ? previewVideo.file_path : `https://learnly-lms-hqch.onrender.com${previewVideo.file_path}`}/>
+          )}
+        </div>
+        <div className="mt-3 flex gap-3">
+          {!enrollments.find(e => e.course_id === previewCourse.id) && (
+            previewCourse.is_paid ? (
+              <button onClick={() => { setPayingCourse(previewCourse); setPreviewVideo(null); setPreviewCourse(null) }}
+                className="btn-primary flex-1 text-white py-3 rounded-xl font-semibold text-sm">
+                Buy Now · ₹{previewCourse.price}
+              </button>
+            ) : (
+              <button onClick={() => { enroll(previewCourse.id); setPreviewVideo(null); setPreviewCourse(null) }}
+                className="btn-primary flex-1 text-white py-3 rounded-xl font-semibold text-sm">
+                Enroll Free →
+              </button>
+            )
+          )}
+        </div>
+      </div>
+    </div>
+  )}
+
         return (
           <div
             key={c.id}
@@ -1790,6 +1903,53 @@ FOUNDER, LEARNLY
     </div>
   </div>
 )}
+
+          {tab==='wishlist' && (
+            <div className="animate-fade-up">
+              <div className="text-base font-semibold text-white mb-4">❤️ My Wishlist</div>
+              {wishlist.length === 0 && (
+                <div className="glass rounded-2xl p-10 text-center">
+                  <div className="text-5xl mb-3">❤️</div>
+                  <div className="text-gray-400 text-sm">No saved courses yet</div>
+                  <div className="text-gray-600 text-xs mt-1">Tap 🤍 on any course to save it</div>
+                </div>
+              )}
+              <div className="course-grid">
+                {wishlist.map(w => {
+                  const enrolled = enrollments.find(e => e.course_id === w.course_id)
+                  return (
+                    <div key={w.id} className="card-base card-hover cursor-pointer"
+                      style={{borderRadius:14,overflow:'hidden'}}>
+                      <div style={{padding:'12px'}}>
+                        <div style={{fontWeight:600,color:'white',fontSize:13,marginBottom:4,lineHeight:'1.3'}}>{w.title}</div>
+                        <div style={{fontSize:11,color:'#9ca3af',marginBottom:8}}>by {w.instructor}</div>
+                        {enrolled ? (
+                          <button onClick={() => openCourse(enrolled)}
+                            className="btn-primary text-white w-full py-2 rounded-xl text-xs font-medium">
+                            ▶ Continue
+                          </button>
+                        ) : w.is_paid ? (
+                          <button onClick={() => setPayingCourse(w)}
+                            style={{width:'100%',background:'linear-gradient(135deg,#f59e0b,#d97706)',color:'white',border:'none',borderRadius:10,padding:'8px 0',fontSize:11,fontWeight:600,cursor:'pointer'}}>
+                            Buy · ₹{w.price}
+                          </button>
+                        ) : (
+                          <button onClick={() => enroll(w.course_id)}
+                            className="btn-primary text-white w-full py-2 rounded-xl text-xs font-medium">
+                            Enroll Free
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {tab==='profile' && (
+            <StudentProfile user={user} />
+          )}
 
           {tab==='orders' && (
             <div className="animate-fade-up">

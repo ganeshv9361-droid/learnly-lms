@@ -313,3 +313,21 @@ class LiveClass(Base):
     duration_mins = Column(Integer, default=60)
     created_by = Column(Integer, ForeignKey("users.id"))
     created_at = Column(DateTime(timezone=True), default=now)
+
+class Wishlist(Base):
+    __tablename__ = "wishlists"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    course_id = Column(Integer, ForeignKey("courses.id"))
+    created_at = Column(DateTime(timezone=True), default=now)
+
+class UserProfile(Base):
+    __tablename__ = "user_profiles"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True)
+    avatar_url = Column(String, nullable=True)
+    bio = Column(Text, nullable=True)
+    linkedin = Column(String, nullable=True)
+    twitter = Column(String, nullable=True)
+    website = Column(String, nullable=True)
+    updated_at = Column(DateTime(timezone=True), default=now)

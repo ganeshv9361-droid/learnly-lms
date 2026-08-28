@@ -131,3 +131,18 @@ def delete_video(video_id: int, db: Session = Depends(get_db), _=Depends(get_cur
     db.delete(video)
     db.commit()
     return {"message": "Deleted"}
+
+@router.get("/preview/{course_id}")
+def get_preview_video(course_id: int, db: Session = Depends(get_db)):
+    video = db.query(models.Video).filter(
+        models.Video.course_id == course_id
+    ).order_by(models.Video.order).first()
+    if not video:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="No preview available")
+    return {
+        "id": video.id,
+        "title": video.title,
+        "youtube_url": video.youtube_url,
+        "file_path": video.file_path
+    }

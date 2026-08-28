@@ -10,7 +10,8 @@ from routes import (
     referrals, teacher, announcements, payments,
     video_watch, developer, teacher_profile, ai_tutor,
     notifications, ratings, discussions, streaks,
-    notes, coupons, live_classes, leaderboard, verify
+    notes, coupons, live_classes, leaderboard, verify,
+    wishlist, profile, analytics
 )
 
 load_dotenv()
@@ -56,6 +57,9 @@ app.include_router(coupons.router,         prefix="/api/coupons",         tags=[
 app.include_router(live_classes.router,    prefix="/api/live-classes",    tags=["live-classes"])
 app.include_router(leaderboard.router,     prefix="/api/leaderboard",     tags=["leaderboard"])
 app.include_router(verify.router,          prefix="/api/verify-cert",     tags=["verify"])
+app.include_router(wishlist.router,  prefix="/api/wishlist",   tags=["wishlist"])
+app.include_router(profile.router,   prefix="/api/profile",    tags=["profile"])
+app.include_router(analytics.router, prefix="/api/analytics",  tags=["analytics"])
 
 @app.get("/")
 def root():
