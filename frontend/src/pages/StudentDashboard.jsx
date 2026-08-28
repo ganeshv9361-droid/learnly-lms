@@ -1475,230 +1475,190 @@ export default function StudentDashboard() {
             </div>
           )}
 
-         {/* CERTIFICATES */}
-{tab === 'certificates' && (
-  <div>
-    <div className="text-sm font-medium text-gray-400 mb-3">My certificates</div>
-  
-    {certificates.length === 0 && (
-      <div className="text-gray-500 text-sm">No certificates yet.</div>
-    )}
+          {/* CERTIFICATES */}
+          {tab === 'certificates' && (
+  <div className="animate-fade-up">
+    <div className="text-sm font-medium text-gray-400 mb-3">
+      My certificates
+    </div>
 
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {certificates.map(c => {
-        const issueDate = new Date(c.issued_at).toLocaleDateString('en-IN', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric'
-})
+    {certificates.length === 0 ? (
+      <div className="glass rounded-2xl p-10 text-center">
+        <div className="text-4xl mb-2">🏅</div>
+        <div className="text-gray-400 text-sm">
+          No certificates yet.
+        </div>
+      </div>
+    ) : (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {certificates.map((certificate) => {
+          const issueDate = new Date(
+            certificate.issued_at
+          ).toLocaleDateString('en-IN', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+          })
 
-        const certUrl = `${window.location.origin}/certificate/${c.id}`
+          const uniqueCode =
+            `LRNL-${new Date(certificate.issued_at).getFullYear()}-${certificate.id}`
 
-        const downloadPDF = () => {
-          const uniqueCode = `LRNL-${new Date(c.issued_at).getFullYear()}-${c.id}-${Math.random().toString(36).substring(2,8).toUpperCase()}`
+          const shareCertificate = async () => {
+            const shareText =
+              `🎓 I successfully completed "${certificate.course}" on Learnly.\n\n` +
+              `Certificate Code: ${uniqueCode}\n` +
+              `Verified by Learnly.`
 
-const certificateHTML = `
+            try {
+              await navigator.clipboard.writeText(shareText)
+            } catch (error) {
+              console.error('Clipboard error:', error)
+            }
+
+            window.open(
+              'https://www.linkedin.com/feed/',
+              '_blank',
+              'noopener,noreferrer'
+            )
+          }
+
+          const downloadCertificate = () => {
+            const certificateHTML = `
+<!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 <title>Learnly Certificate</title>
 
 <style>
-body{
-  margin:0;
-  padding:40px;
-  background:#070312;
-  font-family:Arial,sans-serif;
+body {
+  margin: 0;
+  padding: 40px;
+  background: #070312;
+  font-family: Arial, sans-serif;
+  color: white;
 }
 
-.cert{
-  position:relative;
-  overflow:hidden;
-  border:2px solid #7c3aed;
-  border-radius:28px;
-  padding:70px;
+.cert {
+  max-width: 1100px;
+  margin: auto;
+  padding: 70px;
+  border: 2px solid #7c3aed;
+  border-radius: 28px;
   background:
-    radial-gradient(circle at top left,#1f1147 0%,#090312 60%);
-  color:white;
+    radial-gradient(
+      circle at top left,
+      #1f1147 0%,
+      #090312 60%
+    );
+  box-sizing: border-box;
 }
 
-.cert:before{
-  content:'';
-  position:absolute;
-  inset:0;
-  background:
-    linear-gradient(90deg,
-    transparent,
-    rgba(124,58,237,0.06),
-    transparent);
+.logo-wrap {
+  text-align: center;
 }
 
-.logo-wrap{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  gap:18px;
+.brand {
+  font-size: 64px;
+  font-family: Georgia, serif;
+  color: #c4b5fd;
 }
 
-.logo{
-  width:75px;
-  height:75px;
-  object-fit:contain;
+.sub {
+  text-align: center;
+  letter-spacing: 8px;
+  color: #9ca3af;
+  margin-top: 10px;
 }
 
-.brand{
-  font-size:72px;
-  font-family:Georgia,serif;
-  color:#c4b5fd;
+.medal {
+  text-align: center;
+  font-size: 70px;
+  margin: 45px 0 25px;
 }
 
-.sub{
-  text-align:center;
-  letter-spacing:10px;
-  color:#9ca3af;
-  margin-top:10px;
-  font-size:15px;
+.certifies {
+  text-align: center;
+  letter-spacing: 6px;
+  color: #cbd5e1;
 }
 
-.medal{
-  text-align:center;
-  font-size:70px;
-  margin:45px 0 25px;
+.name {
+  text-align: center;
+  font-size: 58px;
+  font-family: Georgia, serif;
+  margin: 30px 0;
 }
 
-.certifies{
-  text-align:center;
-  letter-spacing:8px;
-  color:#cbd5e1;
-  font-size:15px;
+.line {
+  height: 2px;
+  background: #7c3aed;
+  margin: 25px 0;
 }
 
-.name{
-  text-align:center;
-  font-size:90px;
-  font-family:Georgia,serif;
-  margin:30px 0;
+.complete {
+  text-align: center;
+  letter-spacing: 6px;
+  color: #9ca3af;
 }
 
-.line{
-  width:100%;
-  height:2px;
-  background:#7c3aed;
-  margin:25px 0;
-  position:relative;
+.course {
+  text-align: center;
+  font-size: 42px;
+  font-weight: bold;
+  margin-top: 20px;
+  color: #a78bfa;
 }
 
-.line:after{
-  content:'✦';
-  position:absolute;
-  left:50%;
-  top:-16px;
-  transform:translateX(-50%);
-  color:#c084fc;
-  background:#0b0419;
-  padding:0 14px;
-  font-size:24px;
+.issue {
+  text-align: center;
+  color: #9ca3af;
+  margin-top: 30px;
+  font-size: 20px;
 }
 
-.complete{
-  text-align:center;
-  letter-spacing:8px;
-  color:#9ca3af;
-  font-size:14px;
+.bottom {
+  margin-top: 70px;
+  text-align: center;
 }
 
-.course{
-  text-align:center;
-  font-size:54px;
-  font-weight:bold;
-  margin-top:20px;
-  color:#a78bfa;
+.code-title {
+  color: #cbd5e1;
+  letter-spacing: 4px;
+  font-size: 13px;
+  margin-bottom: 12px;
 }
 
-.issue{
-  text-align:center;
-  color:#9ca3af;
-  margin-top:30px;
-  font-size:24px;
+.code-box {
+  display: inline-block;
+  border: 2px solid #7c3aed;
+  border-radius: 14px;
+  padding: 14px 24px;
+  font-size: 20px;
 }
 
-.bottom{
-  margin-top:70px;
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr;
-  align-items:end;
-  gap:40px;
+.verify {
+  margin-top: 25px;
+  color: #a1a1aa;
 }
 
-.code-title{
-  color:#cbd5e1;
-  letter-spacing:5px;
-  font-size:13px;
-  margin-bottom:14px;
+.signature {
+  width: 220px;
+  margin-top: 50px;
 }
 
-.code-box{
-  border:2px solid #7c3aed;
-  border-radius:14px;
-  padding:16px;
-  font-size:24px;
-  color:white;
+.founder {
+  color: #a78bfa;
+  font-size: 24px;
+  font-weight: bold;
+  margin-top: 10px;
 }
 
-.verify-text{
-  margin-top:18px;
-  color:#a1a1aa;
-  line-height:1.7;
-  font-size:18px;
-}
-
-.verify-link{
-  color:#a78bfa;
-  font-weight:bold;
-}
-
-.verify-center{
-  text-align:center;
-}
-
-.verify-badge{
-  width:160px;
-  margin-bottom:20px;
-}
-
-.verify-btn{
-  display:inline-block;
-  padding:14px 34px;
-  border-radius:999px;
-  border:2px solid #10b981;
-  color:#10b981;
-  font-size:24px;
-  font-weight:bold;
-}
-
-.signature{
-  width:280px;
-  object-fit:contain;
-  margin-bottom:10px;
-}
-
-.sign-line{
-  border-top:2px solid #7c3aed;
-  margin-top:10px;
-  width:100%;
-}
-
-.founder{
-  color:#a78bfa;
-  font-size:32px;
-  font-weight:bold;
-  margin-top:14px;
-}
-
-.role{
-  color:#9ca3af;
-  letter-spacing:6px;
-  margin-top:10px;
-  font-size:14px;
+.role {
+  color: #9ca3af;
+  letter-spacing: 4px;
+  margin-top: 8px;
+  font-size: 12px;
 }
 </style>
 </head>
@@ -1707,141 +1667,140 @@ body{
 
 <div class="cert">
 
-<div class="logo-wrap">
-  <img src="/logo.png" class="logo"/>
-  <div class="brand">Learnly</div>
-</div>
+  <div class="logo-wrap">
+    <div class="brand">Learnly</div>
+  </div>
 
-<div class="sub">
-CERTIFICATE OF COMPLETION
-</div>
+  <div class="sub">
+    CERTIFICATE OF COMPLETION
+  </div>
 
-<div class="medal">🏅</div>
+  <div class="medal">
+    🏅
+  </div>
 
-<div class="certifies">
-THIS CERTIFIES THAT
-</div>
+  <div class="certifies">
+    THIS CERTIFIES THAT
+  </div>
 
-<div class="name">
-${user?.name || 'Ganesh'}
-</div>
+  <div class="name">
+    ${user?.name || 'Student'}
+  </div>
 
-<div class="line"></div>
+  <div class="line"></div>
 
-<div class="complete">
-HAS SUCCESSFULLY COMPLETED
-</div>
+  <div class="complete">
+    HAS SUCCESSFULLY COMPLETED
+  </div>
 
-<div class="course">
-${c.course}
-</div>
+  <div class="course">
+    ${certificate.course}
+  </div>
 
-<div class="issue">
-Issued on ${issueDate}
-</div>
+  <div class="issue">
+    Issued on ${issueDate}
+  </div>
 
-<div class="bottom">
+  <div class="bottom">
 
-<div>
-<div class="code-title">
-CERTIFICATE CODE
-</div>
+    <div class="code-title">
+      CERTIFICATE CODE
+    </div>
 
-<div class="code-box">
-${uniqueCode}
-</div>
+    <div class="code-box">
+      ${uniqueCode}
+    </div>
 
-<div class="verify-text">
-Use this code to verify authenticity at
-<br/>
-<span class="verify-link">
-learnly.com/verify
-</span>
-</div>
-</div>
+    <div class="verify">
+      Verified by Learnly
+    </div>
 
-<div class="verify-center">
+    <img
+      src="/signature.png"
+      class="signature"
+    />
 
-<img
-src="https://cdn-icons-png.flaticon.com/512/190/190411.png"
-class="verify-badge"
-/>
+    <div class="founder">
+      Learnly Founder
+    </div>
 
-<div class="verify-btn">
-✓ Verified by Learnly
-</div>
+    <div class="role">
+      FOUNDER, LEARNLY
+    </div>
 
-</div>
-
-<div style="text-align:center">
-
-<img src="/signature.png" class="signature"/>
-
-<div class="sign-line"></div>
-
-<div class="founder">
-Learnly Founder
-</div>
-
-<div class="role">
-FOUNDER, LEARNLY
-</div>
-
-</div>
-
-</div>
+  </div>
 
 </div>
 
 </body>
 </html>
-` 
+`
 
-          const printWindow = window.open('', '_blank')
-          printWindow.document.write(certificateHTML)
-          printWindow.document.close()
+            const printWindow = window.open('', '_blank')
 
-          setTimeout(() => {
-            printWindow.print()
-          }, 500)
-        }
+            if (!printWindow) {
+              alert('Please allow pop-ups to download the certificate.')
+              return
+            }
 
-        const shareCertificate = async (certificate) => {
-  const uniqueCode = `LRNL-${new Date(certificate.issued_at).getFullYear()}-${certificate.id}`
+            printWindow.document.write(certificateHTML)
+            printWindow.document.close()
 
-  const shareText =
-    `🎓 I successfully completed "${certificate.course}" on Learnly.\n\n` +
-    `Certificate Code: ${uniqueCode}\n` +
-    `Verified by Learnly.`
+            setTimeout(() => {
+              printWindow.print()
+            }, 500)
+          }
 
-  const linkedInAppUrl =
-    `linkedin://shareArticle?mini=true&url=${encodeURIComponent(window.location.origin)}&title=${encodeURIComponent('Learnly Certificate')}`
+          return (
+            <div
+              key={certificate.id}
+              className="bg-[#181c27] border border-purple-500/30 rounded-2xl p-6"
+            >
+              <div className="text-4xl mb-3">
+                🏅
+              </div>
 
-  const linkedInWebUrl =
-    `https://www.linkedin.com/feed/`
+              <div className="font-medium text-white mb-1">
+                {certificate.course}
+              </div>
 
-  if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-    navigator.clipboard.writeText(shareText)
+              <div className="text-xs text-gray-400 mb-4">
+                Issued {issueDate}
+              </div>
 
-    window.location.href = linkedInAppUrl
+              <div className="flex items-center gap-2 mb-5">
+                <div className="w-2 h-2 rounded-full bg-green-400" />
+                <span className="text-xs text-green-400">
+                  Verified by Learnly
+                </span>
+              </div>
 
-    setTimeout(() => {
-      window.open(linkedInWebUrl, '_blank')
-    }, 1500)
+              <div className="flex flex-col sm:flex-row gap-3">
 
-    alert(
-      'Certificate text copied.\nPaste it into your LinkedIn post.'
-    )
-  } else {
-    window.open(linkedInWebUrl, '_blank')
+                <button
+                  onClick={downloadCertificate}
+                  className="flex-1 px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium"
+                >
+                  Download PDF
+                </button>
 
-    navigator.clipboard.writeText(shareText)
+                <button
+                  onClick={shareCertificate}
+                  className="flex-1 px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-700 text-white text-sm font-medium"
+                >
+                  Share / LinkedIn
+                </button>
 
-    alert(
-      'Certificate text copied.\nPaste it into your LinkedIn post.'
-    )
-  }
-}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    )}
+  </div>
+)}
+
+         
 
 {previewVideo && previewCourse && (
     <div className="fixed inset-0 z-[300] flex items-center justify-center p-4"
@@ -1887,47 +1846,6 @@ FOUNDER, LEARNLY
     </div>
   )}
 
-        return (
-          <div
-            key={c.id}
-            className="bg-[#181c27] border border-purple-500/30 rounded-2xl p-6"
-          >
-            <div className="text-3xl mb-3">🏅</div>
-
-            <div className="font-medium text-white mb-1">
-              {c.course}
-            </div>
-
-            <div className="text-xs text-gray-400 mb-3">
-              Issued {issueDate}
-            </div>
-
-            <div className="flex items-center gap-1.5 mb-5">
-              <div className="w-2 h-2 rounded-full bg-green-400"></div>
-              <span className="text-xs text-green-400">Verified by Learnly</span>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3">
-              <button
-                onClick={downloadPDF}
-                className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium"
-              >
-                Download PDF
-              </button>
-
-              <button
-                onClick={() => shareCertificate(c)}
-                className="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-700 text-white text-sm font-medium"
-              >
-                Share / LinkedIn
-              </button>
-            </div>
-          </div>
-        )
-      })}
-    </div>
-  </div>
-)}
 
           {tab==='orders' && (
             <div className="animate-fade-up">
