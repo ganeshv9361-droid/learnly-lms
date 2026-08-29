@@ -1407,16 +1407,16 @@ export default function StudentDashboard() {
                 </div>
               )}
               <div className="course-grid">
-                                {wishlist.map(w => {
-                  const isEnrolled = enrollments.find(en => en.course_id === w.course_id)
+                {wishlist.map(w => {
+                  const enrolled = enrollments.find(e => e.course_id === w.course_id)
                   return (
                     <div key={w.id} className="card-base card-hover cursor-pointer"
                       style={{borderRadius:14,overflow:'hidden'}}>
                       <div style={{padding:'12px'}}>
                         <div style={{fontWeight:600,color:'white',fontSize:13,marginBottom:4,lineHeight:'1.3'}}>{w.title}</div>
                         <div style={{fontSize:11,color:'#9ca3af',marginBottom:8}}>by {w.instructor}</div>
-                        {isEnrolled ? (
-                          <button onClick={() => openCourse(isEnrolled)}
+                        {enrolled ? (
+                          <button onClick={() => openCourse(enrolled)}
                             className="btn-primary text-white w-full py-2 rounded-xl text-xs font-medium">
                             ▶ Continue
                           </button>
@@ -1437,6 +1437,10 @@ export default function StudentDashboard() {
                 })}
               </div>
             </div>
+          )}
+
+          {tab==='profile' && (
+            <StudentProfile user={user} />
           )}
 
           {tab==='profile' && (
