@@ -1251,19 +1251,17 @@ export default function StudentDashboard() {
                   })}
               </div>
 
-                {/* Wishlist + Preview buttons */}
-              <div style={{position:'absolute',top:6,left:6,display:'flex',gap:4}}>
-                          <button
-                            onClick={(e) => toggleWishlist(c.id, e)}
-                            style={{width:28,height:28,borderRadius:'50%',background:'rgba(0,0,0,0.6)',border:'none',cursor:'pointer',fontSize:14,display:'flex',alignItems:'center',justifyContent:'center'}}>
-                            {wishlisted[c.id] ? '❤️' : '🤍'}
-                          </button>
-                          <button
-                            onClick={(e) => openPreview(c, e)}
-                            style={{height:28,padding:'0 8px',borderRadius:14,background:'rgba(0,0,0,0.6)',border:'none',cursor:'pointer',fontSize:10,color:'white',display:'flex',alignItems:'center',gap:3}}>
-                            ▶ Preview
-                          </button>
-              </div>
+              {/* Wishlist + Preview buttons */}
+              {courses.map(c => (
+                  <div key={`actions-${c.id}`} style={{display:'none'}}>
+                    <button onClick={(e) => toggleWishlist(c.id, e)}>
+                      {wishlisted[c.id] ? '❤️' : '🤍'}
+                      </button>
+                      <button onClick={(e) => openPreview(c, e)}>
+                        ▶ Preview
+                        </button>
+                  </div>
+          ))}
 
               {/* No results */}
               {courses.filter(c => {
