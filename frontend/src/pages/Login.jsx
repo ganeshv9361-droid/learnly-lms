@@ -1,118 +1,113 @@
-import { useState, useEffect } from 'react'
-import { useAuth } from '../context/AuthContext'
-import Particles from '../components/Particles'
-import Logo from '../components/Logo'
-import { signInWithGoogle } from '../firebase'
+import { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
+import Particles from "../components/Particles";
+import Logo from "../components/Logo";
+import { signInWithGoogle } from "../firebase";
 
 export default function Login({ onSwitch }) {
-  const { login, loginWithFirebase } = useAuth()
+  const { login, loginWithFirebase } = useAuth();
 
   const [form, setForm] = useState({
-    email: '',
-    password: ''
-  })
+    email: "",
+    password: "",
+  });
 
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [showPass, setShowPass] = useState(false)
-  const [serverStatus, setServerStatus] = useState('checking')
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showPass, setShowPass] = useState(false);
+  const [serverStatus, setServerStatus] = useState("checking");
 
   // Check backend server status
   useEffect(() => {
-    let mounted = true
+    let mounted = true;
 
     const checkServer = async () => {
       try {
-        const response = await fetch(
-          'https://learnly-lms-hqch.onrender.com/',
-          {
-            method: 'GET'
-          }
-        )
+        const response = await fetch("https://learnly-lms-hqch.onrender.com/", {
+          method: "GET",
+        });
 
         if (mounted) {
           if (response.ok) {
-            setServerStatus('online')
+            setServerStatus("online");
           } else {
-            setServerStatus('waking')
+            setServerStatus("waking");
           }
         }
       } catch (error) {
         if (mounted) {
-          setServerStatus('waking')
+          setServerStatus("waking");
         }
       }
-    }
+    };
 
-    checkServer()
+    checkServer();
 
     return () => {
-      mounted = false
-    }
-  }, [])
+      mounted = false;
+    };
+  }, []);
 
   // Email/password login
   const handleEmailLogin = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!form.email.trim() || !form.password) {
-      setError('Please enter your email and password')
-      return
+      setError("Please enter your email and password");
+      return;
     }
 
-    setLoading(true)
-    setError('')
+    setLoading(true);
+    setError("");
 
     try {
-      await login(form.email.trim(), form.password)
+      await login(form.email.trim(), form.password);
     } catch (error) {
-      console.error('Login error:', error)
-      setError('Invalid email or password')
+      console.error("Login error:", error);
+      setError("Invalid email or password");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Google login
   const handleGoogle = async () => {
-    setLoading(true)
-    setError('')
+    setLoading(true);
+    setError("");
 
     try {
-      const result = await signInWithGoogle()
+      const result = await signInWithGoogle();
 
       if (!result?.user) {
-        throw new Error('Google authentication failed')
+        throw new Error("Google authentication failed");
       }
 
-      const token = await result.user.getIdToken()
+      const token = await result.user.getIdToken();
 
-      await loginWithFirebase(token)
+      await loginWithFirebase(token);
     } catch (error) {
-      console.error('Google sign-in error:', error)
-      setError('Google sign-in failed. Try again.')
+      console.error("Google sign-in error:", error);
+      setError("Google sign-in failed. Try again.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div
       className="min-h-screen min-h-dvh relative overflow-y-auto px-4 flex justify-center"
       style={{
-        paddingTop: '50px',
-        paddingBottom: '40px',
+        paddingTop: "50px",
+        paddingBottom: "40px",
         background:
-          'radial-gradient(ellipse at 20% 50%, rgba(124,58,237,0.12) 0%, transparent 60%), radial-gradient(ellipse at 80% 50%, rgba(6,182,212,0.08) 0%, transparent 60%), #080810'
+          "radial-gradient(ellipse at 20% 50%, rgba(124,58,237,0.12) 0%, transparent 60%), radial-gradient(ellipse at 80% 50%, rgba(6,182,212,0.08) 0%, transparent 60%), #080810",
       }}
     >
       <Particles />
 
       <div className="relative z-10 w-full max-w-md mx-auto">
-
         {/* LOGO */}
         <div className="text-center mb-5 animate-fade-up">
-
           <div className="flex justify-center mb-3">
             <img
               src="/logo.png"
@@ -122,53 +117,42 @@ export default function Login({ onSwitch }) {
           </div>
 
           <div className="flex justify-center">
-            <Logo
-              size={0}
-              showText={true}
-              textSize="text-4xl"
-            />
+            <Logo size={0} showText={true} textSize="text-4xl" />
           </div>
 
-          <p
-            className="text-sm mt-1"
-            style={{ color: 'var(--text3)' }}
-          >
+          <p className="text-sm mt-1" style={{ color: "var(--text3)" }}>
             The platform for continuous learning
           </p>
         </div>
 
         {/* SERVER STATUS */}
-        {serverStatus === 'waking' && (
+        {serverStatus === "waking" && (
           <div
             className="animate-fade-up delay-50 mb-3 px-4 py-3 rounded-2xl flex items-center gap-3 text-sm"
             style={{
-              background: 'rgba(245,158,11,0.1)',
-              border: '1px solid rgba(245,158,11,0.2)',
-              color: '#fbbf24'
+              background: "rgba(245,158,11,0.1)",
+              border: "1px solid rgba(245,158,11,0.2)",
+              color: "#fbbf24",
             }}
           >
             <span className="animate-spin">⏳</span>
 
-            <span>
-              Server is starting up — takes ~30 seconds on first load
-            </span>
+            <span>Server is starting up — takes ~30 seconds on first load</span>
           </div>
         )}
 
-        {serverStatus === 'online' && (
+        {serverStatus === "online" && (
           <div
             className="animate-fade-up delay-50 mb-3 px-4 py-2 rounded-2xl flex items-center gap-2 text-xs"
             style={{
-              background: 'rgba(52,211,153,0.1)',
-              border: '1px solid rgba(52,211,153,0.2)',
-              color: '#34d399'
+              background: "rgba(52,211,153,0.1)",
+              border: "1px solid rgba(52,211,153,0.2)",
+              color: "#34d399",
             }}
           >
             <span>●</span>
 
-            <span>
-              Server is online
-            </span>
+            <span>Server is online</span>
           </div>
         )}
 
@@ -176,42 +160,35 @@ export default function Login({ onSwitch }) {
         <div
           className="animate-fade-up delay-100 p-6 rounded-2xl border border-white/10 w-full"
           style={{
-            background: 'rgba(12,12,24,0.55)',
-            WebkitBackdropFilter: 'blur(25px)',
-            backdropFilter: 'blur(25px)',
-            boxShadow: '0 8px 40px rgba(0,0,0,0.35)'
+            background: "rgba(12,12,24,0.55)",
+            WebkitBackdropFilter: "blur(25px)",
+            backdropFilter: "blur(25px)",
+            boxShadow: "0 8px 40px rgba(0,0,0,0.35)",
           }}
         >
-
           {/* ERROR MESSAGE */}
           {error && (
             <div
               className="animate-scale-in mb-4 px-4 py-3 rounded-2xl flex items-center gap-2 text-xs"
               style={{
-                background: 'rgba(239,68,68,0.1)',
-                border: '1px solid rgba(239,68,68,0.2)',
-                color: '#fca5a5'
+                background: "rgba(239,68,68,0.1)",
+                border: "1px solid rgba(239,68,68,0.2)",
+                color: "#fca5a5",
               }}
             >
               <span>⚠️</span>
 
-              <span>
-                {error}
-              </span>
+              <span>{error}</span>
             </div>
           )}
 
           {/* LOGIN FORM */}
-          <form
-            onSubmit={handleEmailLogin}
-            className="space-y-4"
-          >
-
+          <form onSubmit={handleEmailLogin} className="space-y-4">
             {/* EMAIL */}
             <div>
               <label
                 className="block text-xs font-medium mb-2 uppercase tracking-widest"
-                style={{ color: 'var(--text3)' }}
+                style={{ color: "var(--text3)" }}
               >
                 Email
               </label>
@@ -224,7 +201,7 @@ export default function Login({ onSwitch }) {
                 onChange={(e) =>
                   setForm((prev) => ({
                     ...prev,
-                    email: e.target.value
+                    email: e.target.value,
                   }))
                 }
                 className="input-base w-full"
@@ -236,22 +213,21 @@ export default function Login({ onSwitch }) {
             <div>
               <label
                 className="block text-xs font-medium mb-2 uppercase tracking-widest"
-                style={{ color: 'var(--text3)' }}
+                style={{ color: "var(--text3)" }}
               >
                 Password
               </label>
 
               <div className="relative">
-
                 <input
-                  type={showPass ? 'text' : 'password'}
+                  type={showPass ? "text" : "password"}
                   required
                   autoComplete="current-password"
                   value={form.password}
                   onChange={(e) =>
                     setForm((prev) => ({
                       ...prev,
-                      password: e.target.value
+                      password: e.target.value,
                     }))
                   }
                   className="input-base w-full pr-14"
@@ -260,17 +236,14 @@ export default function Login({ onSwitch }) {
 
                 <button
                   type="button"
-                  onClick={() =>
-                    setShowPass((prev) => !prev)
-                  }
+                  onClick={() => setShowPass((prev) => !prev)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-xs"
                   style={{
-                    color: 'var(--text3)'
+                    color: "var(--text3)",
                   }}
                 >
-                  {showPass ? 'Hide' : 'Show'}
+                  {showPass ? "Hide" : "Show"}
                 </button>
-
               </div>
             </div>
 
@@ -280,32 +253,30 @@ export default function Login({ onSwitch }) {
               disabled={loading}
               className="btn-primary w-full text-white py-3 rounded-2xl font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading
-                ? 'Signing in...'
-                : 'Sign in →'}
+              {loading ? "Signing in..." : "Sign in →"}
             </button>
 
             {/* DIVIDER */}
             <div
               style={{
-                display: 'flex',
-                alignItems: 'center',
+                display: "flex",
+                alignItems: "center",
                 gap: 12,
-                margin: '8px 0'
+                margin: "8px 0",
               }}
             >
               <div
                 style={{
                   flex: 1,
                   height: 1,
-                  background: 'rgba(255,255,255,0.08)'
+                  background: "rgba(255,255,255,0.08)",
                 }}
               />
 
               <span
                 style={{
                   fontSize: 12,
-                  color: '#4a5280'
+                  color: "#4a5280",
                 }}
               >
                 or
@@ -315,7 +286,7 @@ export default function Login({ onSwitch }) {
                 style={{
                   flex: 1,
                   height: 1,
-                  background: 'rgba(255,255,255,0.08)'
+                  background: "rgba(255,255,255,0.08)",
                 }}
               />
             </div>
@@ -326,40 +297,33 @@ export default function Login({ onSwitch }) {
               onClick={handleGoogle}
               disabled={loading}
               style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
                 gap: 10,
-                padding: '12px',
+                padding: "12px",
                 borderRadius: 16,
-                background: 'rgba(255,255,255,0.06)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                color: 'white',
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                color: "white",
                 fontSize: 14,
                 fontWeight: 500,
-                cursor: loading ? 'not-allowed' : 'pointer',
-                transition: 'all 0.2s',
-                opacity: loading ? 0.6 : 1
+                cursor: loading ? "not-allowed" : "pointer",
+                transition: "all 0.2s",
+                opacity: loading ? 0.6 : 1,
               }}
               onMouseEnter={(e) => {
                 if (!loading) {
-                  e.currentTarget.style.background =
-                    'rgba(255,255,255,0.1)'
+                  e.currentTarget.style.background = "rgba(255,255,255,0.1)";
                 }
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background =
-                  'rgba(255,255,255,0.06)'
+                e.currentTarget.style.background = "rgba(255,255,255,0.06)";
               }}
             >
-
               {/* GOOGLE ICON */}
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-              >
+              <svg width="18" height="18" viewBox="0 0 24 24">
                 <path
                   fill="#4285F4"
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -381,58 +345,48 @@ export default function Login({ onSwitch }) {
                 />
               </svg>
 
-              {loading
-                ? 'Signing in...'
-                : 'Continue with Google'}
-
+              {loading ? "Signing in..." : "Continue with Google"}
             </button>
-
           </form>
 
           {/* REGISTER */}
           <div
             className="mt-5 pt-4 border-t text-center"
             style={{
-              borderColor:
-                'rgba(255,255,255,0.06)'
+              borderColor: "rgba(255,255,255,0.06)",
             }}
           >
-
             <p
               className="text-sm"
               style={{
-                color: 'var(--text3)'
+                color: "var(--text3)",
               }}
             >
-              New to Learnly?{' '}
-
+              New to Learnly?{" "}
               <button
                 type="button"
                 onClick={onSwitch}
                 className="font-semibold hover:opacity-80 transition"
                 style={{
-                  color: '#a78bfa'
+                  color: "#a78bfa",
                 }}
               >
                 Create account →
               </button>
             </p>
-
           </div>
-
         </div>
 
         {/* FOOTER */}
         <p
           className="text-center text-xs mt-3"
           style={{
-            color: 'var(--text3)'
+            color: "var(--text3)",
           }}
         >
           🔒 Secured with JWT authentication
         </p>
-
       </div>
     </div>
-  )
+  );
 }

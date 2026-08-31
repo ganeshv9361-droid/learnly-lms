@@ -1,64 +1,61 @@
-import { useState, useEffect } from 'react'
-import api from '../api/axios'
-import Particles from '../components/Particles'
-import Logo from '../components/Logo'
+import { useState, useEffect } from "react";
+import api from "../api/axios";
+import Particles from "../components/Particles";
+import Logo from "../components/Logo";
 
 export default function Register({ onSwitch }) {
   const [form, setForm] = useState({
-    name: '',
-    email: '',
-    password: '',
-    role: 'student',
-    referral_code: ''
-  })
+    name: "",
+    email: "",
+    password: "",
+    role: "student",
+    referral_code: "",
+  });
 
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [showPass, setShowPass] = useState(false)
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [showPass, setShowPass] = useState(false);
 
   useEffect(() => {
-    const ref = new URLSearchParams(window.location.search).get('ref')
+    const ref = new URLSearchParams(window.location.search).get("ref");
 
     if (ref) {
-      setForm(f => ({
+      setForm((f) => ({
         ...f,
-        referral_code: ref
-      }))
+        referral_code: ref,
+      }));
     }
-  }, [])
+  }, []);
 
   const handle = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    setLoading(true)
-    setError('')
+    setLoading(true);
+    setError("");
 
     try {
-      const payload = { ...form }
+      const payload = { ...form };
 
       if (!payload.referral_code) {
-        delete payload.referral_code
+        delete payload.referral_code;
       }
 
-      await api.post('/users/register', payload)
+      await api.post("/users/register", payload);
 
-      setSuccess(true)
+      setSuccess(true);
     } catch (err) {
-      setError(
-        err.response?.data?.detail ||
-        'Registration failed'
-      )
+      setError(err.response?.data?.detail || "Registration failed");
     }
 
-    setLoading(false)
-  }
+    setLoading(false);
+  };
 
   if (success) {
     return (
       <div
         className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden"
-        style={{ background: '#080810' }}
+        style={{ background: "#080810" }}
       >
         <Particles />
 
@@ -66,8 +63,8 @@ export default function Register({ onSwitch }) {
           <div
             className="w-24 h-24 rounded-full flex items-center justify-center text-5xl mx-auto mb-6"
             style={{
-              background: 'rgba(52,211,153,0.1)',
-              border: '2px solid rgba(52,211,153,0.4)'
+              background: "rgba(52,211,153,0.1)",
+              border: "2px solid rgba(52,211,153,0.4)",
             }}
           >
             ✓
@@ -77,10 +74,7 @@ export default function Register({ onSwitch }) {
             You're in!
           </h2>
 
-          <p
-            className="mb-8"
-            style={{ color: 'var(--text2)' }}
-          >
+          <p className="mb-8" style={{ color: "var(--text2)" }}>
             Account created. Start learning today.
           </p>
 
@@ -92,17 +86,17 @@ export default function Register({ onSwitch }) {
           </button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div
       className="min-h-screen min-h-dvh w-full flex justify-center relative overflow-y-auto px-4"
       style={{
-        paddingTop: '50px',
-        paddingBottom: '40px',
+        paddingTop: "50px",
+        paddingBottom: "40px",
         background:
-          'radial-gradient(ellipse at 20% 50%, rgba(124,58,237,0.12) 0%, transparent 60%), radial-gradient(ellipse at 80% 50%, rgba(6,182,212,0.08) 0%, transparent 60%), #080810'
+          "radial-gradient(ellipse at 20% 50%, rgba(124,58,237,0.12) 0%, transparent 60%), radial-gradient(ellipse at 80% 50%, rgba(6,182,212,0.08) 0%, transparent 60%), #080810",
       }}
     >
       <Particles />
@@ -124,7 +118,7 @@ export default function Register({ onSwitch }) {
 
           <p
             className="text-sm sm:text-base mt-2 text-center"
-            style={{ color: 'var(--text3)' }}
+            style={{ color: "var(--text3)" }}
           >
             Join thousands of learners
           </p>
@@ -134,10 +128,10 @@ export default function Register({ onSwitch }) {
         <div
           className="animate-fade-up delay-100 w-full p-5 sm:p-8 rounded-2xl border border-white/10"
           style={{
-            background: 'rgba(12,12,24,0.55)',
-            WebkitBackdropFilter: 'blur(25px)',
-            backdropFilter: 'blur(25px)',
-            boxShadow: '0 8px 40px rgba(0,0,0,0.35)'
+            background: "rgba(12,12,24,0.55)",
+            WebkitBackdropFilter: "blur(25px)",
+            backdropFilter: "blur(25px)",
+            boxShadow: "0 8px 40px rgba(0,0,0,0.35)",
           }}
         >
           <div className="mb-5 text-center">
@@ -147,7 +141,7 @@ export default function Register({ onSwitch }) {
 
             <p
               className="text-sm sm:text-base mt-1"
-              style={{ color: 'var(--text3)' }}
+              style={{ color: "var(--text3)" }}
             >
               Free forever. No credit card needed.
             </p>
@@ -157,9 +151,9 @@ export default function Register({ onSwitch }) {
             <div
               className="animate-scale-in mb-4 px-4 py-3 rounded-2xl flex items-center gap-3 text-sm"
               style={{
-                background: 'rgba(239,68,68,0.1)',
-                border: '1px solid rgba(239,68,68,0.2)',
-                color: '#fca5a5'
+                background: "rgba(239,68,68,0.1)",
+                border: "1px solid rgba(239,68,68,0.2)",
+                color: "#fca5a5",
               }}
             >
               <span>⚠️</span>
@@ -167,15 +161,12 @@ export default function Register({ onSwitch }) {
             </div>
           )}
 
-          <form
-            onSubmit={handle}
-            className="space-y-4"
-          >
+          <form onSubmit={handle} className="space-y-4">
             {/* NAME */}
             <div>
               <label
                 className="block text-xs font-medium mb-2 uppercase tracking-widest"
-                style={{ color: 'var(--text3)' }}
+                style={{ color: "var(--text3)" }}
               >
                 Full name
               </label>
@@ -186,7 +177,7 @@ export default function Register({ onSwitch }) {
                 onChange={(e) =>
                   setForm({
                     ...form,
-                    name: e.target.value
+                    name: e.target.value,
                   })
                 }
                 className="input-base w-full"
@@ -198,7 +189,7 @@ export default function Register({ onSwitch }) {
             <div>
               <label
                 className="block text-xs font-medium mb-2 uppercase tracking-widest"
-                style={{ color: 'var(--text3)' }}
+                style={{ color: "var(--text3)" }}
               >
                 Email
               </label>
@@ -210,7 +201,7 @@ export default function Register({ onSwitch }) {
                 onChange={(e) =>
                   setForm({
                     ...form,
-                    email: e.target.value
+                    email: e.target.value,
                   })
                 }
                 className="input-base w-full"
@@ -222,20 +213,20 @@ export default function Register({ onSwitch }) {
             <div>
               <label
                 className="block text-xs font-medium mb-2 uppercase tracking-widest"
-                style={{ color: 'var(--text3)' }}
+                style={{ color: "var(--text3)" }}
               >
                 Password
               </label>
 
               <div className="relative">
                 <input
-                  type={showPass ? 'text' : 'password'}
+                  type={showPass ? "text" : "password"}
                   required
                   value={form.password}
                   onChange={(e) =>
                     setForm({
                       ...form,
-                      password: e.target.value
+                      password: e.target.value,
                     })
                   }
                   className="input-base w-full pr-14"
@@ -244,13 +235,11 @@ export default function Register({ onSwitch }) {
 
                 <button
                   type="button"
-                  onClick={() =>
-                    setShowPass(s => !s)
-                  }
+                  onClick={() => setShowPass((s) => !s)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-medium"
-                  style={{ color: 'var(--text3)' }}
+                  style={{ color: "var(--text3)" }}
                 >
-                  {showPass ? 'Hide' : 'Show'}
+                  {showPass ? "Hide" : "Show"}
                 </button>
               </div>
             </div>
@@ -259,15 +248,15 @@ export default function Register({ onSwitch }) {
             <div>
               <label
                 className="block text-xs font-medium mb-2 uppercase tracking-widest"
-                style={{ color: 'var(--text3)' }}
+                style={{ color: "var(--text3)" }}
               >
                 I am a
               </label>
 
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  ['student', '🎓', 'Student'],
-                  ['teacher', '👨‍🏫', 'Teacher']
+                  ["student", "🎓", "Student"],
+                  ["teacher", "👨‍🏫", "Teacher"],
                 ].map(([role, icon, label]) => (
                   <button
                     key={role}
@@ -275,13 +264,13 @@ export default function Register({ onSwitch }) {
                     onClick={() =>
                       setForm({
                         ...form,
-                        role
+                        role,
                       })
                     }
                     className={`py-3 rounded-2xl text-sm font-semibold transition-all ${
                       form.role === role
-                        ? 'btn-primary text-white'
-                        : 'btn-ghost text-white/60 hover:text-white'
+                        ? "btn-primary text-white"
+                        : "btn-ghost text-white/60 hover:text-white"
                     }`}
                   >
                     {icon} {label}
@@ -294,12 +283,10 @@ export default function Register({ onSwitch }) {
             <div>
               <label
                 className="block text-xs font-medium mb-2 uppercase tracking-widest"
-                style={{ color: 'var(--text3)' }}
+                style={{ color: "var(--text3)" }}
               >
-                Referral code{' '}
-                <span className="normal-case opacity-50">
-                  (optional)
-                </span>
+                Referral code{" "}
+                <span className="normal-case opacity-50">(optional)</span>
               </label>
 
               <input
@@ -307,7 +294,7 @@ export default function Register({ onSwitch }) {
                 onChange={(e) =>
                   setForm({
                     ...form,
-                    referral_code: e.target.value
+                    referral_code: e.target.value,
                   })
                 }
                 className="input-base w-full"
@@ -327,7 +314,7 @@ export default function Register({ onSwitch }) {
                   Creating account...
                 </span>
               ) : (
-                'Create account →'
+                "Create account →"
               )}
             </button>
           </form>
@@ -336,19 +323,15 @@ export default function Register({ onSwitch }) {
           <div
             className="mt-5 pt-5 border-t text-center"
             style={{
-              borderColor:
-                'rgba(255,255,255,0.06)'
+              borderColor: "rgba(255,255,255,0.06)",
             }}
           >
-            <p
-              className="text-sm"
-              style={{ color: 'var(--text3)' }}
-            >
-              Already have an account?{' '}
+            <p className="text-sm" style={{ color: "var(--text3)" }}>
+              Already have an account?{" "}
               <button
                 onClick={onSwitch}
                 className="font-semibold hover:opacity-80 transition"
-                style={{ color: '#a78bfa' }}
+                style={{ color: "#a78bfa" }}
               >
                 Sign in →
               </button>
@@ -357,5 +340,5 @@ export default function Register({ onSwitch }) {
         </div>
       </div>
     </div>
-  )
+  );
 }

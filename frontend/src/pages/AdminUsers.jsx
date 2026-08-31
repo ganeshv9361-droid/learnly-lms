@@ -19,22 +19,21 @@ export default function AdminUsers() {
   };
 
   const logout = () => {
-  localStorage.removeItem("token");
-  window.location.reload();
-};
+    localStorage.removeItem("token");
+    window.location.reload();
+  };
 
   const deleteUser = async (id) => {
-  await fetch(`http://127.0.0.1:8000/admin/users/${id}`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
+    await fetch(`http://127.0.0.1:8000/admin/users/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
 
-  });
-
-  // refresh list
-  fetchUsers();
-};
+    // refresh list
+    fetchUsers();
+  };
 
   return (
     <div className="p-6 text-white">
@@ -59,23 +58,23 @@ export default function AdminUsers() {
               <td className="p-2">{u.email}</td>
               <td className="p-2">{u.role} </td>
               <td className="p-2">
-            <button
-              onClick={() => deleteUser(u.id)}
-              className="bg-red-600 px-3 py-1 rounded"
-            >
-              Delete
-            </button>
-            </td>
-            <button
-              onClick={logout}
-              className="bg-red-600 px-4 py-2 rounded mb-4"
-            >
-              Logout
-            </button>
+                <button
+                  onClick={() => deleteUser(u.id)}
+                  className="bg-red-600 px-3 py-1 rounded"
+                >
+                  Delete
+                </button>
+              </td>
+              <button
+                onClick={logout}
+                className="bg-red-600 px-4 py-2 rounded mb-4"
+              >
+                Logout
+              </button>
             </tr>
           ))}
         </tbody>
       </table>
     </div>
   );
-} 
+}

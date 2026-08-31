@@ -1,66 +1,77 @@
-import { useEffect, useState } from 'react'
-import { AuthProvider, useAuth } from './context/AuthContext'
-import Login from './pages/Login'
-import Register from './pages/Register'
-import StudentDashboard from './pages/StudentDashboard'
-import TeacherDashboard from './pages/TeacherDashboard'
-import DeveloperDashboard from './pages/DeveloperDashboard'
-import AIChatBubble from './components/AIChatBubble'
+import { useEffect, useState } from "react";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import StudentDashboard from "./pages/StudentDashboard";
+import TeacherDashboard from "./pages/TeacherDashboard";
+import DeveloperDashboard from "./pages/DeveloperDashboard";
+import AIChatBubble from "./components/AIChatBubble";
 
 function NetworkCheck({ children }) {
-  const [online, setOnline] = useState(true)
-  const [checking, setChecking] = useState(true)
+  const [online, setOnline] = useState(true);
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    const check = () => setOnline(navigator.onLine)
-    check()
-    setChecking(false)
-    window.addEventListener('online', check)
-    window.addEventListener('offline', check)
+    const check = () => setOnline(navigator.onLine);
+    check();
+    setChecking(false);
+    window.addEventListener("online", check);
+    window.addEventListener("offline", check);
     return () => {
-      window.removeEventListener('online', check)
-      window.removeEventListener('offline', check)
-    }
-  }, [])
+      window.removeEventListener("online", check);
+      window.removeEventListener("offline", check);
+    };
+  }, []);
 
-  if (checking) return null
+  if (checking) return null;
 
-  if (!online) return (
-    <div className="min-h-screen flex items-center justify-center px-6" style={{background:'#080810'}}>
-      <div className="text-center animate-fade-up">
-        <div className="text-6xl mb-4">📡</div>
-        <div className="font-display text-2xl font-bold text-white mb-2">No Internet</div>
-        <div className="text-sm mb-6" style={{color:'var(--text3)'}}>
-          Please check your connection and try again
+  if (!online)
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center px-6"
+        style={{ background: "#080810" }}
+      >
+        <div className="text-center animate-fade-up">
+          <div className="text-6xl mb-4">📡</div>
+          <div className="font-display text-2xl font-bold text-white mb-2">
+            No Internet
+          </div>
+          <div className="text-sm mb-6" style={{ color: "var(--text3)" }}>
+            Please check your connection and try again
+          </div>
+          <button
+            onClick={() => window.location.reload()}
+            className="btn-primary text-white px-6 py-3 rounded-2xl font-semibold text-sm"
+          >
+            Retry
+          </button>
         </div>
-        <button onClick={() => window.location.reload()}
-          className="btn-primary text-white px-6 py-3 rounded-2xl font-semibold text-sm">
-          Retry
-        </button>
       </div>
-    </div>
-  )
+    );
 
-  return children
+  return children;
 }
 
 function AppInner() {
-  const { user, loading } = useAuth()
-  const [showRegister, setShowRegister] = useState(false)
+  const { user, loading } = useAuth();
+  const [showRegister, setShowRegister] = useState(false);
 
   useEffect(() => {
     const handleBack = (e) => {
-      e.preventDefault()
-    }
-    window.history.pushState(null, '', window.location.href)
-    window.addEventListener('popstate', handleBack)
-    return () => window.removeEventListener('popstate', handleBack)
-  }, [])
+      e.preventDefault();
+    };
+    window.history.pushState(null, "", window.location.href);
+    window.addEventListener("popstate", handleBack);
+    return () => window.removeEventListener("popstate", handleBack);
+  }, []);
 
   return (
     <NetworkCheck>
       {loading ? (
-        <div className="min-h-screen flex items-center justify-center" style={{ background: "#0a0a0f" }}>
+        <div
+          className="min-h-screen flex items-center justify-center"
+          style={{ background: "#0a0a0f" }}
+        >
           <div className="text-center animate-fade-up">
             <div className="w-20 h-20 mx-auto mb-4 animate-pulse-glow">
               <img
@@ -88,7 +99,10 @@ function AppInner() {
       ) : user.role === "developer" ? (
         <DeveloperDashboard />
       ) : (
-        <div className="min-h-screen flex items-center justify-center" style={{ background: "#0a0a0f" }}>
+        <div
+          className="min-h-screen flex items-center justify-center"
+          style={{ background: "#0a0a0f" }}
+        >
           <div className="text-white text-center">
             <div className="text-4xl mb-4">⚠️</div>
             <div className="text-lg font-semibold mb-2">Unknown role</div>
@@ -97,9 +111,13 @@ function AppInner() {
         </div>
       )}
     </NetworkCheck>
-  )
+  );
 }
 
 export default function App() {
-  return <AuthProvider><AppInner /></AuthProvider>
+  return (
+    <AuthProvider>
+      <AppInner />
+    </AuthProvider>
+  );
 }
