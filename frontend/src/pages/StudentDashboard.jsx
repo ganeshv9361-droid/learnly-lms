@@ -1444,9 +1444,6 @@ export default function StudentDashboard() {
             <StudentProfile user={user} />
           )}
 
-          {tab==='profile' && (
-            <StudentProfile user={user} />
-          )}
 
           {tab==='attendance' && (
             <div className="animate-fade-up">
