@@ -1254,12 +1254,13 @@ export default function StudentDashboard() {
               {/* Wishlist + Preview buttons */}
               {courses.map(c => (
                   <div key={`actions-${c.id}`} style={{display:'none'}}>
-                    <button onClick={(e) => toggleWishlist(c.id, e)}>
-                      {wishlisted[c.id] ? '❤️' : '🤍'}
-                      </button>
-                      <button onClick={(e) => openPreview(c, e)}>
+                    <button onClick={(e) => {e.stopPropagation(); toggleWishlist(c.id, e)}}
+                      style={{width:28,height:28,borderRadius:'50%',background:'rgba(0,0,0,0.6)',border:'none',cursor:'pointer',fontSize:14,display:'flex',alignItems:'center',justifyContent:'center',zIndex:10}}>
+                        {wishlisted[c.id] ? '❤️' : '🤍'}
+                          </button>
+                  <button onClick={(e) => {e.stopPropagation(); openPreview(c, e)}}>
                         ▶ Preview
-                        </button>
+                      </button>
                   </div>
           ))}
 
@@ -1396,7 +1397,7 @@ export default function StudentDashboard() {
             </div>
           )}
 
-          {tab==='wishlist' && (
+                    {tab==='wishlist' && (
             <div className="animate-fade-up">
               <div className="text-base font-semibold text-white mb-4">❤️ My Wishlist</div>
               {wishlist.length === 0 && (
@@ -1477,330 +1478,118 @@ export default function StudentDashboard() {
             </div>
           )}
 
-          {/* CERTIFICATES */}
-          {tab === 'certificates' && (
-  <div className="animate-fade-up">
-    <div className="text-sm font-medium text-gray-400 mb-3">
-      My certificates
-    </div>
-
-    {certificates.length === 0 ? (
-      <div className="glass rounded-2xl p-10 text-center">
-        <div className="text-4xl mb-2">🏅</div>
-        <div className="text-gray-400 text-sm">
-          No certificates yet.
-        </div>
-      </div>
-    ) : (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {certificates.map((certificate) => {
-          const issueDate = new Date(
-            certificate.issued_at
-          ).toLocaleDateString('en-IN', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric'
-          })
-
-          const uniqueCode =
-            `LRNL-${new Date(certificate.issued_at).getFullYear()}-${certificate.id}`
-
-          const shareCertificate = async () => {
-            const shareText =
-              `🎓 I successfully completed "${certificate.course}" on Learnly.\n\n` +
-              `Certificate Code: ${uniqueCode}\n` +
-              `Verified by Learnly.`
-
-            try {
-              await navigator.clipboard.writeText(shareText)
-            } catch (error) {
-              console.error('Clipboard error:', error)
-            }
-
-            window.open(
-              'https://www.linkedin.com/feed/',
-              '_blank',
-              'noopener,noreferrer'
-            )
-          }
-
-          const downloadCertificate = () => {
-            const certificateHTML = `
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Learnly Certificate</title>
-
-<style>
-body {
-  margin: 0;
-  padding: 40px;
-  background: #070312;
-  font-family: Arial, sans-serif;
-  color: white;
-}
-
-.cert {
-  max-width: 1100px;
-  margin: auto;
-  padding: 70px;
-  border: 2px solid #7c3aed;
-  border-radius: 28px;
-  background:
-    radial-gradient(
-      circle at top left,
-      #1f1147 0%,
-      #090312 60%
-    );
-  box-sizing: border-box;
-}
-
-.logo-wrap {
-  text-align: center;
-}
-
-.brand {
-  font-size: 64px;
-  font-family: Georgia, serif;
-  color: #c4b5fd;
-}
-
-.sub {
-  text-align: center;
-  letter-spacing: 8px;
-  color: #9ca3af;
-  margin-top: 10px;
-}
-
-.medal {
-  text-align: center;
-  font-size: 70px;
-  margin: 45px 0 25px;
-}
-
-.certifies {
-  text-align: center;
-  letter-spacing: 6px;
-  color: #cbd5e1;
-}
-
-.name {
-  text-align: center;
-  font-size: 58px;
-  font-family: Georgia, serif;
-  margin: 30px 0;
-}
-
-.line {
-  height: 2px;
-  background: #7c3aed;
-  margin: 25px 0;
-}
-
-.complete {
-  text-align: center;
-  letter-spacing: 6px;
-  color: #9ca3af;
-}
-
-.course {
-  text-align: center;
-  font-size: 42px;
-  font-weight: bold;
-  margin-top: 20px;
-  color: #a78bfa;
-}
-
-.issue {
-  text-align: center;
-  color: #9ca3af;
-  margin-top: 30px;
-  font-size: 20px;
-}
-
-.bottom {
-  margin-top: 70px;
-  text-align: center;
-}
-
-.code-title {
-  color: #cbd5e1;
-  letter-spacing: 4px;
-  font-size: 13px;
-  margin-bottom: 12px;
-}
-
-.code-box {
-  display: inline-block;
-  border: 2px solid #7c3aed;
-  border-radius: 14px;
-  padding: 14px 24px;
-  font-size: 20px;
-}
-
-.verify {
-  margin-top: 25px;
-  color: #a1a1aa;
-}
-
-.signature {
-  width: 220px;
-  margin-top: 50px;
-}
-
-.founder {
-  color: #a78bfa;
-  font-size: 24px;
-  font-weight: bold;
-  margin-top: 10px;
-}
-
-.role {
-  color: #9ca3af;
-  letter-spacing: 4px;
-  margin-top: 8px;
-  font-size: 12px;
-}
-</style>
-</head>
-
-<body>
-
-<div class="cert">
-
-  <div class="logo-wrap">
-    <div class="brand">Learnly</div>
-  </div>
-
-  <div class="sub">
-    CERTIFICATE OF COMPLETION
-  </div>
-
-  <div class="medal">
-    🏅
-  </div>
-
-  <div class="certifies">
-    THIS CERTIFIES THAT
-  </div>
-
-  <div class="name">
-    ${user?.name || 'Student'}
-  </div>
-
-  <div class="line"></div>
-
-  <div class="complete">
-    HAS SUCCESSFULLY COMPLETED
-  </div>
-
-  <div class="course">
-    ${certificate.course}
-  </div>
-
-  <div class="issue">
-    Issued on ${issueDate}
-  </div>
-
-  <div class="bottom">
-
-    <div class="code-title">
-      CERTIFICATE CODE
-    </div>
-
-    <div class="code-box">
-      ${uniqueCode}
-    </div>
-
-    <div class="verify">
-      Verified by Learnly
-    </div>
-
-    <img
-      src="/signature.png"
-      class="signature"
-    />
-
-    <div class="founder">
-      Learnly Founder
-    </div>
-
-    <div class="role">
-      FOUNDER, LEARNLY
-    </div>
-
-  </div>
-
-</div>
-
-</body>
-</html>
-`
-
-            const printWindow = window.open('', '_blank')
-
-            if (!printWindow) {
-              alert('Please allow pop-ups to download the certificate.')
-              return
-            }
-
-            printWindow.document.write(certificateHTML)
-            printWindow.document.close()
-
-            setTimeout(() => {
-              printWindow.print()
-            }, 500)
-          }
-
-          return (
-            <div
-              key={certificate.id}
-              className="bg-[#181c27] border border-purple-500/30 rounded-2xl p-6"
-            >
-              <div className="text-4xl mb-3">
-                🏅
+          {tab==='certificates' && (
+            <div className="animate-fade-up">
+              <div className="flex items-center justify-between mb-4">
+                <div className="text-base font-semibold text-white">🏅 My Certificates</div>
+                <div className="text-xs text-gray-500">{certificates.length} earned</div>
               </div>
+              {certificates.length===0 && (
+                <div className="glass rounded-2xl p-12 text-center">
+                  <div className="text-6xl mb-4">🏅</div>
+                  <div className="text-white font-semibold mb-2">No certificates yet</div>
+                  <div className="text-gray-400 text-sm">Complete a course to earn your first certificate!</div>
+                  <button onClick={()=>setTab('courses')}
+                    className="btn-primary text-white px-6 py-2.5 rounded-xl text-sm mt-4 inline-block">
+                    Browse Courses →
+                  </button>
+                </div>
+              )}
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                {certificates.map((c,i) => (
+                  <div key={c.id}
+                    className={`animate-fade-up delay-${(i+1)*100}`}
+                    style={{
+                      background:'linear-gradient(135deg,#13131f,#1a1030)',
+                      border:'1px solid rgba(124,58,237,0.3)',
+                      borderRadius:20,
+                      overflow:'hidden',
+                      position:'relative'
+                    }}>
+                    {/* Top gradient bar */}
+                    <div style={{height:4,background:'linear-gradient(90deg,#7c3aed,#06b6d4,#7c3aed)'}}/>
 
-              <div className="font-medium text-white mb-1">
-                {certificate.course}
-              </div>
+                    {/* Glow effect */}
+                    <div style={{position:'absolute',top:-40,right:-40,width:120,height:120,borderRadius:'50%',background:'radial-gradient(circle,rgba(124,58,237,0.2),transparent)',pointerEvents:'none'}}/>
 
-              <div className="text-xs text-gray-400 mb-4">
-                Issued {issueDate}
-              </div>
+                    <div style={{padding:'24px'}}>
+                      {/* Header */}
+                      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:20}}>
+                        <div style={{display:'flex',alignItems:'center',gap:10}}>
+                          <div style={{width:40,height:40,borderRadius:12,background:'linear-gradient(135deg,#7c3aed,#06b6d4)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20}}>
+                            ✦
+                          </div>
+                          <div>
+                            <div style={{color:'#a78bfa',fontWeight:700,fontSize:14,letterSpacing:1}}>LEARNLY</div>
+                            <div style={{color:'#6b7280',fontSize:10,letterSpacing:3,textTransform:'uppercase'}}>Certificate of Completion</div>
+                          </div>
+                        </div>
+                        <div style={{display:'flex',alignItems:'center',gap:4,background:'rgba(52,211,153,0.1)',border:'1px solid rgba(52,211,153,0.2)',borderRadius:20,padding:'4px 10px'}}>
+                          <div style={{width:6,height:6,borderRadius:'50%',background:'#34d399'}}/>
+                          <span style={{fontSize:10,color:'#34d399',fontWeight:600}}>VERIFIED</span>
+                        </div>
+                      </div>
 
-              <div className="flex items-center gap-2 mb-5">
-                <div className="w-2 h-2 rounded-full bg-green-400" />
-                <span className="text-xs text-green-400">
-                  Verified by Learnly
-                </span>
-              </div>
+                      {/* Medal */}
+                      <div style={{textAlign:'center',marginBottom:16}}>
+                        <div style={{fontSize:48,marginBottom:8}}>🏅</div>
+                        <div style={{color:'#6b7280',fontSize:11,letterSpacing:3,textTransform:'uppercase',marginBottom:6}}>
+                          This certifies that
+                        </div>
+                        <div style={{color:'white',fontSize:22,fontWeight:700,fontFamily:'serif',marginBottom:4}}>
+                          {user?.name}
+                        </div>
+                        <div style={{color:'#6b7280',fontSize:11,letterSpacing:2,textTransform:'uppercase',marginBottom:8}}>
+                          has successfully completed
+                        </div>
+                        <div style={{color:'#a78bfa',fontSize:16,fontWeight:700,marginBottom:4}}>
+                          {c.course}
+                        </div>
+                        <div style={{color:'#4a5280',fontSize:11}}>
+                          Issued on {new Date(c.issued_at).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}
+                        </div>
+                      </div>
 
-              <div className="flex flex-col sm:flex-row gap-3">
+                      {/* Certificate ID */}
+                      <div style={{background:'rgba(255,255,255,0.04)',borderRadius:10,padding:'8px 12px',marginBottom:16,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                        <div>
+                          <div style={{fontSize:9,color:'#6b7280',textTransform:'uppercase',letterSpacing:2}}>Certificate ID</div>
+                          <div style={{fontSize:13,color:'#a78bfa',fontWeight:600,fontFamily:'monospace'}}>#LRNY-{String(c.id).padStart(6,'0')}</div>
+                        </div>
+                        <div style={{fontSize:24}}>📜</div>
+                      </div>
 
-                <button
-                  onClick={downloadCertificate}
-                  className="flex-1 px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium"
-                >
-                  Download PDF
-                </button>
-
-                <button
-                  onClick={shareCertificate}
-                  className="flex-1 px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-700 text-white text-sm font-medium"
-                >
-                  Share / LinkedIn
-                </button>
-
+                      {/* Action buttons */}
+                      <div style={{display:'flex',gap:8}}>
+                        <button onClick={()=>downloadCert(c)}
+                          className="btn-primary flex-1 text-white rounded-xl text-xs font-semibold"
+                          style={{padding:'10px 0'}}>
+                          ⬇ Download
+                        </button>
+                        <button onClick={() => {
+                          const text = `🎓 I just earned a certificate for completing "${c.course}" on Learnly!\n\nVerify: https://learnly-lms-hqch.onrender.com/api/verify-cert/${c.id}`
+                          navigator.clipboard.writeText(text)
+                          flash('Copied to clipboard!')
+                        }}
+                          style={{flex:1,background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',color:'white',borderRadius:12,padding:'10px 0',fontSize:12,fontWeight:600,cursor:'pointer'}}>
+                          📋 Copy Link
+                        </button>
+                        <button onClick={() => {
+                          const text = `🎓 I just earned a certificate for completing "${c.course}" on Learnly!`
+                          window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
+                        }}
+                          style={{background:'rgba(37,211,102,0.1)',border:'1px solid rgba(37,211,102,0.2)',color:'#25d366',borderRadius:12,padding:'10px 14px',fontSize:16,cursor:'pointer'}}>
+                          📤
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          )
-        })}
-      </div>
-    )}
-  </div>
-)}
+          )}
+
+          
           {previewVideo && previewCourse && (
     <div className="fixed inset-0 z-[300] flex items-center justify-center p-4"
       style={{background:'rgba(0,0,0,0.9)',backdropFilter:'blur(10px)'}}
