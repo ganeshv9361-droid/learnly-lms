@@ -4,7 +4,7 @@ import Particles from "../components/Particles";
 import Logo from "../components/Logo";
 import { signInWithGoogle } from "../firebase";
 
-const AUTH_BG = 'public/background.jpg';
+const AUTH_BG = '/music/lms/learnly/frontend/src/public/background.jpg';
 
 export default function Login({ onSwitch }) {
   const { login, loginWithFirebase } = useAuth();
