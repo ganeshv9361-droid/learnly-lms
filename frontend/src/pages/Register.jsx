@@ -3,7 +3,7 @@ import api from "../api/axios";
 import Particles from "../components/Particles";
 import Logo from "../components/Logo";
 
-const AUTH_BG = '/public/background.jpg';
+const AUTH_BG = 'public/background.jpg';
 
 export default function Register({ onSwitch }) {
   const [form, setForm] = useState({
