@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import api from "../api/axios";
 import Particles from "../components/Particles";
 import Logo from "../components/Logo";
-import AUTH_BG from '../assets/background.jpg';
+
+import AUTH_BG from "../assets/background.jpg";
 
 export default function Register({ onSwitch }) {
   const [form, setForm] = useState({
@@ -148,23 +149,23 @@ export default function Register({ onSwitch }) {
 
       <div className="relative z-10 w-full max-w-sm sm:max-w-md lg:max-w-7xl mx-auto flex flex-col items-center">
         
-        {/* Mobile top branding with server online dot */}
+        {/* Mobile top branding with server online dot near Learnly logo name */}
         <div className="lg:hidden text-center mb-5 w-full animate-fade-up">
           <div className="flex items-center justify-center gap-2.5 mb-1">
             <img src="/logo.png" alt="Learnly" className="w-9 h-9 object-contain" />
-            <Logo size={0} showText={true} textSize="text-2xl" />
+            <div className="relative inline-flex items-center">
+              <Logo size={0} showText={true} textSize="text-2xl" />
+              {serverStatus === "online" && (
+                <span className="absolute -top-1 -right-2.5 flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-[0_0_8px_#10b981]"></span>
+                </span>
+              )}
+            </div>
           </div>
-          <div className="inline-flex items-center justify-center gap-2">
-            <p className="text-xs text-gray-400 font-medium tracking-wide">
-              Join thousands of learners
-            </p>
-            {serverStatus === "online" && (
-              <span className="flex h-2 w-2 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_8px_#10b981]"></span>
-              </span>
-            )}
-          </div>
+          <p className="text-xs text-gray-400 font-medium tracking-wide">
+            Join thousands of learners
+          </p>
         </div>
 
         <div className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-center w-full">
@@ -173,23 +174,24 @@ export default function Register({ onSwitch }) {
           <div className="hidden lg:block lg:col-span-7 animate-fade-up pr-4">
             <div className="flex items-center gap-4 mb-6">
               <img src="/logo.png" alt="Learnly" className="w-14 h-14 object-contain" />
-              <Logo size={0} showText={true} textSize="text-5xl" />
+              <div className="relative inline-flex items-center">
+                <Logo size={0} showText={true} textSize="text-5xl" />
+                {serverStatus === "online" && (
+                  <span className="absolute top-1 -right-3.5 flex h-3.5 w-3.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 shadow-[0_0_12px_#10b981]"></span>
+                  </span>
+                )}
+              </div>
             </div>
 
-            {/* Headline with correctly anchored green status dot */}
-            <div className="flex items-start gap-3 mt-4 mb-2">
+            <div className="mt-4 mb-2">
               <h1
                 className="font-display font-extrabold leading-[1.05] text-white"
                 style={{ fontSize: "clamp(2.8rem, 4.5vw, 5.2rem)" }}
               >
                 Start your learning journey.
               </h1>
-              {serverStatus === "online" && (
-                <span className="flex h-3.5 w-3.5 relative shrink-0 mt-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 shadow-[0_0_12px_#10b981]"></span>
-                </span>
-              )}
             </div>
 
             <p className="mt-4 text-base sm:text-lg leading-relaxed max-w-xl text-gray-300">
@@ -231,7 +233,7 @@ export default function Register({ onSwitch }) {
             </div>
           </div>
 
-          {/* Right Register Form Section (Transparent / No Box) */}
+          {/* Right Register Form Section */}
           <div className="lg:col-span-5 w-full max-w-md mx-auto animate-fade-up">
 
             <div className="w-full pb-2">
@@ -385,7 +387,7 @@ export default function Register({ onSwitch }) {
                   />
                 </div>
 
-                {/* Create Account & Sign In Buttons Side-by-Side */}
+                {/* Create Account & Sign In Buttons Side-by-Side (Guaranteed row layout) */}
                 <div className="grid grid-cols-2 gap-2.5 pt-1">
                   <button
                     type="submit"
@@ -425,7 +427,13 @@ export default function Register({ onSwitch }) {
 
         </div>
 
-        
+        {/* Desktop Footer badges */}
+        <footer className="hidden md:flex items-center justify-center gap-6 lg:gap-10 mt-8 text-xs text-gray-400 font-medium">
+          <span>🛡️ Secure & Trusted</span>
+          <span>✨ Learn Anywhere</span>
+          <span>🌍 Join the Community</span>
+          <span>❤️ Built for Learners</span>
+        </footer>
 
       </div>
     </div>
