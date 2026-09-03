@@ -321,7 +321,7 @@ export default function Login({ onSwitch }) {
           <span>🛡️ Secure & Trusted</span>
           <span>✨ Learn Anywhere</span>
           <span>🌍 Join the Community</span>
-          <span>❤️ Built for Learners</span>
+          <span> Built for Learners</span>
         </footer>
 
       </div>
